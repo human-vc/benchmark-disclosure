@@ -1,0 +1,42 @@
+slug,benchmark_release_date,source_url,status,note
+critpt,2025-09-30,https://arxiv.org/abs/2509.26574,verified,arXiv v1
+ale_bench,2025-06-10,https://arxiv.org/abs/2506.09050,verified,arXiv v1
+scicode,2024-07-18,https://arxiv.org/abs/2407.13168,verified,arXiv v1
+chess_puzzles,2025-12-10,https://epoch.ai/benchmarks/chess-puzzles,verified,Epoch benchmark page states 'As of publication (2025-12-10)'
+webdev_arena,2024-12-10,https://x.com/lmarena_ai/status/1866563493526417644,verified,LMArena launch post
+forecastbench,2024-09-30,https://arxiv.org/abs/2409.19839,verified,arXiv v1
+arc_agi_2,2025-03-24,https://arcprize.org/blog/announcing-arc-agi-2-and-arc-prize-2025,verified,ARC Prize announcement
+simpleqa_verified,2025-09-09,https://arxiv.org/abs/2509.07968,verified,arXiv v1
+frontiermath_tier_4,2025-07-01,https://epoch.ai/benchmarks/frontiermath-tier-4,override,Date taken from Epoch's own variant name FrontierMath-Tier-4-2025-07-01-Private (dataset snapshot). Epoch's page separately describes a 2026-06-12 update; using the snapshot date the scores correspond to.
+vending_bench_2,2025-11-18,https://x.com/andonlabs/status/1990810934307106849,verified,Andon Labs reveal of Vending-Bench 2
+apex_agents,2026-01-20,https://www.mercor.com/blog/introducing-apex-agents/,verified,"Mercor release; arXiv 2601.14242, HF dataset 20 Jan 2026"
+bool_q,2019-05-24,https://arxiv.org/abs/1905.10044,verified,arXiv v1
+live_bench,2024-06-27,https://arxiv.org/abs/2406.19314,verified,arXiv v1
+metr_time_horizons,2025-03-19,https://metr.org/blog/2025-03-19-measuring-ai-ability-to-complete-long-tasks/,verified,METR blog; arXiv 2503.14499
+hle,2025-01-24,https://arxiv.org/abs/2501.14249,verified,"arXiv v1, Humanity's Last Exam"
+enigma_eval,2025-02-13,https://arxiv.org/abs/2502.08859,verified,arXiv v1; dataset re-released 2026 but benchmark introduced here
+posttrainbench,2026-03-09,https://arxiv.org/abs/2603.08640,verified,arXiv v1
+deepswe,2025-07-02,https://together.ai/blog/deepswe,needs-review,Together AI/Agentica release; NOTE verify Epoch means this as a benchmark
+cursorbench,2026-03-11,https://www.digitalapplied.com/blog/cursorbench-v3-1-vendor-benchmark-analysis,needs-review,SECONDARY SOURCE ONLY - CursorBench is proprietary to Cursor/Anysphere and no primary announcement was located. Verify before use.
+algotune,2025-07-19,https://arxiv.org/abs/2507.15887,verified,arXiv v1
+video_mme,2024-05-31,https://arxiv.org/abs/2405.21075,verified,arXiv v1
+gdpval,2025-09-25,https://cdn.openai.com/pdf/d5eb7428-c4e9-4a33-bd86-86dd4bcf12ce/GDPval.pdf,verified,OpenAI GDPval launch
+rli,2025-10-30,https://scale.com/blog/rli,verified,Scale AI / CAIS launch; arXiv 2510.26787
+spatialviz_bench,2025-07-10,https://arxiv.org/abs/2507.07610,verified,arXiv v1
+osworld_2,2026-06-26,https://arxiv.org/abs/2606.29537,verified,OSWorld 2.0 arXiv v1 - distinct from OSWorld (2024-04-11)
+mirrorcode,2026-06-30,https://epoch.ai/benchmarks/mirrorcode,verified,Epoch/METR; arXiv 2606.30182
+common_sense_qa_2,2022-01-14,https://arxiv.org/abs/2201.05320,verified,"arXiv v1, CommonsenseQA 2.0"
+mindcube,2025-06-26,https://arxiv.org/abs/2506.21458,verified,arXiv v1
+superglue,2019-05-02,https://arxiv.org/abs/1905.00537,verified,arXiv v1
+proofbench,,,todo-searched,"Vals AI, Lean 4. vals.ai page shows only 'Updated 8/19/2026' and v1.1; no original release date found."
+mystery_game_puzzles,,,todo-searched,"Epoch-native. Press says announced alongside Chess Puzzles, but Epoch's own 2025-12-12 substack names only SimpleQA Verified + Chess Puzzles. Epoch benchmark page carries no date."
+frontiercode,,,todo-searched,"Cognition. Epoch page names the creator but no date; secondary sources say June 2026, no day located."
+blueprint_bench_2,,,todo-searched,No primary source located.
+gbaeval,,,todo-searched,No primary source located.
+surface_evolver_bench,,,todo-searched,No primary source located; Epoch lists as creator-run.
+gdp_pdf,,,todo-searched,No primary source located; unclear whether distinct from GDPval.
+cl_bench,,,todo-searched,No primary source located; searches collide with LiveBench.
+frontierswe,,,todo-searched,No primary source located.
+cl_bench_life,,,todo-searched,No primary source located; variant of CL-bench.
+exploitbench,,,todo-searched,No primary source located.
+btf3,,,todo-searched,No primary source located; name not resolved to a benchmark.

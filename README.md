@@ -35,17 +35,21 @@ Four things address this.
 
 **Omissions are classified, not counted.** We adapt ORBIT (Kirkham et al., *BMJ* 2010;340:c365), the clinical-trials instrument for outcome reporting bias, which was built for exactly this problem: separating "was it measured" from "was it reported given that it was measured." See [`protocol/coding-protocol.md`](protocol/coding-protocol.md).
 
-**A placebo group tests the measure.** Benchmarks postdating a model's release are mechanically impossible to omit strategically. The selectivity statistic computed on that group should be indistinguishable from zero. If it isn't, the measure is picking up something other than concealment.
+**A placebo group tests the measure.** Benchmarks postdating a model's release are mechanically impossible to omit strategically — there was nothing to omit. That group cannot carry the disclosed-vs-omitted comparison directly, because everything in it is undisclosed. What it supports is the comparison this repository treats as the identifying one: **omitted-eligible versus postdating**. Both sets are non-disclosures, so any artifact that makes unreported benchmarks look bad for innocent reasons — they are harder, newer, or picked by Epoch precisely because they discriminate — hits both equally and differences out. The one asymmetry left is that the eligible benchmark could have been reported and was not. Under every innocent explanation that statistic is zero.
 
 Full design notes, including the identification strategy and residual confounds we cannot rule out, are in [`docs/design.md`](docs/design.md).
 
 ## A confound in the data itself
 
-Epoch evaluates API-access models more densely than open-weights models. Reproduced by `src/coverage.py` on the current build: mean 6.36 versus 4.95 benchmarks per model (Mann-Whitney p = 2.6e-03), and the working sample splits 128 API against 52 open. Measured *availability* therefore differs by access type, so raw selectivity rates are not comparable across it. Every comparison in this repository conditions on the number of independent scores per model.
+Epoch evaluates API-access models more densely than open-weights models. Reproduced by `src/coverage.py` on the current build: mean 12.35 versus 6.59 benchmarks per release (Mann-Whitney p = 2.9e-07), and the working sample splits 83 API against 59 open. Measured *availability* therefore differs by access type, so raw selectivity rates are not comparable across it. Every comparison in this repository conditions on the number of independent scores per release, and `src/selectivity.py` reports that conditioning explicitly rather than asserting it.
+
+The gap is close to twice as large as earlier builds of this repository recorded, because those counted Epoch's scaffold variants as separate models. API providers ship more reasoning-effort variants, which split their coverage across rows and masked the difference.
 
 ## Data
 
-Independent scores come from [Epoch AI's Benchmarking Hub](https://epoch.ai/benchmarks) (CC-BY): 819 model-versions, 344 base models, 74 benchmarks, with columns for organization, release date, model accessibility, and training compute.
+Independent scores come from [Epoch AI's Benchmarking Hub](https://epoch.ai/benchmarks) (CC-BY): 839 model-versions, 345 base models, 74 benchmarks, with columns for organization, release date, model accessibility, and training compute.
+
+Those 839 model-versions are **354 releases**. Epoch's `Model version` splits one shipped model across reasoning-effort and context-window scaffolds — GPT-5.5 appears six times, Claude 3.7 Sonnet ten. A provider publishes one model card per release, not one per scaffold, so the panel is keyed on `(organization, model name, release date)` and scores are maximised across scaffolds. The release date is part of the key because a name alone merges separate disclosure events: "GPT-4o" spans five snapshots across ten months, each with its own release post.
 
 Provider disclosures have no structured source and are hand-coded from official release artifacts. The coding sheet schema is in [`protocol/`](protocol/).
 
@@ -53,29 +57,50 @@ Provider disclosures have no structured source and are hand-coded from official 
 
 ```bash
 pip install -r requirements.txt
-python -m src.download_data
-python -m src.build_matrix
-python -m src.selectivity
+python -m src.download_data      # fetch Epoch's bundle
+python -m src.build_matrix       # panel, temporal gate, release collapsing
+python -m src.coverage           # the access-type confound
+python -m src.families           # seed the family linkage, then hand-review it
+python -m src.worklist           # emit the targeted coding worklist
+python -m src.date_worklist      # rank the missing benchmark dates by impact
+
+# once data/disclosures.csv is coded:
+python -m src.validate_coding    # gate: protocol rules, non-zero exit on failure
+python -m src.selectivity        # the three estimators
+python -m src.falsification      # the four falsification tests
+python -m src.reliability        # 20% double-coding draw and Cohen's kappa
+
+pytest                           # 51 tests
 ```
 
-`build_matrix` produces the model × benchmark eligibility matrix with the temporal gate applied — currently 4,448 model-benchmark pairs, of which 1,826 are eligible and 234 fall in the placebo group. `coverage` runs the diagnostics above. `selectivity` computes the reported-vs-omitted percentile gap, conditioned on coverage, with a permutation test and the placebo comparison; it needs the hand-coded disclosure sheet and will tell you so until one exists.
+`build_matrix` produces the release × benchmark eligibility matrix with the temporal gate applied — currently 3,138 pairs across 354 releases, of which 2,393 are eligible and 476 fall in the placebo group. The temporal gate now reaches 91.4% of pairs, up from 45.5% on first reproduction.
 
-The disclosure side has no structured source and does not exist yet. That is the open work.
+`worklist` is what makes the hand-coding finishable. Coding every eligible cell means reading model cards for 1,502 cells, most of which can never produce a drop. A drop is undefined without a predecessor in the same family, so restricting to multi-release families and to releases Epoch scores densely enough cuts the reading to **1,346 cells across 108 releases and 39 families** without discarding a single potential drop. Three providers — OpenAI, Anthropic, Google DeepMind — are most of it. The count rose from 772 as the temporal gate closed: those are pairs previously dropped for unknown vintage, not new work invented. Placebo rows are emitted pre-filled at `reported=0` and cost no reading time.
+
+`selectivity` computes all three estimators; `falsification` runs the four tests; both need the coded sheet and say so until one exists.
+
+The disclosure side has no structured source and does not exist yet. That is the open work, and `data/worklist.csv` is now the exact list of it.
 
 ## Sample sizes
 
-Filtering on models with a known organization, a known release date, and at least *n* independent benchmark scores:
+Filtering on releases with a known organization, a known release date, and at least *n* independent benchmark scores:
 
-- n ≥ 5: 340 model-versions
-- n ≥ 6: 288
-- n ≥ 8: 188
-- n ≥ 10: 127
+- n ≥ 5: 212 releases
+- n ≥ 6: 196
+- n ≥ 8: 149
+- n ≥ 10: 121
 
-The ≥ 8 filter is the working analysis sample.
+The ≥ 8 filter is the working analysis sample. These are lower than earlier builds recorded and describe more data, not less: they count releases rather than scaffold variants.
 
 ## Known limitations
 
-Epoch's benchmark metadata carries release dates for 33 of 57 benchmarks, so the temporal gate currently applies to about 46% of pairs. Filling the remaining dates by hand from arXiv and release pages is the highest-value open task here. Eight metadata benchmarks have no score file in the public bundle and are dropped rather than imputed. Epoch names the score column differently per benchmark; the loader takes the first numeric column after the model identifier and the maximum across scaffolds, which is a judgment call that moves the sample by a model or two against a hand-built alternative.
+Epoch's benchmark metadata carries release dates for 33 of 57 benchmarks. Hand collection has since added **29 of the 41 missing dates**, each with a primary source URL in `data/benchmark_dates.csv`, taking the temporal gate from 45.5% of pairs to **91.4%**. Twelve remain: mostly small creator-run benchmarks (ProofBench, FrontierCode, CL-bench, GBAEval, ExploitBench and others) for which no primary release date could be located. Those rows carry `status=todo-searched` and a note recording what was tried, so the search is not repeated. Two filled rows carry `status=needs-review` because only secondary sources were found, and one carries `status=override`.
+
+Release dates are recorded as the benchmark's first public introduction — arXiv v1, or the launch post where there is no paper — not the date of a later dataset re-release. This matters for at least one case: EnigmaEval's dataset was re-published in 2026 but the benchmark was introduced in February 2025.
+
+**Correcting an earlier claim.** This file previously stated that eight metadata benchmarks — HellaSwag, Winogrande, TriviaQA, ScienceQA, OpenBookQA, CadEval, EBR-Bench, Remote Labor Index — have no score file and are dropped. That was wrong for seven of them. The files ship; the join was failing because Epoch's metadata name and its score filename normalise differently (`HellaSwag` against `hella_swag_external.csv`). Only EBR-bench genuinely has no score file. Recovering the other seven, plus a separate OSWorld file that a bad alias had orphaned, moved date coverage from 45.5% to 53.7% and eligible pairs from 1,856 to 2,109 at version level. An unjoined slug outside an explicit allowlist is now an error rather than a printed line.
+
+Epoch names the score column differently per benchmark; the loader takes the first numeric column after the model identifier, and the maximum across scaffolds both within a file and across a release's scaffold variants. That second collapse touches 16.7% of cells and the scaffolds disagree in 488 of them, so the choice is consequential; `scaffold_spread` is retained in the panel so it can be audited rather than assumed.
 
 Fuller treatment, including the residual confound the design cannot close, is in [`docs/design.md`](docs/design.md).
 

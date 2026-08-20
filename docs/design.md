@@ -23,6 +23,23 @@ Percentiles are taken within benchmark across contemporaneous models, so
 "standing" means position in the field rather than raw score, which is not
 comparable across benchmarks with different scales and difficulties.
 
+Contemporaneity is operationalised as a +/-182 day window around the focal
+release, in `src/percentiles.py`, and is reported as a sensitivity rather than
+assumed. It is not cosmetic. Ranking against every model Epoch has ever scored
+correlates a release's measured standing with its release date at +0.31, since
+later models beat earlier ones on shared benchmarks by construction. Windowing
+cuts that to +0.08. Release date is the same axis the temporal gate and the
+drop design run along, so leaving that correlation in the outcome variable
+would have put a date trend inside every statistic here.
+
+The unit is a **release**, not one of Epoch's `Model version` rows. Those split
+a shipped model across reasoning-effort and context-window scaffolds -- GPT-5.5
+six ways, Claude 3.7 Sonnet ten -- and a provider publishes one artifact per
+release. Left split, a single release enters a benchmark's percentile
+distribution up to ten times. The key is (organization, model name, release
+date); the date is needed because "GPT-4o" alone merges five snapshots across
+ten months, each a separate disclosure event.
+
 ## Why the naive comparison identifies nothing
 
 Non-disclosure has at least four innocent explanations observationally
@@ -57,10 +74,25 @@ instrument separates "was it measured" from "was it reported given that it was
 measured," which is precisely the split (3) demands.
 
 **A placebo group validates the measure.** Benchmarks postdating a model's
-release cannot be strategically omitted; there was nothing to omit. The
-selectivity statistic computed on that group should be indistinguishable from
-zero. If it is not, the statistic is capturing something other than
-concealment. The panel builder emits this group explicitly.
+release cannot be strategically omitted; there was nothing to omit.
+
+The obvious construction does not work, and it is worth recording why, because
+the first implementation here got it wrong and a test caught it. The placebo
+group contains *no disclosures at all* -- every benchmark postdating a release
+is undisclosed -- so the disclosed-versus-omitted statistic is undefined inside
+it. Comparing the disclosed set against the placebo set instead does run, but
+it inherits whatever selection put benchmarks in the disclosed set.
+
+The contrast the placebo group can actually carry is **omitted-eligible versus
+placebo**. Both sets are non-disclosures. Any artifact that makes unreported
+benchmarks look bad for innocent reasons -- they are harder, they are newer,
+Epoch runs them precisely because they discriminate -- applies to both and
+differences out. What is left is the single asymmetry that cannot be anything
+else: the eligible benchmark was available to report and was not reported.
+Under strategic omission that statistic is negative; under irrelevance, never
+having run it, or conventional table size, it is zero. This is the identifying
+estimator in `src/selectivity.py`; the disclosed-minus-omitted gap is retained
+as a descriptive statistic and is not treated as identifying.
 
 ## Falsification
 
@@ -80,8 +112,11 @@ concealment. The panel builder emits this group explicitly.
 ## A confound inside the data
 
 Epoch evaluates API-access models more densely than open-weights models. In
-this repository's build: mean 6.36 versus 4.95 benchmarks per model,
-Mann-Whitney p = 2.6e-03, and the ≥8 analysis sample is 128 API against 52 open.
+this repository's build: mean 11.91 versus 6.38 benchmarks per release,
+Mann-Whitney p = 2.9e-07, and the ≥8 analysis sample is 86 API against 59 open.
+The gap roughly doubled once scaffold variants were collapsed to releases;
+API providers ship more reasoning-effort variants, which spread their coverage
+across rows and understated the difference.
 Measured *availability* therefore varies with access type. Any comparison
 across that margin conditions on the number of independent scores. Raw rates
 are not interpretable.
@@ -125,12 +160,18 @@ hypothesis here, not just a citation, and it should be committed to in advance.
 ## Known limitations
 
 - **Vintage coverage is partial.** Epoch's benchmark metadata carries release
-  dates for 33 of 57 benchmarks, so the temporal gate currently applies to
-  about 46% of pairs. The remaining dates are hand-fillable from arXiv and
-  release pages and this is the highest-value open task in the repository.
-- **Eight metadata benchmarks have no score file** in the public bundle
-  (HellaSwag, Winogrande, TriviaQA, ScienceQA, OpenBookQA, CadEval, EBR-Bench,
-  Remote Labor Index). They are dropped, not imputed.
+  dates for 33 of 57 benchmarks, so the temporal gate reaches 54% of pairs.
+  `src/date_worklist.py` ranks the 41 undated benchmarks by pairs unlocked; the
+  top ten are 52% of the gap. This is still the highest-value open task.
+- **One metadata benchmark has no score file** in the public bundle
+  (EBR-bench). It is dropped, not imputed. An earlier version of this document
+  listed eight. Seven of those had score files all along and were being lost to
+  a slug-normalisation mismatch between Epoch's metadata names and its
+  filenames; a separate OSWorld file was orphaned by an alias that merged
+  OSWorld with OSWorld 2.0 and would have attributed the 2024 benchmark's date
+  to the later one, admitting models to a choice set containing a benchmark
+  that did not yet exist. Fixed, and an unjoined slug outside an explicit
+  allowlist now raises.
 - **Score columns are heterogeneous.** Epoch names the score column per
   benchmark. The loader takes the first numeric column after the model
   identifier, preferring the explicit best-score column where present, and
@@ -144,3 +185,23 @@ hypothesis here, not just a citation, and it should be committed to in advance.
   logs closes that gap. The claim available is that the joint pattern across
   many drops, providers, and benchmarks is hard to generate at the required
   rate from independent score-uncorrelated events.
+
+## What the code does that this document did not originally specify
+
+Recorded so the gap between design and implementation stays visible.
+
+- **Release-level collapsing.** See the estimand section. Scaffold variants are
+  maximised over, which is the rule this document already stated for scaffolds
+  within a benchmark file, applied consistently across a release's rows.
+- **Provider-clustered inference.** A provider contributes many releases and
+  their disclosure habits are not independent draws, so standard errors and
+  bootstrap resampling cluster on provider throughout.
+- **The coding worklist is targeted.** `src/worklist.py` restricts hand-coding
+  to releases inside a multi-release family, since a drop is undefined without
+  a predecessor. This cuts the reading from 1,502 cells to 772 without
+  discarding a potential drop, and is the difference between the coding being
+  finishable and not.
+- **The estimators are tested against planted effects.** `tests/` builds
+  synthetic panels where omission is strategic by construction and where it is
+  random, and requires the estimators to separate them. An estimator never
+  shown to recover a known signal is not evidence about anything.

@@ -9,7 +9,7 @@ Every downstream comparison has to condition on coverage.
 import pandas as pd
 from scipy.stats import mannwhitneyu
 
-from .config import INTERIM, MIN_BENCHMARKS, MODEL_COL
+from .config import INTERIM, MIN_BENCHMARKS, RELEASE_COL
 
 
 def load_panel():
@@ -19,7 +19,7 @@ def load_panel():
 
 def coverage_by_model(panel):
     return (
-        panel.groupby(MODEL_COL)
+        panel.groupby(RELEASE_COL)
         .agg(
             n_benchmarks=("slug", "nunique"),
             n_eligible=("eligible", "sum"),
@@ -47,11 +47,11 @@ def main():
     models = coverage_by_model(panel)
     models["access"] = models["accessibility"].map(access_group)
 
-    print(f"models with >=1 independent score: {len(models)}")
+    print(f"releases with >=1 independent score: {len(models)}")
     bins = [0, 1, 5, 7, 9, 1000]
     labels = ["1", "2-5", "6-7", "8-9", "10+"]
     counts = pd.cut(models["n_benchmarks"], bins=bins, labels=labels).value_counts()
-    print("\nbenchmarks per model:")
+    print("\nbenchmarks per release:")
     for label in labels:
         share = counts.get(label, 0) / len(models)
         print(f"  {label:>5}: {counts.get(label, 0):4d}  ({share:.1%})")
@@ -76,7 +76,7 @@ def main():
         & models["organization"].notna()
         & models["release_date"].notna()
     ]
-    print(f"\nanalysis sample (>={MIN_BENCHMARKS} benchmarks, org+date known): {len(sample)}")
+    print(f"\nanalysis sample (>={MIN_BENCHMARKS} benchmarks): {len(sample)}")
     print(sample["access"].value_counts(dropna=False).to_string())
 
     for threshold in (5, 6, 8, 10):
