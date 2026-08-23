@@ -9,6 +9,11 @@ EPOCH_ZIP_URL = "https://epoch.ai/data/benchmark_data.zip"
 
 INDEX_FILE = "epoch_capabilities_index.csv"
 
+# Checked in while data/raw is not: per-file hashes and row counts for the
+# Epoch build every number in this repo was computed against. Epoch updates the
+# hub continuously, so without this two co-authors silently run different data.
+SNAPSHOT = ROOT / "data" / "snapshot.json"
+
 # Hand-collected, checked in: benchmark release dates Epoch does not publish.
 BENCHMARK_DATES = ROOT / "data" / "benchmark_dates.csv"
 

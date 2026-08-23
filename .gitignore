@@ -8,3 +8,12 @@ __pycache__/
 docs/PLAN.md
 docs/run-log.md
 data/artifact_cache/
+dist/
+paper/.baseline/
+paper/*.log
+paper/*.aux
+paper/*.out
+paper/*.bbl
+paper/*.blg
+paper/figures/*.png
+paper/main.pdf

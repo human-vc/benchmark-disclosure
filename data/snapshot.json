@@ -1,0 +1,316 @@
+{
+  "captured": "2026-08-17",
+  "csv_files": 77,
+  "files": {
+    "_merged_with_coverage.csv": {
+      "rows": 819,
+      "sha256": "d4920d89538f441e09ace27f091abad831372795419453d773619dbe6a0c05fa"
+    },
+    "additional_eci_data/eci_benchmark_difficulties_and_slopes.csv": {
+      "rows": 57,
+      "sha256": "1098da0de8a48de1503d11b5ad65666ef45de9cd3131112f095dd621d0b53c11"
+    },
+    "adversarial_nli_external.csv": {
+      "rows": 78,
+      "sha256": "faddbb0bfcff278513fd8ffcb27f9b056b858f016d26a3ea717aae5581bb0417"
+    },
+    "aider_polyglot_external.csv": {
+      "rows": 169,
+      "sha256": "2b619b3a77a593d05a572636fedfb8121127a07ff167bed424f986ba952633cc"
+    },
+    "ale_bench_external.csv": {
+      "rows": 160,
+      "sha256": "2cd72665a762150078d949d406495a3a1fbb0f9723a6af2373dd357886d03110"
+    },
+    "algotune_external.csv": {
+      "rows": 24,
+      "sha256": "192ad9eb6d9d7a6af4ac3f7afb8042ecd3f58209e094a3e303b570f33a4e805f"
+    },
+    "apex_agents_external.csv": {
+      "rows": 87,
+      "sha256": "894684c3a52d9ca6068595ce972fac55f6af6b31f600a2d43198919781f2cba0"
+    },
+    "arc_agi_2_external.csv": {
+      "rows": 255,
+      "sha256": "e3a717d3e7d2e57deb91fd084e9d1063e9f30fd13dcc7de3a23613a9692fca2b"
+    },
+    "arc_agi_external.csv": {
+      "rows": 272,
+      "sha256": "1ef9a46bd166bf7bd3a1f0d5ff0c949dc98d606460aa3649ba444e886e6d61ef"
+    },
+    "arc_ai2_external.csv": {
+      "rows": 472,
+      "sha256": "db02f8d5c192d87d05d49fb4b6ad4bb5e2fb443e3d3e38fcdf17eacf67efb8ba"
+    },
+    "balrog_external.csv": {
+      "rows": 98,
+      "sha256": "77aa1694c562472978a8eca334d833807759a23588a93a7a162df00802de9eab"
+    },
+    "bbh_external.csv": {
+      "rows": 254,
+      "sha256": "9adde6305ee5247290bc1861eb4d38898162c70813c9ef73256a0e035fba731d"
+    },
+    "blueprint_bench_2_external.csv": {
+      "rows": 23,
+      "sha256": "4ed326fd75f6a4cf08eac221ce34fcbed9d270d6bc33553636014715b890055a"
+    },
+    "bool_q_external.csv": {
+      "rows": 573,
+      "sha256": "a882c48b2e612ee4b25002511c73eca749b421cefcb1ec697f127a9019c415f9"
+    },
+    "btf3_external.csv": {
+      "rows": 9,
+      "sha256": "4c0b7115ab1df4c562df6977b2a90b1417a07eb56795df85e7bca3faa45c1da1"
+    },
+    "cad_eval_external.csv": {
+      "rows": 15,
+      "sha256": "bbdb9610edb3a9dddf3aac4a3fc5b182986519e24fdc04de0605f59938d27496"
+    },
+    "chess_puzzles.csv": {
+      "rows": 217,
+      "sha256": "d9a9506b5446d444e44f3dd12b43b269020bd55167e4d5378a11842bdeed9f7c"
+    },
+    "cl_bench_external.csv": {
+      "rows": 46,
+      "sha256": "d05a8ad3fad268c407c9c44aa648f74781f375a19f784eecc29724e93f04ba7e"
+    },
+    "cl_bench_life_external.csv": {
+      "rows": 37,
+      "sha256": "a89c7e55d87cb0861df86660deefaadfd06f9deef12634213de58f24ab676584"
+    },
+    "common_sense_qa_2_external.csv": {
+      "rows": 38,
+      "sha256": "19373551d52c9b68eaa760521573247206c0da3aadacc4bb8e71656c1d680f0a"
+    },
+    "critpt_external.csv": {
+      "rows": 242,
+      "sha256": "b68f7765000956d0f6d221675444dc696a3072880c7ede1cc243d73b860e3aa9"
+    },
+    "cursorbench_external.csv": {
+      "rows": 39,
+      "sha256": "f472c2a499a5077404ae8165fb2a69c255eeb39d2c4f9d16ac3b223841a830be"
+    },
+    "cybench_external.csv": {
+      "rows": 58,
+      "sha256": "58a64c603ee77d89228ce4aa605188c0bc4055aa3572d2325b37c74bb25a055c"
+    },
+    "deepresearchbench_external.csv": {
+      "rows": 61,
+      "sha256": "be8db2891ad4b29e1dc4b4a1eaf70da4c68ccdf70561b20bf570e0487cf17b31"
+    },
+    "deepswe_external.csv": {
+      "rows": 52,
+      "sha256": "4effbafc467714e82ee859a5af30befbc974d60f9667e3faa5104bc7a33b18b8"
+    },
+    "enigma_eval_external.csv": {
+      "rows": 80,
+      "sha256": "97de9aa05feda05b31729e326522a9d05fd4e3576e839eac6f5febff3e899421"
+    },
+    "epoch_capabilities_index.csv": {
+      "rows": 819,
+      "sha256": "86495af493e778d4867c2be44b66fc1319fed7437e0964fd5558c04ac0136c43"
+    },
+    "exploitbench_external.csv": {
+      "rows": 20,
+      "sha256": "f7f97045d1faa749afac73873c334f513282be2ecddd590ca5c5143e66f9c669"
+    },
+    "fictionlivebench_external.csv": {
+      "rows": 147,
+      "sha256": "6089e850435fab33d727c54059322ab73ed6b921686058e8e44434179d977af5"
+    },
+    "forecastbench_external.csv": {
+      "rows": 168,
+      "sha256": "d24cc6761990fede0ddd0d93458aad75540a8fae2a373f51f2076bf1bfc6750f"
+    },
+    "frontiercode_external.csv": {
+      "rows": 27,
+      "sha256": "af6540ab15611b404cebc7d5571fdb5e43f04db7e2f569d2fae4c1483d495381"
+    },
+    "frontiermath.csv": {
+      "rows": 165,
+      "sha256": "2a5d711bace37b86e1f7af25e84ae3968cd1dfcf3f18cca6703487fb7884b37a"
+    },
+    "frontiermath_tier_4.csv": {
+      "rows": 104,
+      "sha256": "6df50df27d0437f4e5518994887d7a291795a35fdc2d1f09e5b354bcbda9441f"
+    },
+    "frontierswe_external.csv": {
+      "rows": 23,
+      "sha256": "62d07f4372f223823ccad59e2c39e05a56ac44cffc74ff98704245a9060c3f81"
+    },
+    "gbaeval_external.csv": {
+      "rows": 25,
+      "sha256": "e16f42f30fc73a300de677e75147d8d8bd2b30e7f5672e9fec09305065840950"
+    },
+    "gdp_pdf_external.csv": {
+      "rows": 26,
+      "sha256": "0e345bf54a58527265a32c5110636d5fc1975d23ddfde2972db36a1080bb6eb9"
+    },
+    "gdpval_external.csv": {
+      "rows": 18,
+      "sha256": "0421e702386009e334aa5608c970400f1a795d36c19126f715ae8bfcac71de4c"
+    },
+    "geobench_external.csv": {
+      "rows": 57,
+      "sha256": "d2b54d880631e9d29a125b91f5778b81912f713c74dd2a01611d69596fe1cfdb"
+    },
+    "gpqa_diamond.csv": {
+      "rows": 471,
+      "sha256": "232c267ebb52725b0c7d6f9c6da6c922ae08e8b30ff78280054e1dc59b177b4b"
+    },
+    "gsm8k_external.csv": {
+      "rows": 538,
+      "sha256": "c3d430b29f338e52a57f3fe08f690adea49056059f82c2ec562e4b6d0f30956b"
+    },
+    "gso_external.csv": {
+      "rows": 42,
+      "sha256": "a969ffdbd6e6fe6de953235f71793b73db16839cb44da86f1a9b0a1cf3de39b4"
+    },
+    "hella_swag_external.csv": {
+      "rows": 455,
+      "sha256": "13b225e0a65e1e8fddcff6c207b6f642f6247daf9520b2a38a19973bba65f705"
+    },
+    "hle_external.csv": {
+      "rows": 87,
+      "sha256": "287318ba07cda96883940c63f24b13874c748ed9b328e72833a63e0bf94869da"
+    },
+    "lambada_external.csv": {
+      "rows": 214,
+      "sha256": "798a8a38778678b8169da82f598ba535941d12c225516de0aeb09ffc43d11afc"
+    },
+    "lech_mazur_writing_external.csv": {
+      "rows": 113,
+      "sha256": "f483d62baba755af3bd4f79778d8e3291c6cbc9faf50d1d99a217efc5d123ef9"
+    },
+    "live_bench_external.csv": {
+      "rows": 112,
+      "sha256": "6962569c06918588138b5d00e5707f13956edec4768f62421571643216a3a418"
+    },
+    "math_level_5.csv": {
+      "rows": 264,
+      "sha256": "041b4bcb991a81d66152327113ef6d38e64cd8cce93d1e6ec821d1b9e47c1de3"
+    },
+    "metr_time_horizons_external.csv": {
+      "rows": 106,
+      "sha256": "bd3266ed30fc57923832e1c8a0a44a7d9097caaec3a33e428b8810f98f86d657"
+    },
+    "mindcube_external.csv": {
+      "rows": 5,
+      "sha256": "c21d9a3d5ed20d584aa82d1b46402c5763eee9c34999126f5d499a2f22d55fc0"
+    },
+    "mirrorcode.csv": {
+      "rows": 6,
+      "sha256": "2c23b8a45a7b5555f2d4d979d03f81d1a079739b3db66e77c36429d288dbd29c"
+    },
+    "mmlu_external.csv": {
+      "rows": 696,
+      "sha256": "8a6f00223532cd2471f85995b6f35c4b9ccc261cdfce78bea32459fc70d883ce"
+    },
+    "mystery_game_puzzles.csv": {
+      "rows": 59,
+      "sha256": "0fb81674ba5265975a07e994ab62703ede82872cef3712f95565a21d5ace3746"
+    },
+    "open_book_qa_external.csv": {
+      "rows": 335,
+      "sha256": "e0b7ead1baebb09ad5e858d72b834417fd95727da1bd0d044493dc6bb3a25f67"
+    },
+    "os_world_external.csv": {
+      "rows": 78,
+      "sha256": "ba86a536e49028f75def7fb65151767173057c5b8903f4c86c5d11bf35d09657"
+    },
+    "osworld_2_external.csv": {
+      "rows": 10,
+      "sha256": "99c286b3d3ffaf34682d6f95d4cefd8990c90951e42723b5d37a838d43ede048"
+    },
+    "otis_mock_aime_2024_2025.csv": {
+      "rows": 428,
+      "sha256": "a9d7416b55ff28731488c9edd3b9305f5288f5ebcf37e9eda8d5ce86dc955fa9"
+    },
+    "piqa_external.csv": {
+      "rows": 455,
+      "sha256": "1a907a4d6c4e81cebb71bd11f7ae48d82682ab7549abd9df8b42b104fd9f0930"
+    },
+    "posttrainbench_external.csv": {
+      "rows": 51,
+      "sha256": "f13a04a21e023a76b10f782639ad9bb757ea6ad16c32917934e7451707f74c98"
+    },
+    "proofbench_external.csv": {
+      "rows": 71,
+      "sha256": "ed06664411096655c29b4c630d7a3167ae23d0bb4649c6ce5d304b06dcbaa22f"
+    },
+    "rli_external.csv": {
+      "rows": 14,
+      "sha256": "1326074eb01386b42e05ab4711264c86cf7dd58429aa9b8685ef0d605094309d"
+    },
+    "scicode_external.csv": {
+      "rows": 218,
+      "sha256": "e6dc3b837909701a2866fabcb13c812b924ab4f1c83d0dc0761d2dafde3e9a48"
+    },
+    "science_qa_external.csv": {
+      "rows": 129,
+      "sha256": "7829478ee0ebdfb42013ccb84bb91e4c86d3417abfb1a3b6f2975dedb1423862"
+    },
+    "simplebench_external.csv": {
+      "rows": 175,
+      "sha256": "68cd2257afd4d5bf3bd3b03630931ce75b1462f3d8d2fa0c382761d8a36379e3"
+    },
+    "simpleqa_verified.csv": {
+      "rows": 119,
+      "sha256": "cc61a25c32af9d8398ab9efb17c954d22a8fa79e786240eed24318ae9301893f"
+    },
+    "spatialviz_bench_external.csv": {
+      "rows": 36,
+      "sha256": "709ff308ee856feaf8a7842b5f39f67d332d381d87ba5de13f7e9edc934533c3"
+    },
+    "superglue_external.csv": {
+      "rows": 34,
+      "sha256": "cc8024909446cbbbcfaa727dea2753a2401616eb9eec560d47bc56519dd89143"
+    },
+    "surface_evolver_bench_external.csv": {
+      "rows": 32,
+      "sha256": "9ac60d9b004aa725b0d7183e5bccaa08cf3831b7287e65d50937ade5eede49a6"
+    },
+    "swe_bench_verified.csv": {
+      "rows": 49,
+      "sha256": "6fa877c2c87228239503cf25671a8d8f599f0790fd29bac3b934b5b3f97a41f9"
+    },
+    "terminalbench_external.csv": {
+      "rows": 297,
+      "sha256": "039aeeff88697a69401e53c58a1c745389f7adc3dff82b2bfd7701194314c1f0"
+    },
+    "the_agent_company_external.csv": {
+      "rows": 51,
+      "sha256": "fdc459c051a06ba8a4b316f11d291532e18aaa9c9a49b0bd6ff716a0bc83ba20"
+    },
+    "trivia_qa_external.csv": {
+      "rows": 436,
+      "sha256": "92ca3bfdf491368f48cdeace35877c57d6f2bf87ad09bd5603e93ef878f75f3b"
+    },
+    "vending_bench_2_external.csv": {
+      "rows": 81,
+      "sha256": "96bbae0178ad65133938151be6e1426bd04ffd853b13a466998e1c956482794f"
+    },
+    "video_mme_external.csv": {
+      "rows": 66,
+      "sha256": "aea12eb05f77ad2226b1e92ddd8960428aae82f5796c1802d3ffde972034a5bf"
+    },
+    "vpct_external.csv": {
+      "rows": 57,
+      "sha256": "02d50564b13f06ff6e499acddcdb1dea2b18c4e699c8ab9385e2cbbaafdc4c43"
+    },
+    "webdev_arena_external.csv": {
+      "rows": 153,
+      "sha256": "1083161443f25e9a21575c3ebad581483aecfacca3fcd1d0afe71adda838de63"
+    },
+    "weirdml_external.csv": {
+      "rows": 290,
+      "sha256": "7a40bccbc24d71971bf1f0bad6f609316850718d3916bfbe21bb5061a6b455b4"
+    },
+    "wino_grande_external.csv": {
+      "rows": 557,
+      "sha256": "d789c8ccc2844957243ed55ab475330f94b83a5bbeff6386e6268bde1481980b"
+    }
+  },
+  "index_rows": 819,
+  "zip_sha256": ""
+}
