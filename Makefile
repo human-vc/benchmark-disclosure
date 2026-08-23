@@ -26,3 +26,8 @@ paper:
 # leak is entirely in git metadata rather than in the source.
 anonymous:
 	./paper/anonymize.sh
+
+# One-file Overleaf bundle. The split layout helps here and hurts there, so the
+# bundle is generated rather than maintained.
+overleaf:
+	python3 paper/flatten.py
