@@ -16,6 +16,10 @@ def make_panel(rows):
     frame["benchmark_release_date"] = pd.to_datetime(frame["benchmark_release_date"])
     frame["Model accessibility"] = "API access"
     frame["Model name"] = frame[RELEASE_COL]
+    # build_matrix canonicalises Epoch's multi-author Organization strings into
+    # primary_org, and that is what the estimators cluster on. The fixture
+    # carries it so the tests exercise the production path.
+    frame["primary_org"] = frame["Organization"].str.split(",").str[0].str.strip()
     frame["date_known"] = frame["benchmark_release_date"].notna()
     predates = frame["benchmark_release_date"] < frame["Release date"]
     frame["eligible"] = predates & frame["date_known"]

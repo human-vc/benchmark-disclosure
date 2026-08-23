@@ -35,6 +35,7 @@ def synthetic(n_releases=60, n_bench=10, n_placebo=3, strategic=True, seed=0):
         columns=[RELEASE_COL, "Organization", "Release date", "slug", "is_placebo", "score"],
     )
     panel["Model accessibility"] = "API access"
+    panel["primary_org"] = panel["Organization"]
     panel = within_benchmark_percentile(panel, window_days=182)
     panel["group"] = np.where(panel["is_placebo"] == 1, "placebo", "eligible")
 
@@ -106,6 +107,7 @@ def test_omission_deficit_is_negative_when_omission_is_strategic():
 def test_drop_estimator_is_negative_when_drops_are_the_worst_benchmarks():
     panel = synthetic(strategic=True)
     panel["Model accessibility"] = "API access"
+    panel["primary_org"] = panel["Organization"]
     drops = drop_estimator(panel[panel["group"] == "eligible"])
     assert len(drops) == 60
     assert drops["drop_gap"].mean() < -25, drops["drop_gap"].mean()

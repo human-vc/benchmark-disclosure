@@ -19,7 +19,7 @@ from .selectivity import (
     omission_deficit,
     release_sets,
 )
-from .stats import bootstrap_mean, ols, print_ols
+from .stats import bootstrap_mean, ols, print_ols, randomization_test_mean
 
 
 def permutation_test(merged, draws=2000, seed=0):
@@ -126,18 +126,26 @@ def main():
 
     print("=" * 62)
     print("1. PLACEBO -- omitted vs postdating benchmarks")
-    print("   pass condition: indistinguishable from zero means the measure is")
-    print("   picking up something other than concealment.")
+    print("   this contrast does NOT have a null of zero. Measured on the panel")
+    print("   with no disclosure labels it sits at +12.2 percentile points, a")
+    print("   peer-window artifact. Read any value here against that, never")
+    print("   against zero. See src/placebo_calibration.py.")
     deficit = omission_deficit(sets)
     if deficit.empty:
         print("   not computable: no release has both an omitted and a placebo cell")
     else:
-        mean, (lo, hi) = bootstrap_mean(
-            deficit["gap"].to_numpy(float), cluster=deficit["organization"].to_numpy()
-        )
-        print(f"   n={len(deficit)}  mean {mean:+.1f}  95% CI [{lo:+.1f}, {hi:+.1f}]")
-        verdict = "excludes zero" if hi < 0 or lo > 0 else "includes zero"
-        print(f"   -> {verdict}")
+        values = deficit["gap"].to_numpy(float)
+        providers = deficit["organization"].to_numpy()
+        mean, (lo, hi) = bootstrap_mean(values, cluster=providers)
+        test = randomization_test_mean(values, cluster=providers)
+        if np.isfinite(lo):
+            print(f"   n={len(deficit)}  mean {mean:+.1f}  95% CI [{lo:+.1f}, {hi:+.1f}]")
+            # an interval that is absent is not an interval that spans zero
+            print(f"   -> {'excludes' if hi < 0 or lo > 0 else 'includes'} zero")
+        else:
+            print(f"   n={len(deficit)}  mean {mean:+.1f}  "
+                  f"(no interval: {test['n_clusters']} provider(s))")
+        print(f"   randomization test, provider sign-flip: p = {test['p_value']:.3f}")
 
     print("\n" + "=" * 62)
     print("2. EXCESS OMISSION -- omitted vs what disclosed predicts")

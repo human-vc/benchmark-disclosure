@@ -35,7 +35,11 @@ Four things address this.
 
 **Omissions are classified, not counted.** We adapt ORBIT (Kirkham et al., *BMJ* 2010;340:c365), the clinical-trials instrument for outcome reporting bias, which was built for exactly this problem: separating "was it measured" from "was it reported given that it was measured." See [`protocol/coding-protocol.md`](protocol/coding-protocol.md).
 
-**A placebo group tests the measure.** Benchmarks postdating a model's release are mechanically impossible to omit strategically — there was nothing to omit. That group cannot carry the disclosed-vs-omitted comparison directly, because everything in it is undisclosed. What it supports is the comparison this repository treats as the identifying one: **omitted-eligible versus postdating**. Both sets are non-disclosures, so any artifact that makes unreported benchmarks look bad for innocent reasons — they are harder, newer, or picked by Epoch precisely because they discriminate — hits both equally and differences out. The one asymmetry left is that the eligible benchmark could have been reported and was not. Under every innocent explanation that statistic is zero.
+**A placebo group tests the measure, and testing it is how we found the problem.** Benchmarks postdating a model's release are mechanically impossible to omit strategically — there was nothing to omit. That group cannot carry the disclosed-vs-omitted comparison directly, because everything in it is undisclosed. What it was built to support is **omitted-eligible versus postdating**: both sets are non-disclosures, so any artifact that makes unreported benchmarks look bad for innocent reasons hits both equally and differences out, leaving only the fact that the eligible benchmark could have been reported and was not. Under every innocent explanation that statistic should be zero.
+
+It is not zero. Computed with no disclosure labels at all, eligible benchmarks outscore postdating ones by **12.2 percentile points** within a release, positive in 78% of the 146 releases carrying both sets. That is the estimator's null, and it runs in the direction that manufactures false nulls. Two things carry it. Benchmark composition carries most: the outcome is a within-benchmark rank, but the panel is unbalanced and placebo cells concentrate in benchmarks that entered late, so absorbing release and benchmark effects jointly moves the coefficient from −13.4 to −4.9. The peer window carries the rest: it is symmetric in days, but a benchmark's model coverage begins when the benchmark is built, so a release predating its benchmark is ranked against peers drawn 63% from models newer than itself against 44% for eligible cells. Absorbing both and conditioning on peer-window composition leaves **+0.25 (se 1.62)**, not distinguishable from zero. Restricting to two-sided windows removes only 12%, so it is a conditioning problem rather than a trimming problem. The same asymmetry predicts standing at −29.1 points per unit share among eligible cells alone, so it contaminates the outcome wherever compared groups differ in it.
+
+The estimator is therefore no longer described as identifying. It is reported against its measured null, the placebo group reverts to validating that the coding instrument returns nothing where nothing could have been omitted, and identification moves to the within-release and within-benchmark margin. `python -m src.placebo_calibration` reproduces all of it.
 
 Full design notes, including the identification strategy and residual confounds we cannot rule out, are in [`docs/design.md`](docs/design.md).
 
@@ -58,6 +62,7 @@ Provider disclosures have no structured source and are hand-coded from official 
 ```bash
 pip install -r requirements.txt
 python -m src.download_data      # fetch Epoch's bundle
+python -m src.snapshot           # check it against the pinned build
 python -m src.build_matrix       # panel, temporal gate, release collapsing
 python -m src.coverage           # the access-type confound
 python -m src.families           # seed the family linkage, then hand-review it
@@ -66,11 +71,12 @@ python -m src.date_worklist      # rank the missing benchmark dates by impact
 
 # once data/disclosures.csv is coded:
 python -m src.validate_coding    # gate: protocol rules, non-zero exit on failure
+python -m src.placebo_calibration  # the placebo null and where it comes from
 python -m src.selectivity        # the three estimators
 python -m src.falsification      # the four falsification tests
 python -m src.reliability        # 20% double-coding draw and Cohen's kappa
 
-pytest                           # 51 tests
+pytest                           # 114 tests
 ```
 
 `build_matrix` produces the release × benchmark eligibility matrix with the temporal gate applied — currently 3,138 pairs across 354 releases, of which 2,393 are eligible and 476 fall in the placebo group. The temporal gate now reaches 91.4% of pairs, up from 45.5% on first reproduction.
@@ -80,6 +86,23 @@ pytest                           # 51 tests
 `selectivity` computes all three estimators; `falsification` runs the four tests; both need the coded sheet and say so until one exists.
 
 The disclosure side has no structured source and does not exist yet. That is the open work, and `data/worklist.csv` is now the exact list of it.
+
+## Which Epoch build
+
+`data/raw/` is gitignored, and Epoch's hub is updated continuously, so the same
+code run a few days apart produces different numbers with nothing to signal it.
+A rebuild three days after the first pull added twenty model-versions and moved
+every headline count in this file.
+
+`data/snapshot.json` is therefore checked in: per-file SHA-256 and row counts for
+the build these numbers were computed against. `python -m src.snapshot` compares
+the tree on disk against it and names the files that differ. Downloading does not
+silently re-pin; `python -m src.download_data --capture` does, and it is a
+deliberate act, because it redefines what the reported numbers mean and every
+table has to be regenerated behind it.
+
+The build currently pinned is 2026-08-17: 77 files, 819 model-versions. Numbers in
+this README that were computed against a later pull are marked where they appear.
 
 ## Sample sizes
 

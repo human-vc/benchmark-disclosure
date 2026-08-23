@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 from src.config import RELEASE_COL
-from src.percentiles import within_benchmark_percentile
+from src.percentiles import side_balanced_percentile, within_benchmark_percentile
 from tests.conftest import make_panel
 
 
@@ -47,3 +47,57 @@ def test_ties_take_midrank():
 def test_window_width_changes_peer_count(tiny_panel):
     wide = within_benchmark_percentile(tiny_panel, window_days=10_000)
     assert wide["n_peers"].min() == 4
+
+
+def test_side_balanced_decomposition_is_an_identity():
+    """percentile = (1 - share_newer) * P_old + share_newer * P_new, cell by cell.
+
+    This is what licenses the correction. The contamination is not in either
+    side of the window, it is in the empirical weight between them, so replacing
+    that weight is a targeted repair rather than a different measure.
+    """
+    rng = np.random.default_rng(5)
+    rows = []
+    for r in range(20):
+        date = pd.Timestamp("2024-01-01") + pd.Timedelta(days=35 * r)
+        for b in range(4):
+            rows.append((f"R{r}", "Org", date, f"b{b}", "2023-01-01",
+                         float(rng.normal())))
+    panel = side_balanced_percentile(
+        within_benchmark_percentile(make_panel(rows), window_days=182), window_days=182
+    )
+    recon = ((1 - panel["share_newer"]) * panel["pct_old_side"].fillna(0)
+             + panel["share_newer"] * panel["pct_new_side"].fillna(0))
+    assert np.nanmax(np.abs(recon - panel["percentile"])) < 1e-9
+
+
+def test_a_cell_with_an_empty_side_has_no_balanced_value():
+    # the earliest model on a benchmark has no older peer but itself, and the
+    # latest has no newer peer; neither gets a filled-in one-sided number
+    rows = [("R0", "Org", "2025-01-01", "b", "2024-01-01", 0.1),
+            ("R1", "Org", "2025-03-01", "b", "2024-01-01", 0.5)]
+    panel = side_balanced_percentile(
+        within_benchmark_percentile(make_panel(rows), window_days=182), window_days=182
+    )
+    assert panel["pct_new_side"].isna().sum() == 1
+    assert panel["pct_balanced"].isna().sum() >= 1
+
+
+def test_balancing_shrinks_the_asymmetry_gradient():
+    rows = []
+    for i in range(24):
+        date = pd.Timestamp("2024-01-01") + pd.Timedelta(days=30 * i)
+        rows.append((f"R{i}", "Org", date, "old", "2023-01-01", 0.4 + 0.02 * i))
+        if i >= 8:
+            rows.append((f"R{i}", "Org", date, "late", "2025-01-01", 0.4 + 0.02 * i))
+    panel = side_balanced_percentile(
+        within_benchmark_percentile(make_panel(rows), window_days=182), window_days=182
+    )
+
+    def gradient(column):
+        cells = panel.dropna(subset=[column, "share_newer"])
+        x = cells["share_newer"].to_numpy()
+        y = cells[column].to_numpy()
+        return abs(np.cov(y, x, bias=True)[0, 1] / x.var())
+
+    assert gradient("pct_balanced") < gradient("percentile")

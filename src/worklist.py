@@ -85,7 +85,7 @@ def build(panel, families, min_benchmarks=MIN_BENCHMARKS):
     out = out.rename(
         columns={
             "slug": "benchmark_slug",
-            "Organization": "organization",
+            "primary_org": "organization",
             "Model name": "model_name",
             "Release date": "release_date",
             "score": "independent_score",

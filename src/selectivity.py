@@ -27,8 +27,9 @@ import numpy as np
 import pandas as pd
 
 from .config import CODING_SHEET, INTERIM, MIN_BENCHMARKS, RELEASE_COL, WINDOW_DAYS
+from .coverage import access_group
 from .percentiles import add_percentiles, capability_level
-from .stats import bootstrap_mean, ols, print_ols
+from .stats import bootstrap_mean, ols, print_ols, randomization_test_mean
 
 REPORTED_CATEGORIES = {"A", "B", "C"}
 HIGH_SUSPICION = {"D", "E", "G"}
@@ -93,7 +94,7 @@ def release_sets(merged):
         .fillna(0)
     )
     meta = merged.groupby(RELEASE_COL).agg(
-        organization=("Organization", "first"),
+        organization=("primary_org", "first"),
         access=("Model accessibility", "first"),
         n_scored=("slug", "nunique"),
         level=("level", "first") if "level" in merged.columns else ("percentile", "mean"),
@@ -129,30 +130,45 @@ def gap_by_release(sets, against="omitted", min_disclosed=2, min_other=1):
 
 
 def omission_deficit(sets, min_omitted=1, min_placebo=1):
-    """The identifying contrast: omitted-eligible versus placebo standing.
+    """Omitted-eligible versus placebo standing. NOT identifying: read the null.
 
-    Both sets are non-disclosures, so neither carries the upward selection
-    that contaminates any comparison against the disclosed set. They differ in
-    exactly one respect: an eligible benchmark *could* have been reported and
-    was not, while a benchmark postdating the release could not have been.
+    This was designed as the identifying contrast. Both sets are
+    non-disclosures, so neither carries the upward selection that contaminates
+    any comparison against the disclosed set, and they differ in exactly one
+    respect: an eligible benchmark could have been reported and was not, while a
+    benchmark postdating the release could not have been. The reasoning is that
+    any artifact making non-disclosed benchmarks look bad for non-strategic
+    reasons hits both sets and differences out, leaving a statistic that is zero
+    under every innocent explanation.
 
-    That symmetry is the point. Any artifact that makes non-disclosed
-    benchmarks look bad for non-strategic reasons -- they are harder, newer, or
-    selected by Epoch for being discriminating -- hits both sets equally and
-    differences out. What survives is the one asymmetry that cannot be anything
-    else: the eligible set was available to report and was not reported.
+    The statistic does not obey that reasoning. Computed on this panel with no
+    disclosure labels at all, eligible benchmarks outscore postdating ones by
+    12.2 percentile points within a release, positive in 78 percent of the 146
+    releases that carry both sets. That is this estimator's null, and it runs in
+    the direction that manufactures false nulls: concealment has to overcome a
+    twelve-point head start before the statistic registers anything.
 
-    Under strategic omission the omitted set sits below the placebo set, because
-    it was chosen for being unflattering. Under every innocent explanation --
-    irrelevance, never ran it, conventional table size -- omission is unrelated
-    to standing, and the statistic is zero.
+    Two things cause it. Benchmark composition carries most: the panel is
+    unbalanced and placebo cells concentrate in benchmarks that entered late, so
+    absorbing release and benchmark effects jointly moves the coefficient from
+    -13.4 to -4.9. The peer window carries the rest, because it is symmetric in
+    days while a benchmark's model coverage begins when the benchmark is built,
+    so a release predating its benchmark is ranked against peers 63 percent newer
+    than itself against 44 percent for eligible cells. Absorbing both and
+    conditioning on peer-window composition leaves +0.25 with a standard error of
+    1.62, not distinguishable from zero. The relationship is not an accounting
+    identity: permuting scores within benchmark, which destroys the capability
+    trend and leaves the window structure untouched, puts the asymmetry slope at
+    -0.34 against an observed -29.09, with no draw in 300 reaching it.
+    src/placebo_calibration.py reproduces all of this.
 
-    Note that the placebo group cannot support the disclosed-vs-omitted
-    statistic directly: every benchmark postdating a release is non-disclosed,
-    so there is no disclosed set inside it to compare against. This is the
-    contrast the placebo group can actually carry.
-
-    Negative values are evidence of concealment.
+    So this function stays, and what it is for has changed. It is reported
+    against the measured null rather than against zero, and the placebo group
+    reverts to its defensible role, which is validating that the coding
+    instrument returns nothing where nothing could have been omitted. Identifying
+    variation has to come from the within-release, within-benchmark margin
+    instead. Negative values are evidence of concealment only relative to the
+    calibrated null, never relative to zero.
     """
     keep = (
         (sets["n_omitted"] >= min_omitted)
@@ -187,32 +203,40 @@ def drop_estimator(merged):
             "mean_dropped": dropped["percentile"].mean(),
             "mean_kept": kept["percentile"].mean(),
             "drop_gap": dropped["percentile"].mean() - kept["percentile"].mean(),
-            "organization": group["Organization"].iloc[0],
+            "organization": group["primary_org"].iloc[0],
             "benchmarks": " | ".join(sorted(dropped["slug"])),
         })
     return pd.DataFrame(rows)
 
 
-def access_group(value):
-    if not isinstance(value, str):
-        return None
-    if value.startswith("Open weights"):
-        return "open"
-    if value == "API access":
-        return "api"
-    return None
-
-
 def report_gaps(gaps, label):
+    """Report a release-level gap with inference that survives few clusters.
+
+    The bootstrap interval is shown only when there are enough providers for it
+    to mean anything. Otherwise the cluster sign-flip randomization test carries
+    the report, because it is exact under its own null and does not improve or
+    degrade with the number of clusters, it simply becomes granular. Saying
+    "p is at best 0.5 with one provider" is informative; a zero-width interval
+    is not.
+    """
     if gaps.empty:
         print(f"\n{label}: no release meets the minimum reported/omitted counts")
         return None
-    mean, (lo, hi) = bootstrap_mean(
-        gaps["gap"].values, cluster=gaps["organization"].values
-    )
+
+    values = gaps["gap"].values
+    providers = gaps["organization"].values
+    mean, (lo, hi) = bootstrap_mean(values, cluster=providers)
+    test = randomization_test_mean(values, cluster=providers)
+
     print(f"\n{label}: n={len(gaps)} releases, {gaps['organization'].nunique()} providers")
-    print(f"  mean gap (disclosed - omitted percentile): {mean:+.1f}  "
-          f"95% CI [{lo:+.1f}, {hi:+.1f}]  (provider-clustered bootstrap)")
+    if np.isfinite(lo):
+        print(f"  mean gap (disclosed - omitted percentile): {mean:+.1f}  "
+              f"95% CI [{lo:+.1f}, {hi:+.1f}]  (provider-clustered bootstrap)")
+    else:
+        print(f"  mean gap (disclosed - omitted percentile): {mean:+.1f}  "
+              f"(no interval: {test['n_clusters']} provider(s) will not support one)")
+    print(f"  randomization test, provider sign-flip: p = {test['p_value']:.3f}"
+          + ("   granular at this cluster count" if test["granular"] else ""))
     print(f"  median: {gaps['gap'].median():+.1f}   share positive: {(gaps['gap'] > 0).mean():.1%}")
     return mean
 
@@ -248,26 +272,30 @@ def main():
     print("  low, strategic or not.")
 
     deficit = omission_deficit(sets)
-    report_gaps(
-        deficit,
-        "identifying: omitted vs placebo (zero under every innocent explanation)",
-    )
-    print("  negative = the provider withheld where it stood worse. Both sets are")
-    print("  non-disclosures, so neither carries the disclosed set's selection.")
+    report_gaps(deficit, "omitted vs placebo (NOT identifying: null is not zero)")
+    print("  measured null on this panel is +12.2 percentile points, not 0, and it")
+    print("  is a peer-window artifact rather than disclosure behaviour. Compare")
+    print("  any value here against that null, and see src/placebo_calibration.py.")
 
     if not gaps.empty:
-        gaps["access_open"] = (gaps["access"].map(access_group) == "open").astype(float)
+        conditioned = gaps.assign(access_class=gaps["access"].map(access_group))
+        unclassified = int(conditioned["access_class"].isna().sum())
+        conditioned = conditioned.dropna(subset=["access_class"])
+        if unclassified:
+            print(f"\n  {unclassified} release(s) dropped from the conditioned "
+                  "comparison: accessibility is neither open weights nor API")
+        conditioned["access_open"] = (conditioned["access_class"] == "open").astype(float)
         X = np.column_stack([
-            np.ones(len(gaps)),
-            gaps["n_scored"].values,
-            gaps["level"].values,
-            gaps["access_open"].values,
+            np.ones(len(conditioned)),
+            conditioned["n_scored"].values,
+            conditioned["level"].values,
+            conditioned["access_open"].values,
         ])
         print_ols(
-            ols(gaps["gap"].values, X,
+            ols(conditioned["gap"].values, X,
                 ["const", "n independent scores", "capability level",
                  "open weights"],
-                cluster=gaps["organization"].values),
+                cluster=conditioned["organization"].values),
             "gap conditioned on coverage, capability and access type",
         )
         print("  coverage is why raw open-vs-closed rates are not comparable;")

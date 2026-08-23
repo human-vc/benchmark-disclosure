@@ -245,7 +245,7 @@ def load_scores(root):
 # models sit under "Google" while the other 29 sit under "Google DeepMind".
 # The entity making the disclosure decision is the same either way, and leaving
 # them split breaks the Gemini Flash and Flash-Lite families in half.
-ORG_ALIASES = {"Google": "Google DeepMind"}
+ORG_ALIASES = {"Google": "Google DeepMind", "DeepMind": "Google DeepMind"}
 
 MERGE_WINDOW_DAYS = 45
 
