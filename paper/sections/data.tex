@@ -1,0 +1,32 @@
+\section{Data and Setting}\label{sec:data}
+
+\subsection{The disclosure problem}\label{sec:data-model}
+
+A release $i$ ships at date $t_i$ carrying a single document. Let $\mathcal{B}$ index benchmarks, each with its own publication date $\tau_b$, let $E_i \subseteq \mathcal{B}$ be the endowment, the benchmarks whose result the provider holds when it writes, and let $D_i \subseteq E_i$ be the disclosed set, which reports a score $s_{ib}$ for each $b \in D_i$. The receiver observes $D_i$ and its scores and must split the complement into results held back and results never held.
+
+Under a commonly known endowment, silence is priced at the worst value it could conceal and disclosure unravels to $D_i = E_i$ \citep{grossman1981,milgrom1981}. Two distinct frictions break that. In \citet{verrecchia1983} the endowment is known and disclosure is costly, so withholding is a cutoff in $s_{ib}$. In section 3 of \citet{dye1985} disclosure is free but the receiver cannot tell an empty endowment from a concealed one, because a sender can prove possession and cannot prove emptiness. Every study of this kind inherits that asymmetry, since its empirical content is $E_i$, which earlier work does not observe.
+
+Here an independent evaluator publishes $s_{ib}$ for cells the provider passed over, and each $\tau_b$ makes infeasibility verifiable. Writing $A_i = \{b : \tau_b < t_i\}$ for the available set and $O_i$ for the cells the evaluator scores,
+\[
+D_i \subseteq E_i \subseteq A_i, \qquad \theta = \Pr\!\left(b \notin D_i \;\middle|\; b \in O_i \cap A_i\right).
+\]
+The estimand $\theta$ is smaller than disclosure conditional on the true endowment, since a provider may hold results the evaluator never produced and a benchmark can exist and go unrun, so within $A_i$ the Dye friction survives undiminished.
+
+Judging what was withheld then requires a measure of standing $P_{ib}$, since raw scores are not comparable across benchmarks. The design rests on an exclusion restriction: conditional on the innocent explanations, membership in $A_i$ does not enter the equation for $P_{ib}$. Where it does, the comparison is confounded by construction, because the indicator that defines the endowment also moves the measure used to judge it \citep{heckman1979}. Section \ref{sec:core} shows that a temporal endowment indicator violates that restriction mechanically. This paper therefore reports no estimate of $\theta$. The design that would deliver one is intact, and what the following sections establish is that the measure of standing it requires is contaminated by the same indicator that defines its conditioning set.
+
+\subsection{The independent score set}\label{sec:data-scores}
+
+The evidence base is a pinned snapshot of Epoch's benchmarking hub taken on 17 August 2026, covering 819 model-versions. The unit of disclosure is a release, keyed on organisation, model name and release date, and not a model-version. Epoch's version field splits a release across scaffolds such as reasoning-effort and context-length variants, but a provider ships one document per release and chooses its contents once, so scaffold rows are collapsed to their release and the spread across them is retained as a diagnostic. The resulting panel holds 353 releases, 74 benchmarks and 3,082 release-benchmark pairs for which an independent score exists. Providers are the unit of dependence throughout, and the estimation sample spans 46 organisations.
+
+\subsection{Eligibility and the temporal gate}\label{sec:data-gate}
+
+A provider cannot omit a benchmark that did not yet exist. Every benchmark therefore carries its own release date, taken from Epoch where Epoch publishes one and hand-collected from the benchmark's primary source otherwise, and a release-benchmark pair is eligible only when the benchmark predates the release and its date is verified. Eligibility yields 2,355 of the 3,082 pairs. Pairs whose benchmark postdates the release form a separate set of 476, and these are the cells the provider could not possibly have disclosed. Pairs with no verified date leave the analysis rather than being imputed, and a release enters the sample only with at least eight independent scores, since standing estimated from a handful of benchmarks is not standing.
+
+Disclosure itself is coded with an instrument adapted from outcome reporting bias in clinical trials, where the same structural problem of a protocol-specified outcome vanishing from the published report has a long measurement literature \citep{chan2004,kirkham2010,dwan2013}. Present cells are graded by whether the document gives a number, names the benchmark without one, or substitutes a variant; absent cells by whether a same-family predecessor had reported it, whether contemporaries did, or whether no comparable provider reported it either. The coded sample is a case series over two releases, described where it bears on the design's reach in Section \ref{sec:reach}, and nothing in the paper treats it as inference.
+
+\subsection{Measuring standing}\label{sec:data-standing}
+
+Raw scores are not comparable across benchmarks, so standing is measured as a within-benchmark percentile computed against contemporaneous models, meaning those whose release dates fall within 182 days on either side of the focal release, with midranks for ties. Two features of each comparison are retained alongside the percentile, the number of peers in the window and the share of that window released after the focal model. This is the measure a windowed comparison naturally suggests, and the one the paper goes on to show is biased in a way that mimics selective disclosure.
+
+\subsection{Inference}\label{sec:data-inference}
+Inference is constrained by the same structure. The panel has 46 nominal provider clusters, but 24 contribute fewer than ten cells, 20 appear in a single release, and the five largest hold 68.1\% of the sample, so cluster-robust asymptotics are not credible \citep{cameron2008}. Below twelve clusters we report no analytic standard error. Regression coefficients in that range use the restricted wild cluster bootstrap, release-level means use a cluster sign-flip randomization test exact under its own null, and no result is called significant on a cluster-$t$ alone.

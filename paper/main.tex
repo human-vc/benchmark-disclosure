@@ -1,0 +1,90 @@
+% Absence Is Not Omission
+\documentclass{article}
+
+% Double-blind workshop submission. The style file supplies geometry, fonts and
+% natbib, so nothing here restates them.
+\usepackage[dblblindworkshop]{neurips_2026}
+\workshoptitle{Economics for Machine Learning}
+
+\usepackage{microtype}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepgfplotslibrary{fillbetween}
+\usetikzlibrary{shapes,arrows,positioning,calc,backgrounds,fit,patterns,decorations.pathreplacing}
+
+% Okabe-Ito, colourblind safe and legible in greyscale.
+\definecolor{cNYC}{HTML}{0072B2}
+\definecolor{cSF}{HTML}{D55E00}
+\definecolor{cMUTE}{HTML}{BBBBBB}
+\definecolor{cGRN}{HTML}{009E73}
+\definecolor{cPNK}{HTML}{CC79A7}
+\definecolor{cSKY}{HTML}{56B4E9}
+\definecolor{cYEL}{HTML}{E69F00}
+
+% Left spines only, ticks outside, no legend box. Nothing is written inside an
+% axis: every quantity a reader needs is in the caption, and legends are pulled
+% out with `legend to name` so no label can collide with data.
+\pgfplotsset{
+  causalre/.style={
+    axis lines*=left,
+    tick align=outside, tick pos=left,
+    title style={font=\small},
+    label style={font=\small},
+    tick label style={font=\scriptsize},
+    legend style={font=\scriptsize, draw=none, fill=none, row sep=1pt},
+    every axis plot/.append style={thick},
+  },
+  causalre body/.style={ causalre, width=0.42\textwidth, height=4.15cm },
+  causalre wide/.style={ causalre, width=0.70\textwidth, height=0.38\textwidth },
+}
+
+
+\hypersetup{colorlinks=true, linkcolor=black, citecolor=black, urlcolor=blue}
+\captionsetup{font=small, labelfont=bf}
+
+% Default float parameters reserve so much of a page for text that a 3in figure
+% gets deferred to a page of its own, which at nine pages is unaffordable.
+% These let a float share a page with the text that discusses it.
+\renewcommand{\topfraction}{0.92}
+\renewcommand{\bottomfraction}{0.85}
+\renewcommand{\textfraction}{0.06}
+\renewcommand{\floatpagefraction}{0.75}
+\setlength{\textfloatsep}{12pt plus 2pt minus 2pt}
+\setlength{\intextsep}{10pt plus 2pt minus 2pt}
+
+\title{\bf Absence Is Not Omission:\\
+Availability, Vintage, and the Measurement of\\
+Selective Benchmark Disclosure}
+
+% DOUBLE BLIND: no author block, no acknowledgements, no repository URL in the
+% submitted version. The anonymised artifact link goes in the supplementary.
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\input{sections/abstract}
+\input{sections/intro}
+\input{sections/data}
+\input{sections/opportunity}
+\input{sections/core}
+\input{sections/external}
+\input{sections/reach}
+\input{sections/conclusion}
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+\newpage
+\input{sections/checklist}
+
+
+\end{document}
