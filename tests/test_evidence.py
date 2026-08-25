@@ -1,0 +1,125 @@
+"""The extraction tooling, tested on the failure modes that would fake a result.
+
+Every bug this file guards against produces the same visible outcome -- a
+benchmark the provider did report gets recorded as unreported -- and that is
+the one error direction that manufactures evidence for the study's hypothesis.
+So these are not incidental utility tests.
+"""
+
+import pytest
+
+from src.benchmark_aliases import ALIASES, hits, is_weak
+from src.extract_evidence import (MIN_PLAUSIBLE_CHARS, guard, html_to_text,
+                                  image_tables)
+
+
+class TestAliases:
+    def test_every_panel_slug_has_aliases(self):
+        """A slug with no aliases is invisible to the coder and reads as absent."""
+        import pandas as pd
+
+        from src.config import INTERIM
+
+        path = INTERIM / "panel.csv"
+        if not path.exists():
+            pytest.skip("panel not built")
+        missing = sorted(set(pd.read_csv(path)["slug"]) - set(ALIASES))
+        assert not missing, f"no search aliases for {missing}"
+
+    @pytest.mark.parametrize("text,slug", [
+        ("the matrix is symmetric", "metr_time_horizons"),
+        ("a course in mathematics", "math_level_5"),
+        ("rows were dropped silently", "gdpval"),
+        ("as noted earlier in the text", "rli"),
+        ("the answer is gsoc adjacent", "gso"),
+    ])
+    def test_substrings_do_not_match(self, text, slug):
+        assert slug not in hits(text)
+
+    @pytest.mark.parametrize("text,slug", [
+        ("GPQA Diamond 88.7%", "gpqa_diamond"),
+        ("SWE-bench Verified 74.9", "swe_bench_verified"),
+        ("Humanity's Last Exam 26.5", "hle"),
+        ("Terminal-Bench 2.0 65.4", "terminalbench"),
+        ("ARC-AGI-2 (Verified) 68.8", "arc_agi_2"),
+    ])
+    def test_real_mentions_match(self, text, slug):
+        assert slug in hits(text)
+
+    def test_line_broken_term_still_matches(self):
+        assert "swe_bench_verified" in hits("scores on SWE-bench\n   Verified were")
+
+    def test_weak_aliases_are_flagged(self):
+        assert is_weak("math_level_5", "MATH")
+        assert not is_weak("math_level_5", "MATH-500")
+
+
+class TestGuard:
+    @pytest.mark.parametrize("body", [
+        "Access to model meta-llama/Llama-3 is restricted. You must have "
+        "access to it and be authenticated to access it. Please log in." * 40,
+        "Just a moment... Enable JavaScript and cookies to continue" * 60,
+        "404 Not Found. The page you requested does not exist." * 40,
+    ])
+    def test_access_walls_refuse(self, body):
+        with pytest.raises(SystemExit):
+            guard(body, "http://example.invalid")
+
+    def test_short_body_refuses(self):
+        with pytest.raises(SystemExit):
+            guard("GPQA 88.7", "http://example.invalid")
+
+    def test_real_artifact_passes(self):
+        guard("GPQA Diamond 88.7. " * 200, "http://example.invalid")
+
+    def test_threshold_is_above_a_typical_refusal_notice(self):
+        # the gated-HF notice that started this was 143 characters
+        assert MIN_PLAUSIBLE_CHARS > 143
+
+
+class TestHtml:
+    def test_table_cells_stay_separated(self):
+        text = " ".join(html_to_text("<tr><td>GPQA</td><td>88.7</td></tr>").split())
+        assert "GPQA | 88.7" in text
+
+    def test_script_bodies_are_dropped(self):
+        assert "MMLU" not in html_to_text("<script>var x='MMLU 90'</script>")
+
+    def test_image_tables_are_surfaced_absolute(self):
+        found = image_tables(
+            '<img src="/assets/qwen-72b-base.001.jpeg">',
+            "https://qwenlm.github.io/blog/qwen2.5/",
+        )
+        assert found == ["https://qwenlm.github.io/assets/qwen-72b-base.001.jpeg"]
+
+    def test_page_furniture_is_not_surfaced(self):
+        raw = ('<img src="/logo.png"><img src="/icons/share.svg">'
+               '<img src="/author-avatar.jpg">')
+        assert image_tables(raw, "https://example.com/") == []
+
+
+class TestFetch:
+    def test_pdf_is_sniffed_from_bytes_not_the_url(self, tmp_path, monkeypatch):
+        """arxiv.org/pdf/2309.10305 serves a PDF from a URL with no '.pdf'."""
+        import src.artifact_tools as tools
+
+        monkeypatch.setattr(tools, "CACHE", tmp_path)
+
+        def fake_curl(argv, check):
+            open(argv[argv.index("-o") + 1], "wb").write(b"%PDF-1.7\nbody")
+
+        monkeypatch.setattr(tools.subprocess, "run", fake_curl)
+        path = tools.fetch("https://arxiv.org/pdf/2309.10305")
+        assert path.suffix == ".pdf"
+
+    def test_html_body_is_stored_as_html(self, tmp_path, monkeypatch):
+        import src.artifact_tools as tools
+
+        monkeypatch.setattr(tools, "CACHE", tmp_path)
+
+        def fake_curl(argv, check):
+            open(argv[argv.index("-o") + 1], "wb").write(b"<html>hi</html>")
+
+        monkeypatch.setattr(tools.subprocess, "run", fake_curl)
+        path = tools.fetch("https://example.com/model.pdf.html")
+        assert path.suffix == ".html"

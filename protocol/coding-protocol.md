@@ -46,6 +46,38 @@ history gives a reliable snapshot. The Internet Archive is the fallback and was
 unavailable when this protocol was written, so do not build a hard dependency
 on it.
 
+### The co-release rule
+
+The hierarchy ranks artifacts by trust. It does **not** restrict the disclosed
+set to one document. A benchmark counts as reported if it appears in *any*
+official artifact the provider published for that release. An artifact belongs
+to the release when it documents *that* model, is the provider's first
+publication of its kind for it, and no later release in the same family shipped
+in between. Record the artifact actually read in `source_url` and the rest in
+`extra_source_urls`.
+
+That test is deliberately not a day count. Technical reports trail their launch
+posts by an interval that varies with the provider -- Baichuan2 by thirteen
+days, Mixtral 8x7B by twenty-eight -- and any fixed window would admit one and
+refuse the other for no reason connected to disclosure. What ends a release's
+disclosure record is the next release, not the calendar. A retrospective paper
+published after the successor shipped is a later publication and does not count,
+and a 90-day outer bound applies regardless.
+
+Coding from a single document is the more convenient rule and it is wrong in a
+direction that matters. Open-weights providers routinely put a thin model card
+next to a technical report carrying the full table: Baichuan2-13B's card gives
+six benchmarks and the technical report thirteen days later gives GSM8K and
+HumanEval in the same table. Reading only the card would have recorded GSM8K as
+unreported for a provider that reported it, and every such error is a false
+omission -- the error that manufactures evidence for this study's own
+hypothesis. Where the rule is uncertain the protocol's standing instruction
+applies: take the lower-suspicion reading.
+
+The 14-day window is the boundary, not a judgment. An artifact outside it is a
+later publication and is not part of the release's disclosure, however
+official.
+
 ## Categories
 
 Assign exactly one. Categories A through F apply when the benchmark was clearly
@@ -88,6 +120,15 @@ case by case in the analyst's favour.
   A score for a prior model in a comparison table does not count.
 - If the provider reports a benchmark **variant** (MMLU-Pro when the
   independent score is MMLU), code **C**, not A. Record both names.
+- Variant coding turns on whether *both* sides name something, and the two names
+  are incompatible. Epoch scores `math_level_5`, the level-5 subset, and a
+  provider reporting "MATH (4-shot)" or "MATH-500" has named a different thing:
+  code **C**. Epoch scores `common_sense_qa_2` and a provider reporting
+  "CommonsenseQA" has named v1: code **C**. But where one side leaves the subset
+  unstated -- a provider writing "GPQA (0-shot)" against Epoch's `gpqa_diamond`,
+  or "TriviaQA-Wiki" against Epoch's unqualified `TriviaQA` -- the mismatch is
+  indeterminate, and the standing instruction below applies: code **A** and flag
+  the row. Do not manufacture a C from an absence of detail on either side.
 - If a benchmark appears only in an appendix, it is still reported. Code A.
 - If the artifact reports a benchmark the independent source does not cover,
   record it in the `reverse_gap` field. Do not discard it; the direction of

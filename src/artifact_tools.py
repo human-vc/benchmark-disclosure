@@ -45,16 +45,33 @@ SEARCH_TERMS = [
 
 
 def fetch(url, name=None):
-    """Download to a content-addressed cache. Returns the local path."""
+    """Download to a content-addressed cache. Returns the local path.
+
+    The suffix is decided by sniffing the downloaded bytes, not by looking for
+    ".pdf" in the URL. arxiv.org/pdf/2309.10305 serves a PDF from a URL with no
+    ".pdf" in it, and an earlier version of this function stored it as .html and
+    handed the raw binary to the HTML stripper. That does not fail loudly: it
+    yields mojibake in which no benchmark name matches, so every benchmark in
+    the artifact reads as unreported. Silent false omissions are the one error
+    mode this study cannot tolerate, since they point the way the hypothesis
+    points.
+    """
     CACHE.mkdir(parents=True, exist_ok=True)
     key = hashlib.sha1(url.encode()).hexdigest()[:16]
-    suffix = ".pdf" if ".pdf" in url.lower() else ".html"
-    path = CACHE / f"{name or key}{suffix}"
-    if path.exists():
-        return path
+    stem = name or key
+    for suffix in (".pdf", ".html"):
+        existing = CACHE / f"{stem}{suffix}"
+        if existing.exists():
+            return existing
+
+    staged = CACHE / f"{stem}.part"
     subprocess.run(
-        ["curl", "-sL", "--max-time", "180", "-o", str(path), url], check=True
+        ["curl", "-sL", "--max-time", "180", "-o", str(staged), url], check=True
     )
+    with open(staged, "rb") as handle:
+        magic = handle.read(5)
+    path = CACHE / f"{stem}{'.pdf' if magic.startswith(b'%PDF') else '.html'}"
+    staged.replace(path)
     return path
 
 
