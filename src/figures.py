@@ -463,7 +463,7 @@ def table_one(numbers, path=None):
     clusters = ladder["release FE"]["n_clusters"]
 
     lines = [
-        r"\begin{table}[t]",
+        r"\begin{table}[H]",
         r"\centering",
         r"\small",
         r"\begin{tabular}{lrrr}",
