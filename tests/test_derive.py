@@ -11,17 +11,19 @@ from src.config import RELEASE_COL
 from src.derive_coding import build, category_for, parse_reported
 
 
-def test_parse_handles_the_three_reporting_forms():
-    got = parse_reported("gpqa_diamond=0.94|hle|cybench~pass@30=1.0")
-    assert got["gpqa_diamond"] == ("0.94", None)   # numeric  -> A
-    assert got["hle"] == (None, None)              # named    -> B
-    assert got["cybench"] == ("1.0", "pass@30")    # variant  -> C
+def test_parse_handles_the_four_reporting_forms():
+    got = parse_reported("gpqa_diamond=0.94|hle|cybench~pass@30=1.0|bbh!leaked")
+    assert got["gpqa_diamond"] == ("0.94", None, None)   # numeric  -> A
+    assert got["hle"] == (None, None, None)              # named    -> B
+    assert got["cybench"] == ("1.0", "pass@30", None)    # variant  -> C
+    assert got["bbh"] == (None, None, "leaked")          # excluded -> F
 
 
 def test_category_rules():
-    assert category_for("x", {"x": ("0.5", None)}, {}, set())[0] == "A"
-    assert category_for("x", {"x": (None, None)}, {}, set())[0] == "B"
-    assert category_for("x", {"x": ("0.5", "Pro")}, {}, set())[0] == "C"
+    assert category_for("x", {"x": ("0.5", None, None)}, {}, set())[0] == "A"
+    assert category_for("x", {"x": (None, None, None)}, {}, set())[0] == "B"
+    assert category_for("x", {"x": ("0.5", "Pro", None)}, {}, set())[0] == "C"
+    assert category_for("x", {"x": (None, None, "leaked")}, {}, set())[0] == "F"
     assert category_for("x", {}, {"x": "prior"}, set())[0] == "E"
     assert category_for("x", {}, {}, {"x"})[0] == "G"
     assert category_for("x", {}, {}, set())[0] == "H"
