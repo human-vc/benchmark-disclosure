@@ -112,8 +112,8 @@ as a descriptive statistic and is not treated as identifying.
 ## A confound inside the data
 
 Epoch evaluates API-access models more densely than open-weights models. In
-this repository's build: mean 11.91 versus 6.38 benchmarks per release,
-Mann-Whitney p = 2.9e-07, and the ≥8 analysis sample is 86 API against 59 open.
+this repository's build: mean 12.35 versus 6.59 benchmarks per release,
+Mann-Whitney p = 2.9e-07, and the ≥8 analysis sample is 83 API against 59 open.
 The gap roughly doubled once scaffold variants were collapsed to releases;
 API providers ship more reasoning-effort variants, which spread their coverage
 across rows and understated the difference.
@@ -159,10 +159,11 @@ hypothesis here, not just a citation, and it should be committed to in advance.
 
 ## Known limitations
 
-- **Vintage coverage is partial.** Epoch's benchmark metadata carries release
-  dates for 33 of 57 benchmarks, so the temporal gate reaches 54% of pairs.
-  `src/date_worklist.py` ranks the 41 undated benchmarks by pairs unlocked; the
-  top ten are 52% of the gap. This is still the highest-value open task.
+- **Vintage coverage is now mostly closed.** Epoch published dates for 33 of
+  57 benchmarks; hand collection added 29 of the 41 missing ones, each with a
+  primary source URL in `data/benchmark_dates.csv`, taking the gate from 54% of
+  pairs to 91.4%. Twelve remain undated, mostly small creator-run benchmarks,
+  and those pairs leave the analysis rather than being imputed.
 - **One metadata benchmark has no score file** in the public bundle
   (EBR-bench). It is dropped, not imputed. An earlier version of this document
   listed eight. Seven of those had score files all along and were being lost to
@@ -198,10 +199,59 @@ Recorded so the gap between design and implementation stays visible.
   bootstrap resampling cluster on provider throughout.
 - **The coding worklist is targeted.** `src/worklist.py` restricts hand-coding
   to releases inside a multi-release family, since a drop is undefined without
-  a predecessor. This cuts the reading from 1,502 cells to 772 without
+  a predecessor. This cuts the reading from 1,502 cells to 1,346 without
   discarding a potential drop, and is the difference between the coding being
   finishable and not.
 - **The estimators are tested against planted effects.** `tests/` builds
   synthetic panels where omission is strategic by construction and where it is
   random, and requires the estimators to separate them. An estimator never
   shown to recover a known signal is not evidence about anything.
+
+
+## What the completed coding showed
+
+The coding is done: 100 of the 108 worklist releases were read against their
+official artifacts and 8 are blocked, which is a distinct state and is recorded
+as one. 1,280 cells derive, with 63 drops.
+
+**The identifying test fails, and it fails without any coding at all.** The
+contrast this document proposes -- omitted-eligible against postdating -- is
+the labelled version of a comparison that needs no labels: every benchmark a
+release *could* have reported against every benchmark that did not yet exist.
+Both sets are defined by dates alone. That label-free contrast comes out at
++12.22 percentile points across 146 releases, positive in 78.1% of them, with a
+provider-clustered interval clear of zero. Under every innocent explanation
+this document lists, it should be zero.
+
+So the argument in "A placebo group validates the measure" is wrong in an
+instructive way. It assumed that whatever makes non-disclosed benchmarks look
+bad for innocent reasons hits both sets equally and differences out. It does
+not, because the two sets are not exchangeable on the thing that drives the
+measure. A benchmark's model coverage begins when the benchmark was built, so
+the comparison window is symmetric in calendar time and one-sided in coverage:
+the mean share of a cell's peer window that is newer than the focal model is
+0.469 for available cells and 0.707 for postdating ones, against 0.5 for a
+two-sided window. Postdating cells sit systematically nearer the left edge of
+their benchmark's coverage, are ranked mostly against models newer than
+themselves, and therefore stand lower for reasons that have nothing to do with
+disclosure.
+
+That is not a fixable nuisance, and this is the part worth carrying forward.
+The date deciding whether a benchmark was *available* to a release is the same
+date deciding *where in that benchmark's coverage* the release sits. The
+variable identifying the endowment is the variable that moves the outcome. A
+standing measure defined by a calendar window around the release cannot escape
+it, whatever the width. Reweighting the two sides of the window --
+`percentile_balanced` -- is a partial repair and cuts the gap to +9.15 without
+removing it.
+
+**The drop estimator is small and its interval spans zero.** Twenty dropped
+benchmarks across 17 releases, mean +3.5 percentile points, CI [-2.6, +8.6].
+That is the one comparison in this design that isolates withholding, and it is
+not powered to detect a gap the size of the contamination.
+
+The honest position is therefore the one this document already gestures at in
+"The residual confound does not go away", but stronger: no estimate of
+selective disclosure is warranted from this design, and the reason is
+measurement rather than sample size. What the pipeline does establish is the
+obstacle, which is a result about how this question can be asked at all.
