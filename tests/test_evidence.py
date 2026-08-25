@@ -122,6 +122,36 @@ class TestHtml:
         assert image_tables(raw, "https://example.com/") == []
 
 
+class TestPdfImages:
+    def test_only_sizeable_images_are_written(self, tmp_path, monkeypatch):
+        """Logos and rules are dropped; a full-page results raster is kept."""
+        import src.extract_evidence as ev
+
+        class FakeImage:
+            def __init__(self, name, data):
+                self.name, self.data = name, data
+
+        class FakePage:
+            def __init__(self, images):
+                self.images = images
+
+        class FakeReader:
+            pages = [FakePage([FakeImage("logo.png", b"x" * 100)]),
+                     FakePage([FakeImage("table.png", b"y" * 500_000)])]
+
+        import sys
+        import types
+
+        fake = types.ModuleType("pypdf")
+        fake.PdfReader = lambda path: FakeReader()
+        monkeypatch.setitem(sys.modules, "pypdf", fake)
+
+        source = tmp_path / "card.pdf"
+        source.write_bytes(b"%PDF-1.7")
+        written = ev.pdf_images(source, tmp_path / "out")
+        assert [w.name for w in written] == ["card_p2_0.png"]
+
+
 class TestFetch:
     def test_pdf_is_sniffed_from_bytes_not_the_url(self, tmp_path, monkeypatch):
         """arxiv.org/pdf/2309.10305 serves a PDF from a URL with no '.pdf'."""

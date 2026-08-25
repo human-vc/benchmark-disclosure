@@ -19,6 +19,7 @@ import argparse
 import html
 import re
 import sys
+from pathlib import Path
 
 import pandas as pd
 
@@ -186,6 +187,34 @@ def render_tables(raw, keep=None):
     return out
 
 
+def pdf_images(path, out_dir, min_bytes=40_000):
+    """Write out every sizeable embedded image in a PDF, return the paths.
+
+    Google's Gemini model cards put the whole results table on one page as a
+    single raster. pypdf then extracts that page as a couple of hundred
+    characters of prose and every benchmark on it reads as unreported -- the
+    Gemini 3 Pro card scored zero alias hits across all 25 of its eligible
+    benchmarks before this existed. The threshold drops logos and rules.
+    """
+    import pypdf
+
+    out_dir.mkdir(parents=True, exist_ok=True)
+    written = []
+    reader = pypdf.PdfReader(str(path))
+    for number, page in enumerate(reader.pages, 1):
+        try:
+            images = list(page.images)
+        except Exception:
+            continue
+        for index, image in enumerate(images):
+            if len(image.data) < min_bytes:
+                continue
+            target = out_dir / f"{path.stem}_p{number}_{index}{Path(image.name).suffix or '.png'}"
+            target.write_bytes(image.data)
+            written.append(target)
+    return written
+
+
 def eligible_slugs(release_id):
     worklist = pd.read_csv(WORKLIST)
     rows = worklist[(worklist["release_id"] == release_id)
@@ -230,6 +259,8 @@ def main():
     parser.add_argument("url", nargs="?")
     parser.add_argument("--context", type=int, default=160)
     parser.add_argument("--cap", type=int, default=6)
+    parser.add_argument("--pdf-images", action="store_true",
+                        help="write out embedded PDF images and list them")
     parser.add_argument("--tables", nargs="?", const="", default=None,
                         help="render HTML tables; optional substring filter")
     parser.add_argument("--all", action="store_true",
@@ -246,6 +277,14 @@ def main():
         url = row.iloc[0]["source_url"]
 
     path = fetch(url)
+    if args.pdf_images:
+        if path.suffix != ".pdf":
+            print(f"{path} is not a PDF")
+            return
+        for image in pdf_images(path, path.parent / "pdf_images"):
+            print(image)
+        return
+
     text = artifact_text(path)
     guard(text, url)
     if path.suffix == ".html":
