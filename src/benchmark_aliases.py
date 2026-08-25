@@ -132,6 +132,10 @@ WEAK = {
     "math_level_5": {"MATH"},
     "metr_time_horizons": {"METR", "time horizon", "time horizons"},
     "chess_puzzles": {"Lichess"},
+    # Terminus is Terminal-Bench's harness and also the suffix of a DeepSeek
+    # model name, so a hit is as likely to be a competitor in a comparison
+    # sentence as it is a benchmark.
+    "terminalbench": {"Terminus"},
     "simpleqa_verified": {"SimpleQA", "Simple QA"},
     "arc_agi": {"ARC-AGI", "ARC AGI"},
     "webdev_arena": {"WebDev"},

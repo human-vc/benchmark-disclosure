@@ -86,7 +86,12 @@ def artifact_text(path):
     return html_to_text(path.read_text(errors="replace"))
 
 
-IMG_SRC = re.compile(r"""(?i)<img[^>]*?\bsrc=["']?([^"'>\s]+)""")
+# Hugging Face cards are markdown, so the results picture is as likely to be
+# ![bench](url) as it is an <img> tag. Missing the markdown form was worth a
+# whole release's table.
+IMG_SRC = re.compile(
+    r"""(?i)<img[^>]*?\bsrc=["']?([^"'>\s]+)|!\[[^\]]*\]\(([^)\s]+)"""
+)
 
 # Chrome, not content. Listing every image on a marketing page buries the one
 # that is the results table, so the obvious furniture is dropped by name.
@@ -108,13 +113,74 @@ def image_tables(raw, url):
     from urllib.parse import urljoin
     seen, out = set(), []
     for match in IMG_SRC.finditer(raw):
-        candidate = match.group(1)
+        candidate = match.group(1) or match.group(2)
         if NOT_A_TABLE.search(candidate):
             continue
         src = urljoin(url, candidate)
         if src not in seen:
             seen.add(src)
             out.append(src)
+    return out
+
+
+TABLE = re.compile(r"(?is)<table\b.*?</table>")
+ROW = re.compile(r"(?is)<tr\b.*?</tr>")
+CELL = re.compile(r"(?is)<t[dh]\b[^>]*>(.*?)</t[dh]>")
+
+
+MD_ROW = re.compile(r"^\s*\|.*\|\s*$")
+MD_RULE = re.compile(r"^\s*\|[\s:|-]+\|\s*$")
+
+
+def markdown_tables(raw):
+    """Contiguous runs of markdown pipe rows, as compact rows.
+
+    Hugging Face cards are markdown and most of them put the results table in
+    pipe syntax, which never reaches the <table> renderer.
+    """
+    out, current = [], []
+    for line in raw.splitlines():
+        if MD_ROW.match(line):
+            if not MD_RULE.match(line):
+                cells = [c.strip() for c in line.strip().strip("|").split("|")]
+                current.append(" | ".join(cells))
+        elif current:
+            if len(current) > 1:
+                out.append(current)
+            current = []
+    if len(current) > 1:
+        out.append(current)
+    return out
+
+
+def render_tables(raw, keep=None):
+    """Every <table> on the page as compact pipe-separated rows.
+
+    Provider cards increasingly ship the results table as hand-styled HTML in
+    which each cell carries eighty characters of inline CSS, so the surrounding
+    context a term search prints is almost all style attributes and the row is
+    unreadable. Stripping to cells makes the table legible, which is what the
+    coder needs in order to pick the right column.
+    """
+    out = []
+    blocks = [None] * 0
+    for index, rows in enumerate(markdown_tables(raw), 1):
+        if keep and not any(keep.lower() in row.lower() for row in rows):
+            continue
+        out.append(f"--- markdown table {index} ({len(rows)} rows) ---\n"
+                   + "\n".join(rows))
+    for index, block in enumerate(TABLE.findall(raw), 1):
+        rows = []
+        for row in ROW.findall(block):
+            cells = [" ".join(html.unescape(re.sub(r"(?s)<[^>]+>", " ", cell)).split())
+                     for cell in CELL.findall(row)]
+            if any(cells):
+                rows.append(" | ".join(cells))
+        if not rows:
+            continue
+        if keep and not any(keep.lower() in row.lower() for row in rows):
+            continue
+        out.append(f"--- table {index} ({len(rows)} rows) ---\n" + "\n".join(rows))
     return out
 
 
@@ -162,6 +228,8 @@ def main():
     parser.add_argument("url", nargs="?")
     parser.add_argument("--context", type=int, default=160)
     parser.add_argument("--cap", type=int, default=6)
+    parser.add_argument("--tables", nargs="?", const="", default=None,
+                        help="render HTML tables; optional substring filter")
     parser.add_argument("--all", action="store_true",
                         help="search every panel slug, not just this release's")
     args = parser.parse_args()
@@ -185,6 +253,12 @@ def main():
                   "anything as unreported")
             for src in pictures[:12]:
                 print(f"  {src}")
+    if args.tables is not None and path.suffix == ".html":
+        for block in render_tables(path.read_text(errors="replace"),
+                                   args.tables or None):
+            print(block)
+            print()
+        return
     slugs = sorted(PATTERNS) if args.all else eligible_slugs(args.release_id)
     print(f"{args.release_id}\n{url}\n{path}  ({len(text):,} chars, "
           f"{len(slugs)} slug(s) in scope)")

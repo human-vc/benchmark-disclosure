@@ -92,6 +92,16 @@ class TestHtml:
     def test_script_bodies_are_dropped(self):
         assert "MMLU" not in html_to_text("<script>var x='MMLU 90'</script>")
 
+    def test_markdown_images_are_surfaced(self):
+        found = image_tables(
+            "![bench](https://raw.githubusercontent.com/zai-org/GLM/bench.png)",
+            "https://huggingface.co/zai-org/GLM-4.6/raw/main/README.md",
+        )
+        assert found == ["https://raw.githubusercontent.com/zai-org/GLM/bench.png"]
+
+    def test_terminus_is_weak_because_it_is_also_a_model_name(self):
+        assert is_weak("terminalbench", "Terminus")
+
     def test_image_tables_are_surfaced_absolute(self):
         found = image_tables(
             '<img src="/assets/qwen-72b-base.001.jpeg">',
