@@ -140,9 +140,36 @@ case by case in the analyst's favour.
 
 ## Reliability
 
-Double-code a random 20% of rows. Report Cohen's kappa on the collapsed
-high-suspicion (D, E, G) versus low-suspicion (A, B, C, F, H, I) split, and
-separately on the full nine-category assignment.
+Double-code a random 20%, **stratified by provider**, and report Cohen's kappa
+on the collapsed high-suspicion (D, E, G) versus low-suspicion (A, B, C, F, H,
+I) split, and separately on the full nine-category assignment.
+
+The second coding is a second *extraction*, not a second category sheet. A
+coder here never assigns a category: they record what a release's artifact
+reports, and the categories follow by rule. Handing a second coder cells to
+re-categorise would measure nothing, because the rules are deterministic and
+two people given the same evidence file must agree by construction. The
+judgment that can differ is upstream -- does this artifact report this
+benchmark, and in what form -- so the draw samples releases and the second
+coder re-reads those artifacts.
+
+The blank sheet keeps `source_url` and `extra_source_urls`: both coders must
+read the same documents, or the exercise measures the second coder's search
+skills rather than their reading. It hides everything that encodes the first
+coder's judgment -- the reported set, variant names, the prior-model
+attribution, the notes, and the review flags. The flag matters most: it says
+"the first coder was unsure here", which is exactly the nudge that inflates
+agreement.
+
+Report the reported-versus-not kappa alongside the category kappas. That is the
+primitive judgment, and everything else is derived from it, so a category kappa
+higher than the reported kappa would mean the rules are absorbing disagreement
+rather than the coders sharing it.
+
+Stratify by provider because providers differ in artifact style -- one ships a
+text table, the next a picture, the next a client-rendered chart -- and a simple
+random draw can leave a provider unchecked and hide a systematic misreading of
+one company's documents.
 
 ORBIT's own validation is the honest benchmark to compare against, and it is
 not flattering: trained reviewers applying the G/H distinction achieved 92%
