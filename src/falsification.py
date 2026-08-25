@@ -148,6 +148,49 @@ def reverse_gap(coding):
     return flagged
 
 
+def placebo_under_each_measure(panel):
+    """The same contrast under every candidate repair.
+
+    Each row should be zero and none is, which is the point: the contamination
+    is not an artefact of one measure. Ranking against every model ever scored
+    nearly doubles it. Trimming to two-sided windows discards cells and removes
+    little, because trimming attacks the symptom -- the boundary -- and the
+    boundary is where the eligible/placebo distinction lives, so removing it
+    removes the contrast rather than cleaning it. Reweighting the two sides
+    does substantial work and still leaves the gap positive.
+    """
+    rows = []
+    variants = [
+        ("windowed percentile (under audit)", "percentile", None),
+        ("rank against all models ever", "percentile_alltime", None),
+        ("trim to two-sided windows", "percentile", "two_sided"),
+        ("side-balanced percentile", "percentile_balanced", None),
+    ]
+    total = len(panel[panel["group"].isin({"eligible", "placebo"})])
+    for label, value, trim in variants:
+        if value not in panel.columns:
+            continue
+        subset = panel
+        if trim == "two_sided":
+            # keep only cells with peers on both sides of the release
+            subset = panel[panel["percentile_older"].notna()
+                           & panel["percentile_newer"].notna()]
+        gaps = eligible_vs_placebo(subset, value)
+        if gaps.empty:
+            continue
+        used = subset[subset["group"].isin({"eligible", "placebo"})
+                      & subset[value].notna()]
+        rows.append({
+            "measure": label,
+            "mean": float(gaps["gap"].mean()),
+            "median": float(gaps["gap"].median()),
+            "positive": float((gaps["gap"] > 0).mean()),
+            "releases": len(gaps),
+            "cell_share": len(used) / total if total else float("nan"),
+        })
+    return pd.DataFrame(rows)
+
+
 def report_label_free_placebo(panel):
     print("\n" + "=" * 62)
     print("0. PLACEBO WITHOUT LABELS -- available vs postdating benchmarks")
@@ -169,6 +212,16 @@ def report_label_free_placebo(panel):
         print(f"     mean {mean:+.2f}  median {gaps['gap'].median():+.2f}  "
               f"positive {(gaps['gap'] > 0).mean():.1%}  "
               f"95% CI [{lo:+.2f}, {hi:+.2f}]")
+
+    table = placebo_under_each_measure(panel)
+    if not table.empty:
+        print("\n   every candidate repair, same contrast (all should be zero):")
+        print(f"   {'measure':38} {'mean':>7} {'median':>7} {'pos':>6} "
+              f"{'rel':>5} {'cells':>7}")
+        for row in table.itertuples():
+            print(f"   {row.measure:38} {row.mean:+7.2f} {row.median:+7.2f} "
+                  f"{row.positive:5.1%} {row.releases:5d} {row.cell_share:6.1%}")
+
     shares = panel.groupby("group")["newer_share"].mean()
     if {"eligible", "placebo"} <= set(shares.index):
         print(f"   peer windows: mean share of the window newer than the focal "

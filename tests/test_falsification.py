@@ -104,3 +104,45 @@ class TestLabelFreePlacebo:
 
         got = eligible_vs_placebo(self.PANEL, value="percentile_balanced")
         assert got.set_index("release_id")["gap"]["R1"] == pytest.approx(10.0)
+
+
+class TestRemedyTable:
+    def test_every_candidate_measure_is_reported(self):
+        """The table exists to show that no single change of measure removes
+        the contamination, so a measure silently missing from it would read as
+        a repair that was never tried."""
+        from src.config import INTERIM
+        from src.falsification import placebo_under_each_measure
+        from src.percentiles import add_percentiles
+
+        if not (INTERIM / "panel.csv").exists():
+            pytest.skip("panel not built")
+        panel = add_percentiles(
+            pd.read_csv(INTERIM / "panel.csv", parse_dates=["Release date"])
+        )
+        panel["group"] = np.where(panel["eligible"], "eligible",
+                                  np.where(panel["placebo"], "placebo", "unknown"))
+        table = placebo_under_each_measure(panel)
+        assert set(table["measure"]) == {
+            "windowed percentile (under audit)",
+            "rank against all models ever",
+            "trim to two-sided windows",
+            "side-balanced percentile",
+        }
+
+    def test_trimming_reports_the_cells_it_discards(self):
+        """A remedy that works by throwing cells away has to say how many."""
+        from src.config import INTERIM
+        from src.falsification import placebo_under_each_measure
+        from src.percentiles import add_percentiles
+
+        if not (INTERIM / "panel.csv").exists():
+            pytest.skip("panel not built")
+        panel = add_percentiles(
+            pd.read_csv(INTERIM / "panel.csv", parse_dates=["Release date"])
+        )
+        panel["group"] = np.where(panel["eligible"], "eligible",
+                                  np.where(panel["placebo"], "placebo", "unknown"))
+        table = placebo_under_each_measure(panel).set_index("measure")
+        assert table.loc["trim to two-sided windows", "cell_share"] < 1.0
+        assert table.loc["windowed percentile (under audit)", "cell_share"] == 1.0

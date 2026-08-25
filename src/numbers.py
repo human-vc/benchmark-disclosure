@@ -91,6 +91,12 @@ def collect():
         }
     out["placebo_without_labels"] = placebo
 
+    from .falsification import placebo_under_each_measure
+
+    out["placebo_under_each_measure"] = (
+        placebo_under_each_measure(panel).to_dict("records")
+    )
+
     # --- peer-window geometry ---------------------------------------------
     shares = panel.groupby("group")["newer_share"].mean()
     out["peer_window"] = {
