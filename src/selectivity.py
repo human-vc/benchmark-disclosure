@@ -1,25 +1,4 @@
-"""Reported-vs-omitted selectivity statistics.
-
-Requires a populated disclosure coding sheet. See protocol/coding-protocol.md
-for the instrument and protocol/disclosure-template.csv for the schema.
-
-Three estimators, in increasing order of how much they identify:
-
-1. **Release-level gap.** Within a release, mean percentile on disclosed
-   benchmarks minus mean percentile on omitted ones. Differencing within the
-   release removes the model's overall capability level, which is what
-   design.md asks for; it does not remove the four innocent explanations.
-
-2. **Drop estimator (ORBIT E).** Restricted to benchmarks the provider
-   reported for an earlier release in the same family and then stopped
-   reporting. The provider's own prior release establishes relevance and
-   establishes that they run it. This is the primary unit.
-
-3. **Conditioned comparison.** Anything compared across access type conditions
-   on the number of independent scores, because Epoch evaluates API models
-   roughly twice as densely as open-weights ones and raw rates are therefore
-   not comparable across that margin.
-"""
+"""Reported-vs-omitted selectivity statistics."""
 
 import sys
 
@@ -68,12 +47,7 @@ def merge_coding(panel, coding):
 
 
 def release_sets(merged):
-    """Per-release mean percentile on each of the three benchmark sets.
-
-    disclosed : eligible and reported
-    omitted   : eligible and not reported  -- the strategic-omission candidates
-    placebo   : postdates the release, so non-disclosure is mechanical
-    """
+    """Per-release mean percentile on each of the three benchmark sets."""
     merged = merged.copy()
     merged["set"] = np.where(
         merged["group"] == "placebo",
@@ -108,16 +82,7 @@ def release_sets(merged):
 
 
 def gap_by_release(sets, against="omitted", min_disclosed=2, min_other=1):
-    """Disclosed-minus-other percentile gap, one row per release.
-
-    This is the headline descriptive statistic. It is zero under random
-    omission, but it is vulnerable to an artifact that omission_deficit() is
-    not: if the benchmarks providers tend not to report are also the ones
-    models score badly on for reasons unrelated to any disclosure choice --
-    harder benchmarks, more recent benchmarks, benchmarks Epoch runs precisely
-    because they are discriminating -- this comparison picks that up and calls
-    it concealment.
-    """
+    """Disclosed-minus-other percentile gap, one row per release."""
     keep = (
         (sets["n_disclosed"] >= min_disclosed)
         & (sets[f"n_{against}"] >= min_other)
@@ -130,46 +95,7 @@ def gap_by_release(sets, against="omitted", min_disclosed=2, min_other=1):
 
 
 def omission_deficit(sets, min_omitted=1, min_placebo=1):
-    """Omitted-eligible versus placebo standing. NOT identifying: read the null.
-
-    This was designed as the identifying contrast. Both sets are
-    non-disclosures, so neither carries the upward selection that contaminates
-    any comparison against the disclosed set, and they differ in exactly one
-    respect: an eligible benchmark could have been reported and was not, while a
-    benchmark postdating the release could not have been. The reasoning is that
-    any artifact making non-disclosed benchmarks look bad for non-strategic
-    reasons hits both sets and differences out, leaving a statistic that is zero
-    under every innocent explanation.
-
-    The statistic does not obey that reasoning. Computed on this panel with no
-    disclosure labels at all, eligible benchmarks outscore postdating ones by
-    12.2 percentile points within a release, positive in 78 percent of the 146
-    releases that carry both sets. That is this estimator's null, and it runs in
-    the direction that manufactures false nulls: concealment has to overcome a
-    twelve-point head start before the statistic registers anything.
-
-    Two things cause it. Benchmark composition carries most: the panel is
-    unbalanced and placebo cells concentrate in benchmarks that entered late, so
-    absorbing release and benchmark effects jointly moves the coefficient from
-    -13.4 to -4.9. The peer window carries the rest, because it is symmetric in
-    days while a benchmark's model coverage begins when the benchmark is built,
-    so a release predating its benchmark is ranked against peers 63 percent newer
-    than itself against 44 percent for eligible cells. Absorbing both and
-    conditioning on peer-window composition leaves +0.25 with a standard error of
-    1.62, not distinguishable from zero. The relationship is not an accounting
-    identity: permuting scores within benchmark, which destroys the capability
-    trend and leaves the window structure untouched, puts the asymmetry slope at
-    -0.34 against an observed -29.09, with no draw in 300 reaching it.
-    src/placebo_calibration.py reproduces all of this.
-
-    So this function stays, and what it is for has changed. It is reported
-    against the measured null rather than against zero, and the placebo group
-    reverts to its defensible role, which is validating that the coding
-    instrument returns nothing where nothing could have been omitted. Identifying
-    variation has to come from the within-release, within-benchmark margin
-    instead. Negative values are evidence of concealment only relative to the
-    calibrated null, never relative to zero.
-    """
+    """Omitted-eligible versus placebo standing. NOT identifying: read the null."""
     keep = (
         (sets["n_omitted"] >= min_omitted)
         & (sets["n_placebo"] >= min_placebo)
@@ -182,12 +108,7 @@ def omission_deficit(sets, min_omitted=1, min_placebo=1):
 
 
 def drop_estimator(merged):
-    """ORBIT E: the release's standing on benchmarks it stopped reporting,
-    against its standing on the benchmarks it kept reporting.
-
-    A negative value means the dropped benchmark is where the model looks
-    worse than it looks on what the provider chose to keep showing.
-    """
+    """ORBIT E: the release's standing on benchmarks it stopped reporting,"""
     if "orbit_category" not in merged.columns:
         return pd.DataFrame()
     rows = []
@@ -210,15 +131,7 @@ def drop_estimator(merged):
 
 
 def report_gaps(gaps, label):
-    """Report a release-level gap with inference that survives few clusters.
-
-    The bootstrap interval is shown only when there are enough providers for it
-    to mean anything. Otherwise the cluster sign-flip randomization test carries
-    the report, because it is exact under its own null and does not improve or
-    degrade with the number of clusters, it simply becomes granular. Saying
-    "p is at best 0.5 with one provider" is informative; a zero-width interval
-    is not.
-    """
+    """Report a release-level gap with inference that survives few clusters."""
     if gaps.empty:
         print(f"\n{label}: no release meets the minimum reported/omitted counts")
         return None

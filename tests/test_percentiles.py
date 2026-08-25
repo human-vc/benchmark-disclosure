@@ -10,28 +10,24 @@ def test_window_excludes_distant_models(tiny_panel):
     out = within_benchmark_percentile(tiny_panel, window_days=182)
     by = out.set_index(RELEASE_COL)
 
-    # A, B, C are all within 182 days of each other; D is years later.
     assert by.loc["A", "n_peers"] == 3
     assert by.loc["D", "n_peers"] == 1
 
-    # Among A(0.1), B(0.5), C(0.9): midrank percentiles 1/6, 3/6, 5/6.
     assert by.loc["A", "percentile"] == 100 / 6
     assert by.loc["B", "percentile"] == 50.0
     assert by.loc["C", "percentile"] == 500 / 6
 
-    # D is alone in its window, so it is at the midpoint of a field of one.
     assert by.loc["D", "percentile"] == 50.0
 
 
 def test_alltime_ranking_would_place_d_differently(tiny_panel):
-    """The whole point of windowing: D's standing changes when it is ranked
-    against models from another era rather than its own."""
+    """The whole point of windowing: D's standing changes when it is ranked"""
     out = within_benchmark_percentile(tiny_panel, window_days=182)
     alltime = tiny_panel.groupby("slug")["score"].rank(pct=True) * 100
     d_windowed = out.loc[out[RELEASE_COL] == "D", "percentile"].iloc[0]
     d_alltime = alltime[tiny_panel[RELEASE_COL] == "D"].iloc[0]
     assert d_windowed == 50.0
-    assert d_alltime == 100.0  # top of 4 by raw score, though alone in its era
+    assert d_alltime == 100.0
     assert d_windowed != d_alltime
 
 
@@ -50,12 +46,7 @@ def test_window_width_changes_peer_count(tiny_panel):
 
 
 def test_side_balanced_decomposition_is_an_identity():
-    """percentile = (1 - share_newer) * P_old + share_newer * P_new, cell by cell.
-
-    This is what licenses the correction. The contamination is not in either
-    side of the window, it is in the empirical weight between them, so replacing
-    that weight is a targeted repair rather than a different measure.
-    """
+    """percentile = (1 - share_newer) * P_old + share_newer * P_new, cell by cell."""
     rng = np.random.default_rng(5)
     rows = []
     for r in range(20):
@@ -72,8 +63,6 @@ def test_side_balanced_decomposition_is_an_identity():
 
 
 def test_a_cell_with_an_empty_side_has_no_balanced_value():
-    # the earliest model on a benchmark has no older peer but itself, and the
-    # latest has no newer peer; neither gets a filled-in one-sided number
     rows = [("R0", "Org", "2025-01-01", "b", "2024-01-01", 0.1),
             ("R1", "Org", "2025-03-01", "b", "2024-01-01", 0.5)]
     panel = side_balanced_percentile(

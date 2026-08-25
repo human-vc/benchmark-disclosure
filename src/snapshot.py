@@ -1,13 +1,4 @@
-"""Pin the Epoch data snapshot.
-
-`data/raw/` is gitignored, so two people running the same code against the hub
-on different days get different numbers with nothing to warn them. Epoch's
-Benchmarking Hub is updated continuously: a rebuild three days later added
-twenty model-versions and moved every count in the README. This module makes
-that drift loud instead of silent.
-
-The manifest is checked in; the data it describes is not.
-"""
+"""Pin the Epoch data snapshot."""
 
 import hashlib
 import json

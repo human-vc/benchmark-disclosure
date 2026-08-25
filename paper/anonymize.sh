@@ -1,12 +1,4 @@
 #!/usr/bin/env bash
-# Build the anonymous supplementary archive for a double-blind submission.
-#
-# The repository source is already clean: no author names appear in any tracked
-# file, and the compiled PDF carries no /Author field. The identity leak is
-# entirely in git metadata, where both authors appear by name and email and one
-# email is a GitHub noreply address embedding a numeric user id that resolves to
-# an account. Mirroring the repository would carry that history across, so this
-# builds a fresh tree with no .git directory rather than trying to scrub one.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -14,8 +6,6 @@ OUT=${1:-dist/anonymous-artifact.zip}
 STAGE=$(mktemp -d)
 mkdir -p "$(dirname "$OUT")"
 
-# Tracked source only, so nothing untracked or local leaks in. data/raw is
-# gitignored by design; the snapshot manifest is what makes it reproducible.
 git ls-files -z \
   | grep -zv '^paper/\.baseline/' \
   | while IFS= read -r -d '' f; do
@@ -24,12 +14,9 @@ git ls-files -z \
     done
 
 cat > "$STAGE/README.md" <<'EOF'
-# Anonymous artifact
 
 Code and derived data for the submission. Author-identifying information has
 been removed and no version-control history is included.
-
-## Reproducing the numbers
 
     pip install -r requirements.txt
     python -m src.download_data        # fetch the evaluator's public bundle

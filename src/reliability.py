@@ -1,16 +1,4 @@
-"""Double-coding draw and inter-rater agreement.
-
-protocol/coding-protocol.md commits to double-coding a random 20% of rows and
-reporting Cohen's kappa on two splits: the collapsed high-suspicion (D, E, G)
-versus low-suspicion (A, B, C, F, H, I) dichotomy, and the full nine-category
-assignment.
-
-ORBIT's own validation is the benchmark to compare against and it is not
-flattering -- trained reviewers applying the G/H distinction reached 92%
-sensitivity and 77% specificity against ground truth. This instrument should
-not be expected to beat that. The disagreement rate is reported rather than
-suppressed.
-"""
+"""Double-coding draw and inter-rater agreement."""
 
 import sys
 
@@ -42,12 +30,7 @@ def cohens_kappa(a, b):
 
 
 def draw_sample(sheet, share=SAMPLE_SHARE, seed=0):
-    """Random rows for second coding, stratified by provider.
-
-    Stratifying matters: providers differ in artifact style, so a simple random
-    draw can leave a provider entirely unchecked and hide a coder's systematic
-    misreading of one company's model cards.
-    """
+    """Random rows for second coding, stratified by provider."""
     coded = sheet[sheet["orbit_category"].notna() & (sheet["orbit_category"] != "")]
     coded = coded[coded.get("coder", "") != "auto"]
     if coded.empty:

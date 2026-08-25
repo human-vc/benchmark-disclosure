@@ -1,5 +1,4 @@
-"""Kappa must behave: 1 on perfect agreement, ~0 on chance, and it must
-penalise agreement that is only prevalence."""
+"""Kappa must behave: 1 on perfect agreement, ~0 on chance, and it must"""
 import numpy as np
 import pandas as pd
 
@@ -22,8 +21,7 @@ def test_chance_agreement_is_near_zero():
 
 
 def test_kappa_below_raw_agreement_when_one_category_dominates():
-    """The reason the protocol asks for kappa and not percent agreement:
-    two coders who both say A almost always agree by construction."""
+    """The reason the protocol asks for kappa and not percent agreement:"""
     a = ["A"] * 95 + list("BCDEF")
     b = ["A"] * 95 + list("BCDEG")
     kappa, agreement = cohens_kappa(a, b)

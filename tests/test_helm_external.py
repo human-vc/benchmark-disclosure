@@ -1,11 +1,4 @@
-"""The external exhibit, pinned.
-
-This is the only claim in the project about numbers someone else published, so
-it carries the most risk and gets the most explicit test. The three invariants
-the exhibit rests on are checked separately, because a referee's first objection
-is that HELM changed what it measured, and the answer has to be that they did
-not.
-"""
+"""The external exhibit, pinned."""
 import json
 
 import pytest
@@ -38,7 +31,6 @@ def test_all_fourteen_releases_are_present(helm):
 
 
 def test_the_scenarios_never_change(helm):
-    # the model column is relabelled at v1.10.0; the ten scenarios are not
     payload, order = helm
     assert scenario_columns_are_stable(payload, order)
 
@@ -51,8 +43,7 @@ def test_the_pool_grows(helm):
 
 
 def test_the_frozen_evidence_is_bit_identical(helm):
-    """240 published scores, unchanged across every release. If this ever fails,
-    the exhibit is void and must not be published."""
+    """240 published scores, unchanged across every release. If this ever fails,"""
     payload, order = helm
     models = frozen_models(payload, order)
     assert len(models) == 24
@@ -69,11 +60,7 @@ def test_every_frozen_model_moves_anyway(helm):
 
 
 def test_the_drift_is_not_a_monotone_rescaling(helm):
-    """The load-bearing claim is the reordering, not the drift.
-
-    Everyone's win rate falling as newer models enter is arithmetic. Pairs
-    changing order is not, and it is what a leaderboard exists to prevent.
-    """
+    """The load-bearing claim is the reordering, not the drift."""
     payload, order = helm
     head = headline_drift(payload, order, frozen_models(payload, order))
     assert head["reversals_endpoint"] >= 1
@@ -107,7 +94,6 @@ def helm_control():
 
 
 def test_the_control_grows_like_the_treatment(helm_control):
-    # if the control pool were static, its zero drift would prove nothing
     assert helm_control["pool_size_last"] > 2 * helm_control["pool_size_first"]
     assert helm_control["releases"] >= 14
 
@@ -119,12 +105,7 @@ def test_the_control_evidence_is_also_frozen(helm_control):
 
 
 def test_an_absolute_headline_does_not_drift(helm_control):
-    """The prediction, stated before the test was run.
-
-    Same evaluator, same infrastructure, same release cadence, comparable pool
-    growth. The only difference is that this headline is an absolute mean rather
-    than a pool-relative win rate, and nothing moves.
-    """
+    """The prediction, stated before the test was run."""
     assert helm_control["headline_kind"] == "absolute"
     assert helm_control["moved"] == 0
     assert helm_control["reversals_endpoint"] == 0
@@ -140,8 +121,6 @@ def test_treatment_and_control_diverge(helm, helm_control):
 
 
 def test_correlation_is_undefined_rather_than_zero_when_nothing_moves(helm_control):
-    # a control that moves nothing has no variance to correlate; reporting 0.0
-    # here would read as "no relationship" rather than "no variation"
     payload, order = load(CONTROL)
     head = headline_drift(payload, order, frozen_models(payload, order),
                           headline="Mean score")

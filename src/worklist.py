@@ -1,19 +1,4 @@
-"""Emit the targeted disclosure-coding worklist.
-
-Coding every eligible (release, benchmark) cell means reading a model card for
-1,502 cells. Most of them can never produce the study's primary unit. A drop
-(ORBIT E) requires a predecessor in the same family that reported the
-benchmark, so only cells belonging to a multi-release family can ever be one.
-Restricting to those, and to releases Epoch scores densely enough to support a
-within-model comparison, cuts the reading to a few hundred cells without
-discarding a single potential drop.
-
-Placebo cells are emitted too, but pre-filled rather than hand-coded: a
-benchmark that postdates the release could not have been reported in the
-release-date artifact, so reported=0 holds by construction under the source
-hierarchy in the protocol. They cost no reading time and they are what the
-placebo falsification test consumes.
-"""
+"""Emit the targeted disclosure-coding worklist."""
 
 import pandas as pd
 
@@ -75,8 +60,6 @@ def build(panel, families, min_benchmarks=MIN_BENCHMARKS):
     placebo["group"] = "placebo"
     for column in CODING_COLUMNS:
         placebo[column] = ""
-    # Not hand-coded: a benchmark released after the model cannot appear in the
-    # release-date artifact, so non-disclosure is mechanical, not a choice.
     placebo["reported"] = 0
     placebo["coder"] = "auto"
     placebo["notes"] = "benchmark postdates release; reported=0 by construction"

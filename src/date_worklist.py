@@ -1,17 +1,4 @@
-"""Emit the hand-fill worklist for missing benchmark release dates.
-
-The temporal gate is the filter that removes the "benchmark did not exist yet"
-explanation for non-disclosure. It only applies to benchmarks whose release
-date is known, so every undated benchmark drops out of both the eligible set
-and the placebo set. Filling these dates is the highest-leverage manual task in
-the repository.
-
-Rows are ranked by the number of model-benchmark pairs each date would move out
-of "unknown vintage", so the lookups can be done in order of what they buy.
-
-Writes a stub to data/benchmark_dates.csv, preserving any dates already filled.
-Never invents a date: stub rows are emitted empty with status="todo".
-"""
+"""Emit the hand-fill worklist for missing benchmark release dates."""
 
 import pandas as pd
 
@@ -37,10 +24,6 @@ def main():
 
     filled = existing[existing["benchmark_release_date"].notna()]
 
-    # Preserve annotations on *unfilled* rows too. A note recording that a
-    # benchmark was searched for and not found is the difference between the
-    # next person skipping it and repeating the search, so regenerating the
-    # worklist must not silently discard it.
     annotated = existing[
         existing["benchmark_release_date"].isna()
         & existing.get("note", pd.Series(dtype=object)).notna()

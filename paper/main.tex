@@ -1,8 +1,5 @@
-% Absence Is Not Omission
 \documentclass{article}
 
-% Double-blind workshop submission. The style file supplies geometry, fonts and
-% natbib, so nothing here restates them.
 \usepackage[dblblindworkshop]{neurips_2026}
 \workshoptitle{Economics for Machine Learning}
 
@@ -19,7 +16,6 @@
 \usepgfplotslibrary{fillbetween}
 \usetikzlibrary{shapes,arrows,positioning,calc,backgrounds,fit,patterns,decorations.pathreplacing}
 
-% Okabe-Ito, colourblind safe and legible in greyscale.
 \definecolor{cNYC}{HTML}{0072B2}
 \definecolor{cSF}{HTML}{D55E00}
 \definecolor{cMUTE}{HTML}{BBBBBB}
@@ -28,9 +24,6 @@
 \definecolor{cSKY}{HTML}{56B4E9}
 \definecolor{cYEL}{HTML}{E69F00}
 
-% Left spines only, ticks outside, no legend box. Nothing is written inside an
-% axis: every quantity a reader needs is in the caption, and legends are pulled
-% out with `legend to name` so no label can collide with data.
 \pgfplotsset{
   causalre/.style={
     axis lines*=left,
@@ -45,13 +38,9 @@
   causalre wide/.style={ causalre, width=0.70\textwidth, height=0.38\textwidth },
 }
 
-
 \hypersetup{colorlinks=true, linkcolor=black, citecolor=black, urlcolor=blue}
 \captionsetup{font=small, labelfont=bf}
 
-% Default float parameters reserve so much of a page for text that a 3in figure
-% gets deferred to a page of its own, which at nine pages is unaffordable.
-% These let a float share a page with the text that discusses it.
 \renewcommand{\topfraction}{0.92}
 \renewcommand{\bottomfraction}{0.85}
 \renewcommand{\textfraction}{0.06}
@@ -63,8 +52,6 @@
 Availability, Vintage, and the Measurement of\\
 Selective Benchmark Disclosure}
 
-% DOUBLE BLIND: no author block, no acknowledgements, no repository URL in the
-% submitted version. The anonymised artifact link goes in the supplementary.
 \author{}
 \date{}
 
@@ -85,6 +72,5 @@ Selective Benchmark Disclosure}
 
 \newpage
 \input{sections/checklist}
-
 
 \end{document}

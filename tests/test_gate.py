@@ -1,11 +1,4 @@
-"""Temporal gate boundaries.
-
-The gate is what removes the "benchmark did not exist yet" explanation, so its
-edge behaviour is load-bearing: a benchmark released the same day a model ships
-is not something the provider could have reported at release, and an unknown
-vintage must land in neither the eligible nor the placebo set rather than
-defaulting into one of them.
-"""
+"""Temporal gate boundaries."""
 import pandas as pd
 
 from src.config import RELEASE_COL

@@ -1,9 +1,4 @@
-"""The four falsification tests docs/design.md commits to.
-
-Each is written to be capable of failing. A suite that can only confirm is
-decoration, so the pass condition is stated with each test and the result is
-printed whatever it says.
-"""
+"""The four falsification tests docs/design.md commits to."""
 
 import sys
 
@@ -23,16 +18,7 @@ from .stats import bootstrap_mean, ols, print_ols, randomization_test_mean
 
 
 def permutation_test(merged, draws=2000, seed=0):
-    """Relabel which benchmarks were disclosed, at random within release.
-
-    Holding each release's disclosed *count* fixed is what makes this a test of
-    selection rather than of table size: the convention explanation in
-    design.md says providers report a fixed number of benchmarks, and this null
-    grants that and asks only whether *which* ones is random.
-
-    Vectorised over draws; the previous groupby-transform implementation
-    rebuilt the frame 2,000 times.
-    """
+    """Relabel which benchmarks were disclosed, at random within release."""
     eligible = merged[merged["group"] == "eligible"].copy()
     codes, releases = pd.factorize(eligible[RELEASE_COL])
     percentile = eligible["percentile"].to_numpy(float)
@@ -71,17 +57,7 @@ def permutation_test(merged, draws=2000, seed=0):
 
 
 def excess_omission(sets):
-    """Does the omitted set sit below what the disclosed set predicts?
-
-    design.md: "If omission is strategic, omitted-benchmark percentiles should
-    sit below what the model's disclosed benchmarks predict. If innocent, they
-    should be unrelated to the model's level."
-
-    Fits mean_omitted = a + b * mean_disclosed. Under innocent omission the
-    omitted benchmarks are a random slice of the release's standing, so b ~ 1
-    and a ~ 0. Strategic omission pushes a below zero: the same model, held at
-    the same disclosed level, does worse on what it withheld.
-    """
+    """Does the omitted set sit below what the disclosed set predicts?"""
     usable = sets.dropna(subset=["mean_disclosed", "mean_omitted"])
     if len(usable) < 10:
         return None
@@ -94,13 +70,7 @@ def excess_omission(sets):
 
 
 def reverse_gap(coding):
-    """Benchmarks a provider reports that the independent source does not cover.
-
-    design.md keeps these rather than discarding them: under a pure concealment
-    story that set should not be systematically favourable. A provider reaching
-    for benchmarks Epoch does not run is doing something, and it is not
-    concealment.
-    """
+    """Benchmarks a provider reports that the independent source does not cover."""
     if "reverse_gap" not in coding.columns:
         return None
     flagged = coding[
@@ -140,7 +110,6 @@ def main():
         test = randomization_test_mean(values, cluster=providers)
         if np.isfinite(lo):
             print(f"   n={len(deficit)}  mean {mean:+.1f}  95% CI [{lo:+.1f}, {hi:+.1f}]")
-            # an interval that is absent is not an interval that spans zero
             print(f"   -> {'excludes' if hi < 0 or lo > 0 else 'includes'} zero")
         else:
             print(f"   n={len(deficit)}  mean {mean:+.1f}  "

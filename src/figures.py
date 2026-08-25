@@ -1,20 +1,4 @@
-"""Every figure and every table in the manuscript, regenerated from one command.
-
-The rule in src/paper_numbers.py applies here with more force. A figure is a
-number that a reader cannot check against the code, so nothing in this module
-is drawn from a literal. Panel figures are computed from data/interim/panel.csv
-through the same percentile functions the estimates use, external evidence is
-read from the frozen HELM files through src/helm_external.py, and the two LaTeX
-tables are written from data/paper_numbers.json so that no coefficient, no
-standard error and no absorbed share is ever typed by hand.
-
-Output is vector PDF at the text width of a single-column NeurIPS workshop
-paper. Captions live in the LaTeX source, not here: a figure that needs its
-caption to be readable has already failed, so every panel carries the
-annotation it needs to stand alone.
-
-    python -m src.figures
-"""
+"""Every figure and every table in the manuscript, regenerated from one command."""
 
 import json
 
@@ -24,20 +8,18 @@ import pandas as pd
 
 mpl.use("Agg")
 
-import matplotlib.dates as mdates  # noqa: E402
-import matplotlib.pyplot as plt  # noqa: E402
-from matplotlib.lines import Line2D  # noqa: E402
-from matplotlib.patches import Rectangle  # noqa: E402
+import matplotlib.dates as mdates
+import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
+from matplotlib.patches import Rectangle
 
-from . import helm_external as helm  # noqa: E402
-from .config import INTERIM, RELEASE_COL, ROOT, WINDOW_DAYS  # noqa: E402
-from .percentiles import side_balanced_percentile, within_benchmark_percentile  # noqa: E402
+from . import helm_external as helm
+from .config import INTERIM, RELEASE_COL, ROOT, WINDOW_DAYS
+from .percentiles import side_balanced_percentile, within_benchmark_percentile
 
 FIGDIR = ROOT / "paper" / "figures"
 NUMBERS = ROOT / "data" / "paper_numbers.json"
 
-# Okabe-Ito, the eight-colour set designed to survive the common forms of
-# colour vision deficiency and greyscale printing.
 OKABE = {
     "black": "#000000",
     "orange": "#E69F00",
@@ -51,8 +33,6 @@ OKABE = {
 GREY = "#9A9A9A"
 FAINT = "#D6D6D6"
 
-# NeurIPS text width is 5.5in. Figures are sized to it or to a half of it so
-# nothing is rescaled in LaTeX, because rescaling breaks the font sizes below.
 TEXTWIDTH = 5.5
 
 
@@ -102,13 +82,7 @@ def load_numbers(path=NUMBERS):
 
 
 def cluster_se(values, clusters):
-    """Standard error of a mean, clustered on the provider.
-
-    Cells from one organisation share a release, a training recipe and a
-    reporting practice, so treating them as independent understates every
-    interval in this paper by a factor that grows with how many benchmarks a
-    provider happens to be scored on.
-    """
+    """Standard error of a mean, clustered on the provider."""
     values = np.asarray(values, float)
     clusters = np.asarray(clusters)
     n = len(values)
@@ -145,17 +119,8 @@ def _demean(frame, column, by=RELEASE_COL):
     return frame[column] - frame.groupby(by)[column].transform("mean")
 
 
-# ---------------------------------------------------------------- figure one
-
-
 def figure_one(panel, numbers, path=None):
-    """One curve, two positions on it.
-
-    The eligible-versus-placebo contrast is the paper's nominal estimator and
-    the figure's job is to show, before the reader has read a word, that the
-    contrast is a difference in where two groups sit along a single gradient in
-    peer-window composition rather than a fact about what providers disclosed.
-    """
+    """One curve, two positions on it."""
     path = path or FIGDIR / "fig1_one_curve.pdf"
     cells = panel[panel["eligible"] | panel["placebo"]].dropna(
         subset=["percentile", "share_newer"])
@@ -217,9 +182,6 @@ def figure_one(panel, numbers, path=None):
     fig.savefig(path)
     plt.close(fig)
     return path
-
-
-# ---------------------------------------------------------------- figure two
 
 
 def _drift_series(path, headline):
@@ -323,9 +285,6 @@ def figure_two(numbers, path=None):
     return path
 
 
-# -------------------------------------------------------------- figure three
-
-
 def _window_facts(panel, slug, focal_date, window_days=WINDOW_DAYS):
     group = panel[panel["slug"] == slug].sort_values("Release date")
     days = group["Release date"].to_numpy("datetime64[D]").astype(np.int64)
@@ -349,12 +308,7 @@ def _window_facts(panel, slug, focal_date, window_days=WINDOW_DAYS):
 
 def figure_three(panel, slug="hle", boundary="2024-09-24", interior="2025-12-11",
                  path=None, window_days=WINDOW_DAYS):
-    """Why the window is symmetric in days and asymmetric in peers.
-
-    Drawn on a real benchmark's real coverage rather than an idealised sketch,
-    because the asymmetry is a property of when evaluators started scoring that
-    benchmark, and a sketch could be accused of assuming what it illustrates.
-    """
+    """Why the window is symmetric in days and asymmetric in peers."""
     path = path or FIGDIR / "fig3_window_geometry.pdf"
     low = _window_facts(panel, slug, boundary, window_days)
     high = _window_facts(panel, slug, interior, window_days)
@@ -442,9 +396,6 @@ def figure_three(panel, slug="hle", boundary="2024-09-24", interior="2025-12-11"
     return path
 
 
-# --------------------------------------------------------------- figure four
-
-
 def figure_four(panel, numbers, path=None):
     """What the repair does to the gradient it is meant to remove."""
     path = path or FIGDIR / "fig4_correction.pdf"
@@ -492,9 +443,6 @@ def figure_four(panel, numbers, path=None):
     fig.savefig(path)
     plt.close(fig)
     return path
-
-
-# ------------------------------------------------------------------- tables
 
 
 LADDER = [
@@ -552,12 +500,7 @@ def table_one(numbers, path=None):
 
 
 def _midrank_alltime(panel):
-    """All-time within-benchmark standing, on the same midrank convention.
-
-    The windowed percentile counts ties at a half. Ranking against every model
-    ever scored has to use the same convention or the two rows of the remedy
-    table are not measuring the same thing on different peer sets.
-    """
+    """All-time within-benchmark standing, on the same midrank convention."""
     out = pd.Series(np.nan, index=panel.index)
     for _, group in panel.groupby("slug", sort=False):
         scores = group["score"].to_numpy(float)
@@ -580,12 +523,7 @@ def _release_contrast(panel, column):
 
 
 def table_two(numbers, panel=None, path=None):
-    """The remedy table, including the remedies that fail.
-
-    The two rows the JSON does not carry, ranking against all models ever and
-    trimming to two-sided windows, are recomputed here from the panel through
-    the same contrast function rather than transcribed.
-    """
+    """The remedy table, including the remedies that fail."""
     path = path or FIGDIR / "table2_remedies.tex"
     rows = [
         (r"Windowed percentile (under audit)",

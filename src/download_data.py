@@ -1,10 +1,4 @@
-"""Fetch and unpack Epoch AI's benchmark data (CC-BY).
-
-Epoch's hub is a moving target. Downloading is therefore two decisions, not
-one: fetch the current bundle, and decide whether that bundle becomes the build
-this repository reports numbers against. The second is deliberate and requires
---capture, which rewrites data/snapshot.json.
-"""
+"""Fetch and unpack Epoch AI's benchmark data (CC-BY)."""
 
 import argparse
 import hashlib

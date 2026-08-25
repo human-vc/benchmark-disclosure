@@ -1,8 +1,4 @@
-"""Family linkage invariants.
-
-A drop is only defined relative to a predecessor in the same family, so a bad
-linkage does not produce a noisy estimate -- it produces a wrong one.
-"""
+"""Family linkage invariants."""
 import pandas as pd
 import pytest
 

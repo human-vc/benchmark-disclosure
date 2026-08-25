@@ -1,29 +1,4 @@
-"""The same bias on a leaderboard we did not build.
-
-The obvious objection to everything else in this repository is that the measure
-being diagnosed and repaired is our own. Nobody else publishes a 182-day
-symmetric-window midrank, so a reader can reasonably ask who is harmed by the
-problem we found.
-
-HELM Lite answers it. Its headline Accuracy column is Mean win rate, defined as
-the fraction of head-to-head comparisons a model wins against the other models
-evaluated, which is a pool-relative statistic in exactly the sense that matters
-here. Across fourteen public releases the ten scenario columns never change, and
-twenty-four models appear in every release. Their two hundred and forty
-published scenario scores are bit-identical from the first release to the last.
-Every one of their published Mean win rates moves anyway, and a handful of pairs
-change order.
-
-Nothing here says HELM is wrong. Mean win rate is correct as defined, and HELM
-itself later moved its Capabilities leaderboard to an absolute mean score. The
-point is narrower and it is the paper's point: a pool-relative standing statistic
-reorders models whose evidence did not change, so the composition of the
-comparison set is doing work that reads as capability.
-
-The evidence is frozen in data/external/helm_lite_accuracy.json with a SHA-256
-per source file, because a leaderboard is a moving target and the whole argument
-depends on the reader seeing the bytes we saw.
-"""
+"""The same bias on a leaderboard we did not build."""
 
 import itertools
 import json
@@ -35,11 +10,6 @@ from .config import ROOT
 FROZEN = ROOT / "data" / "external" / "helm_lite_accuracy.json"
 CONTROL = ROOT / "data" / "external" / "helm_capabilities_accuracy.json"
 
-# HELM Capabilities is the control, and it is as close to a natural experiment as
-# this question is going to get. Same organisation, same infrastructure, same
-# release cadence, pool roughly tripling in both. The single difference is that
-# its headline is Mean score, an absolute average, rather than a pool-relative
-# win rate. The prediction stated before running it was zero drift.
 CONTROL_SCENARIOS = [
     "MMLU-Pro - COT correct",
     "GPQA - COT correct",
@@ -71,12 +41,7 @@ def load(path=FROZEN):
 
 
 def scenario_columns_are_stable(payload, order, scenarios=None):
-    """The first objection is that they added scenarios. They did not.
-
-    The model column's header is relabelled from "Model/adapter" to "Model" at
-    v1.10.0, which is cosmetic. The ten scenario columns are identical
-    throughout, and that is what the frozen-cell claim rests on.
-    """
+    """The first objection is that they added scenarios. They did not."""
     scenarios = scenarios or SCENARIOS
     sets = {
         tuple(c for c in payload["releases"][v]["columns"] if c in scenarios)
@@ -135,8 +100,6 @@ def headline_drift(payload, order, models, headline=None):
         "max_abs_change": float(np.abs(values).max()),
         "fell": int((values < 0).sum()),
         "rose": int((values > 0).sum()),
-        # the control moves nothing, so the changes are identically zero and the
-        # correlation is undefined rather than zero. Say so instead of dividing.
         "corr_change_with_initial": (
             float(np.corrcoef(values, initial)[0, 1])
             if values.std() > 0 and initial.std() > 0 else None
@@ -170,13 +133,7 @@ def summary(path=FROZEN):
 
 
 def control(path=CONTROL):
-    """The falsification test, with its prediction stated before it was run.
-
-    If the drift in HELM Lite were about anything other than the statistic being
-    pool-relative, it would show up here too. Same evaluator, same machinery,
-    same growth. It does not show up. Zero of twenty-two headline values move and
-    no pair reorders, against twenty-four of twenty-four and five in Lite.
-    """
+    """The falsification test, with its prediction stated before it was run."""
     payload, order = load(path)
     models = frozen_models(payload, order)
     head = headline_drift(payload, order, models, headline=CONTROL_HEADLINE)

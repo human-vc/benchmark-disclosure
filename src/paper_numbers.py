@@ -1,17 +1,4 @@
-"""Every number the manuscript cites, regenerated from one command.
-
-A measurement paper is only as trustworthy as the weakest number in it, and the
-failure mode is not a wrong calculation. It is a number computed once, pasted
-into prose, and left there while the code beneath it moves. This repository has
-already done that: the README carried a coverage mean, a pair count and a
-sample-size ladder that no longer reproduced, and a pilot result with no
-artifact behind it at any commit.
-
-So no number is typed into the manuscript. Every one is written here, keyed,
-stamped with the data snapshot it came from, and cited in the text by its key.
-If the snapshot moves, the stamp changes and the whole table is regenerated
-behind it.
-"""
+"""Every number the manuscript cites, regenerated from one command."""
 
 import json
 from datetime import date
@@ -41,8 +28,6 @@ def _contrast(panel, column):
         .pivot_table(index=RELEASE_COL, columns="side", values=column, aggfunc="mean")
         .dropna()
     )
-    # a panel with no placebo cells at all has no contrast to report, and the
-    # pivot simply lacks the column rather than producing an empty one
     if not {"eligible", "placebo"}.issubset(wide.columns):
         return {"mean": None, "median": None, "share_positive": None, "n_releases": 0}
     gap = wide["eligible"] - wide["placebo"]
@@ -63,7 +48,6 @@ def _asymmetry_slope(panel, column):
     return round(float(np.cov(y, x, bias=True)[0, 1] / x.var()), 3)
 
 
-
 def _growth_and_saturation(panel):
     """Section 3's claim and Section 4's mechanism, both checkable."""
     dated = panel.dropna(subset=["benchmark_release_date"])
@@ -71,8 +55,6 @@ def _growth_and_saturation(panel):
              .assign(year=lambda f: f["benchmark_release_date"].dt.year)
              .groupby("year").size().sort_index().cumsum())
 
-    # a late benchmark leaves more room below its ceiling, so every model on it
-    # stands lower; this is what benchmark fixed effects absorb
     rows = []
     for slug, group in panel.groupby("slug"):
         values = group["score"].dropna()

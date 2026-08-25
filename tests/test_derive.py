@@ -1,9 +1,4 @@
-"""ORBIT categories must follow from the evidence, not from the coder's mood.
-
-These pin the derivation rules: a benchmark reported here is A, one a
-predecessor reported and this release did not is E (the drop), and a placebo
-cell never receives a category at all.
-"""
+"""ORBIT categories must follow from the evidence, not from the coder's mood."""
 import pandas as pd
 import pytest
 
@@ -13,9 +8,9 @@ from src.derive_coding import build, category_for, parse_reported
 
 def test_parse_handles_the_three_reporting_forms():
     got = parse_reported("gpqa_diamond=0.94|hle|cybench~pass@30=1.0")
-    assert got["gpqa_diamond"] == ("0.94", None)   # numeric  -> A
-    assert got["hle"] == (None, None)              # named    -> B
-    assert got["cybench"] == ("1.0", "pass@30")    # variant  -> C
+    assert got["gpqa_diamond"] == ("0.94", None)
+    assert got["hle"] == (None, None)
+    assert got["cybench"] == ("1.0", "pass@30")
 
 
 def test_category_rules():
@@ -62,9 +57,7 @@ def test_predecessor_report_makes_a_drop():
 
 
 def test_placebo_rows_never_get_a_category():
-    """Regression: build() once looped over every worklist row, coding placebo
-    cells H and then appending them again, which both duplicated them and
-    inflated the low-suspicion counts."""
+    """Regression: build() once looped over every worklist row, coding placebo"""
     worklist = pd.DataFrame([
         dict(release_id="R1", benchmark_slug="b1", group="placebo",
              organization="O", model_name="M1", release_date="2025-01-01",

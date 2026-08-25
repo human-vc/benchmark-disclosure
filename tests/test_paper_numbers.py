@@ -1,11 +1,4 @@
-"""Every manuscript number comes from one place, stamped with its data vintage.
-
-The failure this guards against is not arithmetic. It is a number computed once,
-pasted into prose, and left there while the code beneath it moves. This file
-checks that the collected numbers are internally consistent and that the
-provenance stamp is present, so a reader of the JSON can always tell which
-build produced it.
-"""
+"""Every manuscript number comes from one place, stamped with its data vintage."""
 import numpy as np
 import pandas as pd
 
@@ -36,7 +29,6 @@ def test_contrast_reports_a_consistent_release_count():
 
 
 def test_balanced_measure_is_defined_on_no_more_cells_than_the_raw_one():
-    # balancing needs both sides of the window, so it can only ever lose cells
     panel = panel_with_boundary()
     assert panel["pct_balanced"].notna().sum() <= panel["percentile"].notna().sum()
 
@@ -49,7 +41,6 @@ def test_balanced_measure_reduces_the_reported_asymmetry_slope():
 
 
 def test_contrast_ignores_releases_missing_either_side():
-    # a release with only eligible cells cannot contribute a contrast
     rows = [("R0", "Org", "2025-06-01", "b", "2024-01-01", 0.5),
             ("R1", "Org", "2025-07-01", "b", "2024-01-01", 0.7)]
     panel = side_balanced_percentile(

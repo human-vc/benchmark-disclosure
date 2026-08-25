@@ -1,10 +1,4 @@
-"""Slug matching between Epoch's metadata names and its score filenames.
-
-The two sides normalise differently and an unmapped pair is silently dropped,
-which previously cost the panel eight whole benchmarks that were documented as
-"no score file in the public bundle" when the files were shipping all along.
-A stale alias table must fail loudly rather than shrink the sample quietly.
-"""
+"""Slug matching between Epoch's metadata names and its score filenames."""
 import pandas as pd
 import pytest
 
@@ -26,9 +20,7 @@ def test_previously_lost_benchmarks_now_map_to_their_score_files():
 
 
 def test_osworld_versions_stay_separate():
-    """OSWorld and OSWorld 2.0 are different benchmarks with different score
-    files. Merging them attributed OSWorld's 2024 date to OSWorld 2.0, which
-    would admit models that shipped before the benchmark existed."""
+    """OSWorld and OSWorld 2.0 are different benchmarks with different score"""
     assert slugify("OSWorld") == "os_world"
     assert slugify("OSWorld 2.0") == "osworld_2"
     assert slugify("OSWorld") != slugify("OSWorld 2.0")
@@ -44,8 +36,6 @@ def test_collapse_meta_yields_one_row_per_slug():
     assert len(out) == 2
     assert not out["slug"].duplicated().any()
     row = out[out["slug"] == "x"].iloc[0]
-    # latest known date wins: attributing the older variant's date to a newer
-    # benchmark is the anti-conservative direction for the gate.
     assert row["benchmark_release_date"] == pd.Timestamp("2025-01-01")
     assert row["n_collapsed"] == 2
 

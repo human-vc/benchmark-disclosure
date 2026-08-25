@@ -1,11 +1,4 @@
-"""Snapshot drift detection.
-
-data/raw is gitignored, so the only thing standing between two co-authors and
-two different answers is this manifest. The behaviour that matters is that a
-changed file is caught by content and not by name or size, that an absent
-manifest reports itself as unpinned rather than as a match, and that a fresh
-file appearing in the tree counts as drift.
-"""
+"""Snapshot drift detection."""
 import json
 
 import pytest
@@ -53,7 +46,6 @@ def test_edited_file_is_caught_by_content(raw_tree, monkeypatch, tmp_path):
     monkeypatch.setattr(snapshot, "SNAPSHOT", tmp_path / "snapshot.json")
     snapshot.capture(raw_tree, captured="2026-08-17")
 
-    # same row count, same length, one score changed: only the hash sees this
     (raw_tree / "gpqa_diamond.csv").write_text("model,score\na,0.9\n")
 
     result = snapshot.compare(raw_tree)

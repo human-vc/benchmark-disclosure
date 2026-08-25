@@ -1,17 +1,4 @@
-"""Group releases into model families so that drops (ORBIT E) are computable.
-
-The primary analytic unit in docs/design.md is a *drop*: a provider reported
-benchmark X for model v1, then omitted X for v2 in the same family while an
-independent score for v2 exists. Nothing else in the pipeline knows that
-"Claude Opus 4.5" and "Claude Opus 4.6" are successive releases of one product
-line, so without this module the drop design cannot be run at all.
-
-Family assignment is a judgment call, so it is seeded by heuristic and then
-hand-corrected. The seed is deliberately conservative and the output carries a
-status column: rows marked "auto" have not been reviewed by a human and should
-not be trusted for analysis. Regenerating preserves anything marked
-"confirmed" or "corrected".
-"""
+"""Group releases into model families so that drops (ORBIT E) are computable."""
 
 import re
 
@@ -22,24 +9,12 @@ from .config import FAMILIES, INTERIM, RELEASE_COL
 COLUMNS = ["family_id", "release_id", "organization", "model_name",
            "release_date", "family_rank", "status"]
 
-# Tokens that identify a product tier and belong in the family name, as
-# distinct from tokens that identify a version and do not.
 SIZE = re.compile(r"^\d+(\.\d+)?\s*[bmBM]$")
 VERSION = re.compile(r"^v?\d+(\.\d+)*[a-z]?$")
 
 
 def derive_family(organization, model_name):
-    """Strip version markers from a release name, keep tier and size markers.
-
-    "Claude Opus 4.5"          -> Anthropic / Claude Opus
-    "Gemini 2.5 Pro (Jun 2025)"-> Google DeepMind / Gemini Pro
-    "GPT-5.4 Mini"             -> OpenAI / GPT Mini
-    "Llama 3.1 405B"           -> Meta AI / Llama 405B
-    """
-    # Parentheses carry two different things: a disambiguating date, which is
-    # version information and must go, and a parameter count, which is product
-    # identity and must stay. "Qwen2.5-Coder (7B)" and "(32B)" are different
-    # products; "Gemini 2.5 Pro (Jun 2025)" and "(May 2025)" are one line.
+    """Strip version markers from a release name, keep tier and size markers."""
     sizes = []
     for chunk in re.findall(r"\(([^)]*)\)", model_name):
         sizes += re.findall(r"\d+(?:\.\d+)?\s*[BbMm]\b", chunk)
@@ -100,12 +75,7 @@ def load_families(path=FAMILIES):
 
 
 def predecessors(fam, release_id):
-    """Every earlier release in the same family, newest first.
-
-    Newest first because the nearest predecessor is the strongest evidence for
-    a drop: the closer the two releases, the weaker the "we stopped running it
-    for unrelated reasons" story.
-    """
+    """Every earlier release in the same family, newest first."""
     row = fam.loc[fam["release_id"] == release_id]
     if row.empty:
         return fam.iloc[0:0]

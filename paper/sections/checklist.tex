@@ -26,13 +26,11 @@
     \item[] Justification: Every number in the paper is written by one command into a single machine-readable file, and the data snapshot it was computed against is pinned by a per-file SHA-256 manifest in the released code. Section~2 states the release key, the eligibility rule, the window width and the analysis threshold.
     
 
-
 \item {\bf Open access to data and code}
     \item[] Question: Does the paper provide open access to the data and code, with sufficient instructions to faithfully reproduce the main experimental results, as described in supplemental material?
     \item[] Answer: \answerYes{}
     \item[] Justification: Code and derived data are released with instructions. The independent scores are redistributed by their publisher under CC-BY and are fetched rather than copied, then verified against the pinned manifest, so an upstream change is reported rather than silently absorbed. The external leaderboard evidence is frozen with a SHA-256 per source file, because a public leaderboard moves and the argument depends on the exact values.
     
-
 
 \item {\bf Experimental setting/details}
     \item[] Question: Does the paper specify all the training and test details (e.g., data splits, hyperparameters, how they were chosen, type of optimizer) necessary to understand the results?
@@ -57,7 +55,6 @@
     \item[] Answer: \answerYes{}
     \item[] Justification: The work uses published benchmark scores and public release documents, involves no human subjects and no personal data, and makes no claim about any individual.
     
-
 
 \item {\bf Broader impacts}
     \item[] Question: Does the paper discuss both potential positive societal impacts and negative societal impacts of the work performed?
@@ -97,7 +94,6 @@
 
 \item {\bf Declaration of LLM usage}
     \item[] Question: Does the paper describe the usage of LLMs if it is an important, original, or non-standard component of the core methods in this research? Note that if the LLM is used only for writing, editing, or formatting purposes and does \emph{not} impact the core methodology, scientific rigor, or originality of the research, declaration is not required.
-    %this research? 
     \item[] Answer: \answerYes{}
     \item[] Justification: Large language models were used only for routine writing and coding assistance and are not a component of the method. Every number is produced by the released code from the pinned data, and the classification of disclosure decisions follows the coding protocol in the repository.
     

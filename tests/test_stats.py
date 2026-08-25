@@ -1,10 +1,4 @@
-"""Inference that refuses rather than guesses.
-
-The behaviour under test is the one an earlier version got wrong: handed two
-observations from a single cluster, it reported standard errors of 0.00,
-t-statistics of order 1e15, and three significance stars. The arithmetic was
-fine. The asymptotics did not exist, and nothing in the code could say so.
-"""
+"""Inference that refuses rather than guesses."""
 import io
 import contextlib
 
@@ -27,7 +21,7 @@ def design(n, rng, effect=0.0, clusters=None):
     g = rng.integers(0, clusters, n) if clusters else None
     noise = rng.normal(size=n)
     if g is not None:
-        noise = noise + rng.normal(size=clusters)[g]      # cluster correlation
+        noise = noise + rng.normal(size=clusters)[g]
     return X, effect * x + noise, g
 
 
@@ -97,8 +91,6 @@ def test_bootstrap_interval_exists_above_the_threshold():
 
 
 def test_randomization_test_cannot_reject_with_one_cluster():
-    # sign-flipping a single cluster gives two outcomes with the same absolute
-    # mean, so p is 1 by construction. That is the honest answer, not a failure.
     values = np.array([8.6, 8.6])
     result = randomization_test_mean(values, cluster=np.zeros(2), draws=200)
     assert result["p_value"] == pytest.approx(1.0)
@@ -142,7 +134,6 @@ def test_wild_cluster_bootstrap_does_not_reject_a_null_effect():
 
 
 def test_wild_bootstrap_reports_its_own_resolution_limit():
-    # Rademacher weights give at most 2^G distinct samples
     rng = np.random.default_rng(10)
     X, y, g = design(120, rng, clusters=5)
     result = wild_cluster_bootstrap(y, X, g, index=1, draws=99)

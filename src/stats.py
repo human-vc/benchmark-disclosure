@@ -1,35 +1,9 @@
-"""Small statistical helpers, kept dependency-light on purpose.
-
-Written out rather than pulled from statsmodels so the repository's numbers
-depend on four packages instead of five, and so the standard-error choice is
-visible in the source rather than a default.
-
-The design point that matters here is what happens when inference is not
-available. An earlier version of this file computed cluster-robust errors
-whatever it was handed, and on two releases from one provider it printed
-coefficients with standard errors of 0.00, t-statistics of order 1e15, and three
-significance stars. Nothing was wrong with the arithmetic. The asymptotics it
-rests on simply do not exist at one cluster, and the function had no way to say
-so, so it said something confident instead.
-
-Every estimator here now refuses rather than guesses. Below MIN_CLUSTERS the
-cluster-robust standard error is not reported at all, and the caller is pointed
-at the two devices that do work in small samples: a wild cluster bootstrap for
-regression coefficients, and a cluster sign-flip randomization test for means.
-Neither needs the number of clusters to be large.
-"""
+"""Small statistical helpers, kept dependency-light on purpose."""
 
 import numpy as np
 
-# Cluster-robust asymptotics are unreliable well above the point where they stop
-# being computable. Cameron, Gelbach and Miller's wild cluster bootstrap exists
-# because the normal approximation is poor in roughly this range, so below this
-# threshold the analytic error is withheld and the bootstrap is used instead.
 MIN_CLUSTERS = 12
 
-# Rademacher weights give at most 2^G distinct bootstrap samples, so with very
-# few clusters the bootstrap p-value is granular no matter how many draws are
-# requested. Below this the p-value is reported with that caveat attached.
 GRANULAR_CLUSTERS = 10
 
 
@@ -52,16 +26,7 @@ def _cluster_vcov(X, resid, cluster, XtX_inv):
 
 
 def ols(y, X, names=None, cluster=None, min_clusters=MIN_CLUSTERS):
-    """OLS with HC1 errors, or cluster-robust errors when cluster is given.
-
-    Clustering matters here: a provider contributes many releases and their
-    disclosure habits are not independent draws, so provider-clustered errors
-    are the honest default for anything pooled across releases.
-
-    With fewer than min_clusters groups the standard errors come back as NaN and
-    `inference` explains why. That is deliberate. A missing number invites the
-    right question; a confident wrong one does not.
-    """
+    """OLS with HC1 errors, or cluster-robust errors when cluster is given."""
     y = np.asarray(y, float)
     X = np.asarray(X, float)
     n, k = X.shape
@@ -101,16 +66,7 @@ def ols(y, X, names=None, cluster=None, min_clusters=MIN_CLUSTERS):
 
 
 def wild_cluster_bootstrap(y, X, cluster, index, draws=9999, seed=0):
-    """p-value for one coefficient by the restricted wild cluster bootstrap.
-
-    Cameron, Gelbach and Miller (2008). The null is imposed by refitting without
-    the column being tested, so the bootstrap samples are drawn from a world in
-    which that coefficient really is zero. Cluster-level Rademacher weights keep
-    the within-cluster correlation intact.
-
-    This is the device to use when the cluster count is small, which is where
-    the analytic standard error is least trustworthy and most tempting.
-    """
+    """p-value for one coefficient by the restricted wild cluster bootstrap."""
     y = np.asarray(y, float)
     X = np.asarray(X, float)
     cluster = np.asarray(cluster)
@@ -149,15 +105,7 @@ def wild_cluster_bootstrap(y, X, cluster, index, draws=9999, seed=0):
 
 
 def randomization_test_mean(values, cluster=None, draws=9999, seed=0):
-    """Is a mean distinguishable from zero, without asymptotics?
-
-    Flips the sign of whole clusters. Under the null that the statistic is
-    symmetric about zero within a cluster, every sign assignment is equally
-    likely, so the reference distribution is exact up to the number of draws and
-    does not care how few clusters there are. This is the primary inferential
-    device for the release-level gaps, where the cluster count is small enough
-    that a bootstrap interval would be decorative.
-    """
+    """Is a mean distinguishable from zero, without asymptotics?"""
     values = np.asarray(values, float)
     values = values[~np.isnan(values)]
     if len(values) == 0:
@@ -203,13 +151,7 @@ def print_ols(fit, title):
 
 def bootstrap_mean(values, draws=10000, seed=0, cluster=None,
                    min_clusters=MIN_CLUSTERS):
-    """Percentile bootstrap of a mean, resampling clusters rather than rows.
-
-    Returns a NaN interval below min_clusters. Resampling three clusters yields
-    an interval whose width is an artifact of having three clusters, and at one
-    cluster every draw reproduces the same mean and the interval collapses to a
-    point that looks like precision.
-    """
+    """Percentile bootstrap of a mean, resampling clusters rather than rows."""
     rng = np.random.default_rng(seed)
     values = np.asarray(values, float)
     values = values[~np.isnan(values)]

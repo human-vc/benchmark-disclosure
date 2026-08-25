@@ -1,34 +1,4 @@
-"""What the eligible-versus-placebo contrast actually measures.
-
-docs/design.md nominates the omitted-eligible versus postdating-placebo
-comparison as the identifying estimator, on the reasoning that both sets are
-non-disclosures, so anything that makes unreported benchmarks look bad for
-innocent reasons hits both and differences out. The argument is clean and the
-statistic does not obey it.
-
-Computed on this panel with no disclosure labels of any kind, eligible
-benchmarks outscore postdating ones by 12.2 percentile points within a release.
-That number is the null of the identifying estimator. It is not zero, and it
-runs in the direction that manufactures false nulls: a provider withholding
-where it stood worse has to overcome a twelve-point head start before the
-statistic registers anything.
-
-This module establishes where the twelve points come from. Two things carry it.
-Benchmark composition carries most: the outcome is a within-benchmark rank, but
-the panel is unbalanced and placebo cells concentrate in benchmarks that entered
-late, so absorbing benchmark effects properly moves the coefficient from -13.4 to
--4.9. Peer-window composition carries the rest. The percentile window is symmetric in days, but a benchmark's model
-coverage starts when the benchmark is built, so a release that predates its
-benchmark sits at the left edge of that coverage and is ranked against a peer
-set that is 63 percent newer than itself against 44 percent for eligible cells.
-Absorbing release and benchmark effects together and conditioning on peer-window
-composition leaves +0.25 with a standard error of 1.62, which is not
-distinguishable from zero.
-
-The consequence is larger than one estimator. Peer-window asymmetry predicts
-standing among eligible cells too, at -29.1 points per unit share, so it
-contaminates the outcome variable wherever groups being compared differ in it.
-"""
+"""What the eligible-versus-placebo contrast actually measures."""
 
 import numpy as np
 import pandas as pd
@@ -37,10 +7,6 @@ from .config import INTERIM, MIN_BENCHMARKS, RELEASE_COL, WINDOW_DAYS
 from .percentiles import within_benchmark_percentile
 from .stats import ols
 
-# A regressor whose within-group variance is only floating-point noise carries
-# no information, but it is not exactly zero either, so a truthiness check lets
-# it through and the ratio that follows is noise divided by noise. Everything
-# here that divides by a variance tests against this instead.
 MIN_VARIANCE = 1e-12
 
 BALANCED_SHARE = (0.25, 0.75)
@@ -52,23 +18,7 @@ def _within(frame, column, by):
 
 
 def _absorb(values, *groups, tol=1e-10, max_iter=5000):
-    """Two-way (or n-way) within transformation by alternating projections.
-
-    Demeaning by one grouping and then by a second does not remove both sets of
-    fixed effects unless the panel is balanced, and this panel is not: placebo
-    cells concentrate in the benchmarks that entered late. A single sequential
-    pass left the benchmark effect almost entirely in place and reported that
-    benchmark composition explained none of the contrast, which is false. It
-    explains most of it.
-
-    The group labels are factorized once and each sweep is a bincount rather
-    than a pandas groupby, because convergence on this panel takes 167 sweeps
-    and doing the grouping again inside every one of them costs twenty times
-    what the arithmetic does. That iteration count is itself worth noticing: it
-    measures how weakly the release-by-benchmark graph is connected, which is
-    the same property that governs whether two-way effects are identified at
-    all.
-    """
+    """Two-way (or n-way) within transformation by alternating projections."""
     x = np.asarray(values, dtype=float).copy()
     codes, sizes = [], []
     for group in groups:
@@ -88,11 +38,7 @@ def _absorb(values, *groups, tol=1e-10, max_iter=5000):
 
 
 def contrast_by_release(panel):
-    """Release-level mean eligible percentile minus mean placebo percentile.
-
-    Uses no disclosure information. Under design.md's reasoning this is the
-    null value of the omission deficit, and it should be zero.
-    """
+    """Release-level mean eligible percentile minus mean placebo percentile."""
     cells = panel[panel["eligible"] | panel["placebo"]].copy()
     cells["set"] = np.where(cells["eligible"], "eligible", "placebo")
     wide = cells.pivot_table(
@@ -109,16 +55,7 @@ def contrast_by_release(panel):
 
 
 def decomposition(panel):
-    """Ladder: how much of the contrast survives each conditioning step.
-
-    Every row is the coefficient on a placebo indicator, always within release,
-    so the release's own capability level is differenced out throughout.
-
-    n_peers is a suppressor here rather than a further channel. Adding it makes
-    the eligible-only asymmetry slope more negative, from -29.1 to -42.8, so the
-    joint conditioning row must be read as joint and never described as peer
-    count explaining a remainder.
-    """
+    """Ladder: how much of the contrast survives each conditioning step."""
     cells = panel[panel["eligible"] | panel["placebo"]].copy()
     cells["placebo_i"] = cells["placebo"].astype(float)
     cells = cells.dropna(subset=["percentile", "share_newer", "n_peers"])
@@ -164,12 +101,7 @@ def decomposition(panel):
 
 
 def _window_blocks(panel, window_days=WINDOW_DAYS):
-    """Precompute the date geometry of each benchmark's ranking window.
-
-    Permuting scores inside a benchmark changes nothing about which cells are
-    peers of which, so the comparison masks are the same in all 300 draws. They
-    are built once here instead of 300 times inside the loop.
-    """
+    """Precompute the date geometry of each benchmark's ranking window."""
     blocks = []
     for _, group in panel.groupby("slug", sort=False):
         rows = panel.index.get_indexer(group.index.to_numpy())
@@ -190,16 +122,7 @@ def _percentiles_from(scores, blocks, size):
 
 
 def permutation_null(panel, draws=300, seed=7, window_days=WINDOW_DAYS):
-    """Is the asymmetry slope mechanical? Shuffle scores within benchmark.
-
-    share_newer and percentile are computed from the same peer set, so a referee
-    will say their correlation is an accounting identity. Permuting scores within
-    a benchmark destroys any capability trend while leaving the date vector, the
-    window structure, n_peers and share_newer bit-identical. Under the identity
-    story the slope survives; under the bias story it goes to zero.
-
-    It goes to zero. Measured here at about -0.3 against an observed -29.1.
-    """
+    """Is the asymmetry slope mechanical? Shuffle scores within benchmark."""
     from .percentiles import within_benchmark_percentile
 
     panel = panel.reset_index(drop=True)
@@ -213,9 +136,6 @@ def permutation_null(panel, draws=300, seed=7, window_days=WINDOW_DAYS):
     scores = panel["score"].to_numpy(float)
     slug_codes = pd.factorize(panel["slug"].to_numpy())[0]
 
-    # the release grouping and the asymmetry are the same in every draw, so the
-    # demeaning machinery is set up once rather than rebuilt as a DataFrame 300
-    # times. Only the percentile changes.
     finite_x = np.isfinite(asymmetry)
     base_keep = eligible & finite_x
     codes = pd.factorize(release[base_keep])[0]
@@ -250,8 +170,6 @@ def permutation_null(panel, draws=300, seed=7, window_days=WINDOW_DAYS):
             shuffled[members] = scores[rng.permutation(members)]
         null[draw] = slope(_percentiles_from(shuffled, blocks, len(panel)))
 
-    # a degenerate regressor makes every draw NaN; nanstd over an all-NaN array
-    # warns and returns NaN, so say so explicitly instead
     if not np.isfinite(null).any():
         return {"observed": observed, "null_mean": np.nan, "null_sd": np.nan,
                 "sd_away": np.nan, "draws_at_least_as_extreme": 0, "draws": draws}
@@ -289,12 +207,7 @@ def balanced_contrast(panel):
 
 
 def drop_capacity(panel, families, min_benchmarks=MIN_BENCHMARKS):
-    """How many within-family drops the population can ever supply.
-
-    Reported at two definitions because they differ by a factor of four and the
-    looser one flatters the design. The binding one is the analysis sample:
-    a drop needs both releases scored densely enough to enter it.
-    """
+    """How many within-family drops the population can ever supply."""
     eligible = panel[panel["eligible"]][[RELEASE_COL, "slug", "primary_org"]]
     linked = eligible.merge(
         families[["release_id", "family_id", "family_rank"]],
@@ -329,15 +242,7 @@ def drop_capacity(panel, families, min_benchmarks=MIN_BENCHMARKS):
 
 def null_calibration(panel, drops=(1, 2, 3), draws=400, min_benchmarks=MIN_BENCHMARKS,
                      seed=0):
-    """Standard deviation of a drop gap when the dropped set is chosen at random.
-
-    The gap for a draw is an affine function of the sum of the drawn cells,
-
-        mean(drawn) - mean(rest) = S_k * n / (k * (n - k)) - S / (n - k),
-
-    so a whole release's null needs one matrix of random indices and one row sum
-    rather than a Python loop over draws.
-    """
+    """Standard deviation of a drop gap when the dropped set is chosen at random."""
     rng = np.random.default_rng(seed)
     rows = []
     for k in drops:

@@ -1,14 +1,4 @@
-"""The placebo group's null, and why it is not zero.
-
-design.md nominates the eligible-versus-placebo contrast as identifying on the
-ground that both sets are non-disclosures. The claim these tests pin down is
-that the contrast is instead a property of the percentile's peer window: a
-release sitting at the left edge of a benchmark's model coverage is ranked
-against peers drawn almost entirely from models newer than itself. If a future
-change to the percentile makes the window symmetric, the first test here should
-start failing, and that would be good news worth noticing rather than a
-regression to paper over.
-"""
+"""The placebo group's null, and why it is not zero."""
 import numpy as np
 import pandas as pd
 
@@ -28,18 +18,7 @@ from tests.conftest import make_panel
 
 
 def coverage_panel(edge=True):
-    """Two benchmarks. The second one's model coverage starts late.
-
-    Every release is scored on an old benchmark, always eligible. The second
-    benchmark is introduced in 2025 and, as real evaluators do, is run only on
-    models from shortly before its introduction onward. The handful of models
-    that predate it therefore sit at the left boundary of its coverage and carry
-    the placebo cells. Scores rise with release date, which is the pattern the
-    windowed percentile is meant to absorb.
-
-    With edge=False the second benchmark is old too, so no boundary exists and
-    no artifact should appear.
-    """
+    """Two benchmarks. The second one's model coverage starts late."""
     late_date = "2025-01-01" if edge else "2022-06-01"
     first_scored = 8 if edge else 0
     rows = []
@@ -53,8 +32,6 @@ def coverage_panel(edge=True):
 
 
 def test_share_newer_is_extreme_at_the_edges_of_coverage():
-    # the focal cell is inside its own window, so the share never quite reaches
-    # one or zero; what matters is that the edges are one-sided
     panel = within_benchmark_percentile(coverage_panel(), window_days=182)
     late = panel[panel["slug"] == "late"].sort_values("Release date")
     assert late["share_newer"].iloc[0] > 0.8
@@ -86,14 +63,7 @@ def test_conditioning_on_the_peer_window_absorbs_the_contrast():
 
 
 def test_two_way_absorption_beats_one_sequential_pass():
-    """The bug this replaces asserted the opposite and shipped for a day.
-
-    Demeaning by release and then by benchmark removes both sets of effects only
-    on a balanced panel. This panel is not balanced: the late benchmark is scored
-    on a subset of releases. A single sequential pass therefore leaves most of the
-    benchmark effect in place, and the module reported that benchmark composition
-    explained none of the contrast when it explains most of it.
-    """
+    """The bug this replaces asserted the opposite and shipped for a day."""
     panel = within_benchmark_percentile(coverage_panel(), window_days=182)
     cells = panel[panel["eligible"] | panel["placebo"]].copy()
     cells["placebo_i"] = cells["placebo"].astype(float)
@@ -120,17 +90,12 @@ def test_decomposition_reports_the_jointly_conditioned_row():
 
 
 def test_permutation_null_is_near_zero_when_scores_carry_no_trend():
-    """Separates a real bias from an accounting identity.
-
-    share_newer and percentile come from the same peer set. If their relationship
-    were mechanical it would survive destroying the capability trend. It does not.
-    """
+    """Separates a real bias from an accounting identity."""
     rng = np.random.default_rng(11)
     rows = []
     for r in range(14):
         date = pd.Timestamp("2024-01-01") + pd.Timedelta(days=40 * r)
         for b in range(6):
-            # staggered coverage starts, so share_newer varies within a release
             if r < 2 * b:
                 continue
             rows.append((f"R{r}", f"Org{r % 3}", date, f"b{b}", "2023-01-01",
@@ -173,8 +138,6 @@ def test_null_calibration_falls_as_more_benchmarks_are_dropped():
 
 
 def test_contrast_by_release_survives_a_panel_with_no_placebo_cells():
-    # the pivot lacks the column entirely rather than producing an empty one,
-    # so an .empty check alone does not catch this
     rows = [("R0", "Org", "2025-06-01", "b", "2024-01-01", 0.5),
             ("R1", "Org", "2025-07-01", "b", "2024-01-01", 0.7)]
     panel = within_benchmark_percentile(make_panel(rows), window_days=182)
@@ -183,8 +146,7 @@ def test_contrast_by_release_survives_a_panel_with_no_placebo_cells():
 
 
 def test_absorb_matches_a_naive_reference():
-    """The fast path factorizes once and uses bincount. Pin it to the obvious
-    implementation, because a silent divergence here moves every coefficient."""
+    """The fast path factorizes once and uses bincount. Pin it to the obvious"""
     rng = np.random.default_rng(4)
     n = 400
     g1 = rng.integers(0, 25, n)
@@ -208,7 +170,7 @@ def test_absorb_removes_both_sets_of_effects_on_an_unbalanced_panel():
     rng = np.random.default_rng(6)
     g1 = np.repeat(np.arange(30), 7)[: 30 * 7]
     g2 = rng.integers(0, 11, len(g1))
-    keep = rng.random(len(g1)) > 0.35          # unbalance it on purpose
+    keep = rng.random(len(g1)) > 0.35
     g1, g2 = g1[keep], g2[keep]
     values = rng.normal(size=len(g1)) + g1 * 0.2 + g2 * 0.5
 
@@ -218,8 +180,7 @@ def test_absorb_removes_both_sets_of_effects_on_an_unbalanced_panel():
 
 
 def test_null_calibration_affine_shortcut_matches_the_direct_gap():
-    """null_calibration computes mean(drawn) - mean(rest) in closed form.
-    Check the algebra against the definition on concrete numbers."""
+    """null_calibration computes mean(drawn) - mean(rest) in closed form."""
     rng = np.random.default_rng(9)
     values = rng.normal(size=13)
     n, k = len(values), 3
@@ -232,12 +193,7 @@ def test_null_calibration_affine_shortcut_matches_the_direct_gap():
 
 
 def test_permutation_null_observed_matches_the_direct_slope():
-    """The two code paths must agree on the observed value by construction.
-
-    The benchmarks need different coverage starts, or share_newer is constant
-    within a release, the release demeaning annihilates it, and the slope is
-    noise over noise rather than a number.
-    """
+    """The two code paths must agree on the observed value by construction."""
     rng = np.random.default_rng(12)
     rows = []
     for r in range(16):
@@ -255,11 +211,7 @@ def test_permutation_null_observed_matches_the_direct_slope():
 
 
 def test_a_degenerate_regressor_returns_nan_rather_than_noise():
-    """Constant share_newer within release must not produce a number.
-
-    Every benchmark here shares a release date, so demeaning by release leaves
-    floating-point dust. A truthiness check on the variance lets that through.
-    """
+    """Constant share_newer within release must not produce a number."""
     rng = np.random.default_rng(12)
     rows = []
     for r in range(16):
