@@ -8,3 +8,6 @@ __pycache__/
 docs/PLAN.md
 docs/run-log.md
 data/artifact_cache/
+
+# private handoff note, not part of the research record
+update.md
