@@ -66,10 +66,34 @@ def charts(raw):
             if key in seen:          # the payload repeats each row for labels
                 continue
             seen.add(key)
-            scores[model] = round(scores.get(model, 0) + value, 4)
+            scores.setdefault(model, []).append((row.get("legendGroup"), value))
         if scores:
             out.append((title or "?", scores))
     return out
+
+
+def render(title, scores):
+    """One line per model: the segments, and their sum where there are several.
+
+    Summing is right when the segments are parts of one bar -- GPT-5's 94.6 on
+    AIME 2025 is stored as 32.7 "With thinking" plus 61.9 "Without thinking".
+    It is wrong when the chart groups two different measures under one model,
+    as Aider Polyglot does with its whole and diff formats, where the sum is
+    meaningless. The tool cannot tell those apart, so it shows both and the
+    coder decides; silently summing would have recorded o3's Aider score as
+    1.609.
+    """
+    lines = [f"== {title}"]
+    for model, segments in scores.items():
+        if len(segments) == 1:
+            lines.append(f"   {model:52} {segments[0][1]}")
+        else:
+            parts = "  ".join(
+                f"{label or 'seg'}={value}" for label, value in segments
+            )
+            total = round(sum(value for _, value in segments), 4)
+            lines.append(f"   {model:52} {parts}   [sum {total}]")
+    return "\n".join(lines)
 
 
 def main():
@@ -78,9 +102,7 @@ def main():
     for title, scores in charts(raw):
         if keep and keep not in title.lower():
             continue
-        print(f"== {title}")
-        for model, score in scores.items():
-            print(f"   {model:52} {score}")
+        print(render(title, scores))
 
 
 if __name__ == "__main__":

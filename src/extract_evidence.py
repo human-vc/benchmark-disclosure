@@ -280,15 +280,13 @@ def main():
 
     path = fetch(url)
     if args.vega is not None:
-        from .vega_charts import charts
+        from .vega_charts import charts, render
 
         raw = path.read_text(errors="replace")
         for title, scores in charts(raw):
             if args.vega and args.vega.lower() not in title.lower():
                 continue
-            print(f"== {title}")
-            for model, score in scores.items():
-                print(f"   {model:52} {score}")
+            print(render(title, scores))
         return
 
     if args.pdf_images:

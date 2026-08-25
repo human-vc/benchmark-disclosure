@@ -137,15 +137,33 @@ class TestVegaCharts:
         r'"title":["AIME 2025","Competition math"]}'
     ).replace('"', r'\"')
 
-    def test_stacked_segments_are_summed(self):
-        from src.vega_charts import charts
+    def test_segments_are_kept_and_summed_for_the_coder(self):
+        from src.vega_charts import charts, render
 
         found = dict(charts(self.PAGE))
         scores = found["AIME 2025 / Competition math"]
-        # OpenAI's own prose quotes 94.6% for this cell; either segment alone
-        # would understate it by more than half
-        assert scores["GPT-5 (no tools)"] == 94.6
-        assert scores["OpenAI o3 (no tools)"] == 88.9
+        assert scores["GPT-5 (no tools)"] == [
+            ("With thinking", 32.7), ("Without thinking", 61.9),
+        ]
+        line = render("AIME 2025", scores)
+        # OpenAI's own prose quotes 94.6% for this cell
+        assert "[sum 94.6]" in line
+        # and a single-segment model prints its value plainly
+        assert "88.9" in line and "[sum 88.9]" not in line
+
+    def test_segments_are_shown_not_only_summed(self):
+        """Aider Polyglot groups 'whole' and 'diff' under one model, where the
+        sum is meaningless; the coder has to see the parts."""
+        from src.vega_charts import charts, render
+
+        page = (
+            r'"vegaSpec":{"data":{"values":['
+            r'{"model":"o3-high","value":0.796,"legendGroup":"whole"},'
+            r'{"model":"o3-high","value":0.813,"legendGroup":"diff"}'
+            r']},"title":["Aider Polyglot","Code editing"]}'
+        ).replace('"', r'\"')
+        line = render(*charts(page)[0])
+        assert "whole=0.796" in line and "diff=0.813" in line
 
     def test_axis_label_is_not_taken_as_the_benchmark_name(self):
         from src.vega_charts import charts
