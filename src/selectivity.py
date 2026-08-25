@@ -203,7 +203,15 @@ def access_group(value):
     return None
 
 
-def report_gaps(gaps, label):
+def report_gaps(gaps, label, contrast="disclosed - omitted"):
+    """`contrast` names what the gap actually differences.
+
+    It used to be hardcoded to "disclosed - omitted", which printed under the
+    placebo contrast too and described that number as something it is not: the
+    placebo gap is omitted-eligible minus postdating, and its sign means the
+    opposite thing. A statistic labelled with another statistic's definition is
+    worse than no label.
+    """
     if gaps.empty:
         print(f"\n{label}: no release meets the minimum reported/omitted counts")
         return None
@@ -211,7 +219,7 @@ def report_gaps(gaps, label):
         gaps["gap"].values, cluster=gaps["organization"].values
     )
     print(f"\n{label}: n={len(gaps)} releases, {gaps['organization'].nunique()} providers")
-    print(f"  mean gap (disclosed - omitted percentile): {mean:+.1f}  "
+    print(f"  mean gap ({contrast} percentile): {mean:+.1f}  "
           f"95% CI [{lo:+.1f}, {hi:+.1f}]  (provider-clustered bootstrap)")
     print(f"  median: {gaps['gap'].median():+.1f}   share positive: {(gaps['gap'] > 0).mean():.1%}")
     return mean
@@ -251,6 +259,7 @@ def main():
     report_gaps(
         deficit,
         "identifying: omitted vs placebo (zero under every innocent explanation)",
+        contrast="omitted-eligible - postdating",
     )
     print("  negative = the provider withheld where it stood worse. Both sets are")
     print("  non-disclosures, so neither carries the disclosed set's selection.")
