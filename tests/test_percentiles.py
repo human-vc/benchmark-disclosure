@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import pytest
 
 from src.config import RELEASE_COL
 from src.percentiles import within_benchmark_percentile
@@ -47,3 +48,60 @@ def test_ties_take_midrank():
 def test_window_width_changes_peer_count(tiny_panel):
     wide = within_benchmark_percentile(tiny_panel, window_days=10_000)
     assert wide["n_peers"].min() == 4
+
+
+class TestSideDecomposition:
+    """The window is symmetric in calendar time; a benchmark's model coverage
+    is not, because it starts when the benchmark was built. These pin the
+    measurement of that asymmetry, which is what the study's central claim
+    turns on."""
+
+    def test_percentile_is_the_weighted_average_of_the_two_sides(self):
+        """percentile_sided = (1-s)*P_old + s*P_new, exactly."""
+        import numpy as np
+
+        from src.config import INTERIM
+        from src.percentiles import add_percentiles
+
+        path = INTERIM / "panel.csv"
+        if not path.exists():
+            pytest.skip("panel not built")
+        panel = add_percentiles(pd.read_csv(path, parse_dates=["Release date"]))
+        ok = panel.dropna(subset=["percentile_sided", "newer_share"])
+        recomposed = (
+            (1 - ok["newer_share"]) * ok["percentile_older"].fillna(0)
+            + ok["newer_share"] * ok["percentile_newer"].fillna(0)
+        )
+        assert np.abs(ok["percentile_sided"] - recomposed).max() < 1e-9
+
+    def test_balanced_is_undefined_when_a_side_is_empty(self):
+        """A release at the very start of a benchmark's coverage has no older
+        peer. Inventing one would hide the case the measure exists to expose."""
+        import numpy as np
+
+        from src.percentiles import within_benchmark_percentile
+
+        panel = pd.DataFrame({
+            "slug": ["b"] * 3,
+            "score": [0.1, 0.5, 0.9],
+            "Release date": pd.to_datetime(["2025-01-01", "2025-02-01",
+                                            "2025-03-01"]),
+        })
+        out = within_benchmark_percentile(panel, window_days=182)
+        assert np.isnan(out.loc[0, "percentile_balanced"])   # nothing older
+        assert np.isnan(out.loc[2, "percentile_balanced"])   # nothing newer
+        assert not np.isnan(out.loc[1, "percentile_balanced"])
+
+    def test_newer_share_is_one_at_the_left_boundary(self):
+        from src.percentiles import within_benchmark_percentile
+
+        panel = pd.DataFrame({
+            "slug": ["b"] * 3,
+            "score": [0.1, 0.5, 0.9],
+            "Release date": pd.to_datetime(["2025-01-01", "2025-02-01",
+                                            "2025-03-01"]),
+        })
+        out = within_benchmark_percentile(panel, window_days=182)
+        assert out.loc[0, "newer_share"] == 1.0
+        assert out.loc[2, "newer_share"] == 0.0
+        assert out.loc[1, "newer_share"] == pytest.approx(0.5)

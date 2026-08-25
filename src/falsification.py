@@ -22,6 +22,45 @@ from .selectivity import (
 from .stats import bootstrap_mean, ols, print_ols
 
 
+def eligible_vs_placebo(panel, value="percentile", min_each=1):
+    """The placebo contrast that needs no disclosure coding at all.
+
+    Every other test here compares *omitted* cells against postdating ones, and
+    that requires knowing which benchmarks a provider reported. This one does
+    not: it compares every benchmark a release *could* have reported against
+    every benchmark that did not yet exist. Both are the same two date-defined
+    sets, and under every innocent explanation -- postdating benchmarks are
+    harder, newer, or chosen by the evaluator because they discriminate -- the
+    difference is zero.
+
+    It is the strongest form of the test precisely because no label enters it.
+    If it is not zero, then the standing measure is already contaminated before
+    any coding sheet exists, and the disclosed-versus-omitted gap cannot be
+    read as concealment however well the coding was done.
+    """
+    usable = panel[panel[value].notna() & panel["group"].isin({"eligible", "placebo"})]
+    wide = (
+        usable.pivot_table(index=RELEASE_COL, columns="group", values=value,
+                           aggfunc="mean")
+        .rename(columns={"eligible": "mean_eligible", "placebo": "mean_placebo"})
+    )
+    counts = (
+        usable.pivot_table(index=RELEASE_COL, columns="group", values=value,
+                           aggfunc="size")
+        .rename(columns={"eligible": "n_eligible", "placebo": "n_placebo"})
+        .fillna(0)
+    )
+    org = usable.groupby(RELEASE_COL)["Organization"].first()
+    out = wide.join(counts).join(org).reset_index()
+    for column in ("mean_eligible", "mean_placebo", "n_eligible", "n_placebo"):
+        if column not in out.columns:
+            out[column] = np.nan
+    out = out[(out["n_eligible"] >= min_each) & (out["n_placebo"] >= min_each)
+              & out["mean_eligible"].notna() & out["mean_placebo"].notna()].copy()
+    out["gap"] = out["mean_eligible"] - out["mean_placebo"]
+    return out
+
+
 def permutation_test(merged, draws=2000, seed=0):
     """Relabel which benchmarks were disclosed, at random within release.
 
@@ -109,9 +148,45 @@ def reverse_gap(coding):
     return flagged
 
 
+def report_label_free_placebo(panel):
+    print("\n" + "=" * 62)
+    print("0. PLACEBO WITHOUT LABELS -- available vs postdating benchmarks")
+    print("   uses no disclosure coding at all: both sets are defined by")
+    print("   dates alone. Zero under every innocent explanation.")
+    for value, label in (("percentile", "windowed percentile"),
+                         ("percentile_balanced", "side-balanced percentile")):
+        if value not in panel.columns:
+            continue
+        gaps = eligible_vs_placebo(panel, value)
+        if gaps.empty:
+            print(f"   {label}: no release carries both kinds of cell")
+            continue
+        mean, (lo, hi) = bootstrap_mean(
+            gaps["gap"].to_numpy(float), cluster=gaps["Organization"].to_numpy()
+        )
+        print(f"   {label}: n={len(gaps)} releases, "
+              f"{gaps['Organization'].nunique()} providers")
+        print(f"     mean {mean:+.2f}  median {gaps['gap'].median():+.2f}  "
+              f"positive {(gaps['gap'] > 0).mean():.1%}  "
+              f"95% CI [{lo:+.2f}, {hi:+.2f}]")
+    shares = panel.groupby("group")["newer_share"].mean()
+    if {"eligible", "placebo"} <= set(shares.index):
+        print(f"   peer windows: mean share of the window newer than the focal "
+              f"model is {shares['eligible']:.4f} for available cells and "
+              f"{shares['placebo']:.4f} for postdating ones, against 0.5 for a "
+              f"two-sided window.")
+
+
 def main():
     panel = pd.read_csv(INTERIM / "panel.csv", parse_dates=["Release date"])
     panel = add_percentiles(panel)
+    # on a copy: `panel` is merged with the coding sheet below, which carries
+    # its own `group` column, and a collision there silently suffixes both and
+    # empties every downstream test
+    dated = panel.copy()
+    dated["group"] = np.where(dated["eligible"], "eligible",
+                              np.where(dated["placebo"], "placebo", "unknown"))
+    report_label_free_placebo(dated)
 
     coding = load_coding()
     if coding is None:

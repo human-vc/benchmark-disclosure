@@ -32,6 +32,9 @@ def within_benchmark_percentile(panel, window_days=WINDOW_DAYS):
 
     percentile = np.full(len(panel), np.nan)
     n_peers = np.zeros(len(panel), dtype=int)
+    newer_share = np.full(len(panel), np.nan)
+    pct_older = np.full(len(panel), np.nan)
+    pct_newer = np.full(len(panel), np.nan)
 
     for _, group in panel.groupby("slug", sort=False):
         positions = group.index.to_numpy()
@@ -49,8 +52,53 @@ def within_benchmark_percentile(panel, window_days=WINDOW_DAYS):
         percentile[rows] = pct
         n_peers[rows] = counts
 
+        # Split the window by which side of the focal release a peer sits on.
+        # The window is symmetric in calendar time but a benchmark's coverage
+        # is not: it begins when the benchmark was built, so a model evaluated
+        # soon after that is ranked almost entirely against models newer than
+        # itself. That asymmetry is a property of timing, and it is the same
+        # timing that decides whether the benchmark was available to report.
+        # A same-day peer sits on neither side, and the focal model is its own
+        # same-day peer, so the sides are defined strictly. That is also what
+        # makes the balanced measure *undefined* at the boundary rather than
+        # quietly defined: a release at the very start of a benchmark's
+        # coverage has no older peer to weight, and inventing one would hide
+        # exactly the case the measure exists to expose.
+        newer = within & (days[None, :] > days[:, None])
+        older = within & (days[None, :] < days[:, None])
+        n_new = newer.sum(axis=1).astype(float)
+        n_old = older.sum(axis=1).astype(float)
+        sided = n_new + n_old
+
+        with np.errstate(invalid="ignore", divide="ignore"):
+            newer_share[rows] = np.where(sided > 0, n_new / sided, np.nan)
+            pct_newer[rows] = 100.0 * (
+                (below & newer).sum(axis=1) + 0.5 * (equal & newer).sum(axis=1)
+            ) / np.where(n_new > 0, n_new, np.nan)
+            pct_older[rows] = 100.0 * (
+                (below & older).sum(axis=1) + 0.5 * (equal & older).sum(axis=1)
+            ) / np.where(n_old > 0, n_old, np.nan)
+
     panel["percentile"] = percentile
     panel["n_peers"] = n_peers
+    panel["newer_share"] = newer_share
+    panel["percentile_older"] = pct_older
+    panel["percentile_newer"] = pct_newer
+    panel["percentile_balanced"] = np.where(
+        np.isnan(pct_older) | np.isnan(pct_newer),
+        np.nan,
+        0.5 * pct_older + 0.5 * pct_newer,
+    )
+    # The windowed percentile over peers only, which is what the two sides
+    # decompose. It differs from `percentile` only by the focal model's own
+    # midrank contribution, and it exists so the decomposition can be checked
+    # as an identity rather than asserted.
+    panel["percentile_sided"] = np.where(
+        np.isnan(newer_share),
+        np.nan,
+        (1 - newer_share) * np.nan_to_num(pct_older)
+        + newer_share * np.nan_to_num(pct_newer),
+    )
     return panel
 
 
