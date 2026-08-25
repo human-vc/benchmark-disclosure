@@ -259,6 +259,8 @@ def main():
     parser.add_argument("url", nargs="?")
     parser.add_argument("--context", type=int, default=160)
     parser.add_argument("--cap", type=int, default=6)
+    parser.add_argument("--vega", nargs="?", const="", default=None,
+                        help="read embedded chart data; optional title filter")
     parser.add_argument("--pdf-images", action="store_true",
                         help="write out embedded PDF images and list them")
     parser.add_argument("--tables", nargs="?", const="", default=None,
@@ -277,6 +279,18 @@ def main():
         url = row.iloc[0]["source_url"]
 
     path = fetch(url)
+    if args.vega is not None:
+        from .vega_charts import charts
+
+        raw = path.read_text(errors="replace")
+        for title, scores in charts(raw):
+            if args.vega and args.vega.lower() not in title.lower():
+                continue
+            print(f"== {title}")
+            for model, score in scores.items():
+                print(f"   {model:52} {score}")
+        return
+
     if args.pdf_images:
         if path.suffix != ".pdf":
             print(f"{path} is not a PDF")

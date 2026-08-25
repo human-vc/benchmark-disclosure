@@ -122,6 +122,37 @@ class TestHtml:
         assert image_tables(raw, "https://example.com/") == []
 
 
+class TestVegaCharts:
+    """OpenAI's launch posts have no table and no results image: the numbers
+    live in an embedded chart spec, and the bars are stacked."""
+
+    PAGE = (
+        r'"vegaSpec":{"data":{"values":['
+        r'{"model":"GPT-5 (no tools)","value":32.7,"legendGroup":"With thinking",'
+        r'"stackOrder":1},'
+        r'{"model":"GPT-5 (no tools)","value":61.9,"legendGroup":"Without thinking",'
+        r'"stackOrder":0},'
+        r'{"model":"OpenAI o3 (no tools)","value":88.9,"stackOrder":0}'
+        r']},"encoding":{"y":{"title":"Accuracy, pass@1"}},'
+        r'"title":["AIME 2025","Competition math"]}'
+    ).replace('"', r'\"')
+
+    def test_stacked_segments_are_summed(self):
+        from src.vega_charts import charts
+
+        found = dict(charts(self.PAGE))
+        scores = found["AIME 2025 / Competition math"]
+        # OpenAI's own prose quotes 94.6% for this cell; either segment alone
+        # would understate it by more than half
+        assert scores["GPT-5 (no tools)"] == 94.6
+        assert scores["OpenAI o3 (no tools)"] == 88.9
+
+    def test_axis_label_is_not_taken_as_the_benchmark_name(self):
+        from src.vega_charts import charts
+
+        assert "Accuracy" not in charts(self.PAGE)[0][0]
+
+
 class TestPdfImages:
     def test_only_sizeable_images_are_written(self, tmp_path, monkeypatch):
         """Logos and rules are dropped; a full-page results raster is kept."""
