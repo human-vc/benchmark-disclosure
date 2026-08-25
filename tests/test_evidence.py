@@ -109,6 +109,13 @@ class TestHtml:
         )
         assert found == ["https://qwenlm.github.io/assets/qwen-72b-base.001.jpeg"]
 
+    def test_entity_escaped_query_separators_are_decoded(self):
+        found = image_tables(
+            '<img src="https://cdn.example/bench.png?a=1&amp;b=2">',
+            "https://example.com/",
+        )
+        assert found == ["https://cdn.example/bench.png?a=1&b=2"]
+
     def test_page_furniture_is_not_surfaced(self):
         raw = ('<img src="/logo.png"><img src="/icons/share.svg">'
                '<img src="/author-avatar.jpg">')

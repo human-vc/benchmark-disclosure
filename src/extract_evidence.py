@@ -116,7 +116,9 @@ def image_tables(raw, url):
         candidate = match.group(1) or match.group(2)
         if NOT_A_TABLE.search(candidate):
             continue
-        src = urljoin(url, candidate)
+        # Page HTML escapes query separators, and an unescaped &amp; in a
+        # CDN URL fetches a different object or nothing at all.
+        src = urljoin(url, html.unescape(candidate))
         if src not in seen:
             seen.add(src)
             out.append(src)
