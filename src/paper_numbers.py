@@ -6,10 +6,11 @@ from datetime import date
 import numpy as np
 import pandas as pd
 
-from .config import INTERIM, MIN_BENCHMARKS, RELEASE_COL, WINDOW_DAYS
+from .config import INTERIM, MIN_BENCHMARKS, RELEASE_COL, WINDOW_DAYS, WORKLIST
 from .helm_external import FROZEN as HELM_FROZEN
 from .helm_external import summary as helm_summary
 from .percentiles import side_balanced_percentile, within_benchmark_percentile
+from .sensitivity import BASELINE, leave_one_org_out, sweep
 from .stats import randomization_test_mean
 from .placebo_calibration import (
     contrast_by_release,
@@ -17,6 +18,7 @@ from .placebo_calibration import (
     drop_capacity,
     null_calibration,
     permutation_null,
+    trend_recovery,
 )
 from .snapshot import compare, stamp
 
@@ -68,14 +70,56 @@ def _growth_and_saturation(panel):
     late = frame["date"] >= frame["date"].median()
     from scipy.stats import mannwhitneyu
     stat = mannwhitneyu(frame[~late]["top_decile_share"], frame[late]["top_decile_share"])
+    eligible = panel[panel["eligible"]]
+    per_release = (eligible.groupby([RELEASE_COL, "Release date"]).size()
+                   .reset_index(name="n"))
+    half = per_release["Release date"].dt.year.astype(str) + "H" + (
+        (per_release["Release date"].dt.month > 6).astype(int) + 1).astype(str)
+    series = per_release.groupby(half)["n"].mean().round(3)
+
     return {
         "dated_stock_by_year": {int(k): int(v) for k, v in stock.items()},
+        "eligible_per_release_by_half": {k: float(v) for k, v in series.items()},
         "saturation": {
             "n_benchmarks": int(len(frame)),
             "early_top_decile_share": round(float(frame[~late]["top_decile_share"].mean()), 4),
             "late_top_decile_share": round(float(frame[late]["top_decile_share"].mean()), 4),
             "mannwhitney_p": round(float(stat.pvalue), 4),
         },
+    }
+
+
+def _worklist_reach():
+    """What the coding worklist asks a human to read."""
+    sheet = pd.read_csv(WORKLIST, dtype=str).fillna("")
+    eligible = sheet[sheet["group"] == "eligible"]
+    return {
+        "cells": int(len(eligible)),
+        "releases": int(eligible["release_id"].nunique()),
+        "families": int(eligible["family_id"].nunique()),
+    }
+
+
+def _sensitivity(panel):
+    """The specification grid and the leave-one-organisation-out range."""
+    frame = pd.read_csv(
+        INTERIM / "panel.csv",
+        parse_dates=["Release date", "benchmark_release_date"],
+    )
+    table = sweep(frame)
+    dropped = leave_one_org_out(panel)
+    dropped = dropped[dropped["dropped"] != "(none)"]
+    at_baseline = table[table["min_benchmarks"] == BASELINE["min_benchmarks"]]
+    return {
+        "specifications": int(len(table)),
+        "positive": int((table["mean"] > 0).sum()),
+        "min": round(float(table["mean"].min()), 3),
+        "max": round(float(table["mean"].max()), 3),
+        "share_newer_gap_correlation": round(float(
+            np.corrcoef(at_baseline["share_newer_gap"], at_baseline["mean"])[0, 1]), 3),
+        "leave_one_out_min": round(float(dropped["mean"].min()), 3),
+        "leave_one_out_max": round(float(dropped["mean"].max()), 3),
+        "organisations_dropped": int(len(dropped)),
     }
 
 
@@ -131,6 +175,9 @@ def collect():
         "null_calibration": null_calibration(panel).to_dict("records"),
         "min_benchmarks": MIN_BENCHMARKS,
         "opportunity": _growth_and_saturation(panel),
+        "worklist": _worklist_reach(),
+        "trend_recovery": trend_recovery(panel),
+        "sensitivity": _sensitivity(panel),
     }
 
     identity = (

@@ -185,6 +185,21 @@
       "2025": 57,
       "2026": 62
     },
+    "eligible_per_release_by_half": {
+      "2019H2": 5.0,
+      "2020H1": 2.0,
+      "2021H2": 6.0,
+      "2022H1": 6.444,
+      "2022H2": 3.0,
+      "2023H1": 6.762,
+      "2023H2": 6.464,
+      "2024H1": 3.905,
+      "2024H2": 4.021,
+      "2025H1": 6.763,
+      "2025H2": 8.49,
+      "2026H1": 10.05,
+      "2026H2": 9.875
+    },
     "saturation": {
       "early_top_decile_share": 0.1316,
       "late_top_decile_share": 0.0828,
@@ -210,11 +225,14 @@
   },
   "placebo_null": {
     "randomization": {
+      "distinct_draws_available": 262144.0,
       "granular": false,
       "mean": 12.2271,
       "n": 146,
       "n_clusters": 18,
-      "p_value": 0.0001
+      "p_floor": 0.0001,
+      "p_value": 0.0001,
+      "weights": "rademacher"
     },
     "side_balanced": {
       "mean": 8.689,
@@ -228,5 +246,27 @@
       "n_releases": 146,
       "share_positive": 0.7808
     }
+  },
+  "sensitivity": {
+    "leave_one_out_max": 13.197,
+    "leave_one_out_min": 11.447,
+    "max": 21.655,
+    "min": 8.595,
+    "organisations_dropped": 18,
+    "positive": 16,
+    "share_newer_gap_correlation": 0.989,
+    "specifications": 16
+  },
+  "trend_recovery": {
+    "draws": 200,
+    "observed": -29.09239225733928,
+    "recovered_mean": -29.37516007551782,
+    "recovered_sd": 2.8007218254234245,
+    "share_recovered": 1.0097196482048396
+  },
+  "worklist": {
+    "cells": 1298,
+    "families": 38,
+    "releases": 103
   }
 }
