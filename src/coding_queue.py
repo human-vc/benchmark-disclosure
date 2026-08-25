@@ -16,6 +16,11 @@ import pandas as pd
 
 from .config import ARTIFACTS, QUEUE, WORKLIST
 
+ORDER_COLUMNS = [
+    "read_order", "drop_capable", "pair_member", "shared_with_prior",
+    "prior_release",
+]
+
 COLUMNS = [
     "read_order", "release_id", "organization", "model_name", "release_date",
     "family_id", "family_rank", "prior_release", "drop_capable",
@@ -95,11 +100,29 @@ def build(worklist, artifacts):
     return queue[COLUMNS]
 
 
+def apply_to_artifacts(queue, artifacts):
+    """Put the reading order into the sheet itself.
+
+    The coder fills `artifacts.csv`, so the order belongs there rather than in a
+    second file they have to cross-reference 108 times. Existing columns and
+    values are preserved; only row order and the ordering columns change.
+    """
+    order = queue.set_index("release_id")
+    merged = artifacts.copy()
+    for column in ORDER_COLUMNS:
+        merged[column] = merged["release_id"].map(order[column])
+    merged = merged.sort_values("read_order").reset_index(drop=True)
+    front = ["read_order", "release_id", "organization", "model_name", "release_date"]
+    rest = [c for c in merged.columns if c not in front]
+    return merged[front + rest]
+
+
 def main():
     worklist = pd.read_csv(WORKLIST, dtype=str).fillna("")
     artifacts = pd.read_csv(ARTIFACTS, dtype=str).fillna("")
     queue = build(worklist, artifacts)
     queue.to_csv(QUEUE, index=False)
+    apply_to_artifacts(queue, artifacts).to_csv(ARTIFACTS, index=False)
 
     capable = queue[queue["drop_capable"] == 1]
     members = queue[queue["pair_member"] == 1]

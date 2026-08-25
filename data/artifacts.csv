@@ -1,109 +1,109 @@
-release_id,organization,model_name,release_date,n_cells,family_rank,source_tier,source_url,source_date,artifact_kind,reported_slugs,coder,flagged_for_review,fetch_status,notes
-Alibaba | Qwen2.5-72B | 2024-09-19,Alibaba,Qwen2.5-72B,2024-09-19,11,3,,,,,,,,pending,
-Alibaba | Qwen3-235B-A22B (Jul 2025) | 2025-07-25,Alibaba,Qwen3-235B-A22B (Jul 2025),2025-07-25,11,2,,,,,,,,pending,
-Alibaba | Qwen3-Max | 2025-09-24,Alibaba,Qwen3-Max,2025-09-24,5,2,,,,,,,,pending,
-Alibaba | Qwen 3.6 Plus | 2026-03-31,Alibaba,Qwen 3.6 Plus,2026-03-31,12,3,,,,,,,,pending,
-Alibaba | Qwen 3.6 Max (Preview) | 2026-04-20,Alibaba,Qwen 3.6 Max (Preview),2026-04-20,10,3,,,,,,,,pending,
-Alibaba | Qwen 3.6 Flash | 2026-04-27,Alibaba,Qwen 3.6 Flash,2026-04-27,8,1,,,,,,,,pending,
-Alibaba | Qwen3.7-Max | 2026-05-19,Alibaba,Qwen3.7-Max,2026-05-19,10,4,,,,,,,,pending,
-Alibaba | Qwen 3.8 Max | 2026-08-02,Alibaba,Qwen 3.8 Max,2026-08-02,6,5,,,,,,,,pending,
-Anthropic | Claude 3 Opus | 2024-02-29,Anthropic,Claude 3 Opus,2024-02-29,4,1,,,,,,,,pending,
-Anthropic | Claude 3 Haiku | 2024-03-07,Anthropic,Claude 3 Haiku,2024-03-07,5,1,,,,,,,,pending,
-Anthropic | Claude 3.5 Sonnet | 2024-06-20,Anthropic,Claude 3.5 Sonnet,2024-06-20,4,2,,,,,,,,pending,
-Anthropic | Claude 3.5 Haiku | 2024-10-22,Anthropic,Claude 3.5 Haiku,2024-10-22,5,2,,,,,,,,pending,
-Anthropic | Claude 3.5 Sonnet (October 2024) | 2024-10-22,Anthropic,Claude 3.5 Sonnet (October 2024),2024-10-22,6,3,,,,,,,,pending,
-Anthropic | Claude 3.7 Sonnet | 2025-02-24,Anthropic,Claude 3.7 Sonnet,2025-02-24,17,4,,,,,,,,pending,
-Anthropic | Claude Opus 4 | 2025-05-22,Anthropic,Claude Opus 4,2025-05-22,19,2,,,,,,,,pending,
-Anthropic | Claude Sonnet 4 | 2025-05-22,Anthropic,Claude Sonnet 4,2025-05-22,21,5,,,,,,,,pending,
-Anthropic | Claude Opus 4.1 | 2025-08-05,Anthropic,Claude Opus 4.1,2025-08-05,19,3,,,,,,,,pending,
-Anthropic | Claude Sonnet 4.5 | 2025-09-29,Anthropic,Claude Sonnet 4.5,2025-09-29,26,6,,,,,,,,pending,
-Anthropic | Claude Haiku 4.5 | 2025-10-15,Anthropic,Claude Haiku 4.5,2025-10-15,16,3,,,,,,,,pending,
-Anthropic | Claude Opus 4.5 | 2025-11-24,Anthropic,Claude Opus 4.5,2025-11-24,27,4,,,,,,,,pending,
-Anthropic | Claude Opus 4.6 | 2026-02-05,Anthropic,Claude Opus 4.6,2026-02-05,25,5,1.0,,2026-02-05,,,,,pending,
-Anthropic | Claude Sonnet 4.6 | 2026-02-17,Anthropic,Claude Sonnet 4.6,2026-02-17,21,7,,,,,,,,pending,
-Anthropic | Claude Opus 4.7 | 2026-04-16,Anthropic,Claude Opus 4.7,2026-04-16,23,6,1.0,,2026-04-16,,,,,pending,
-Anthropic | Claude Opus 4.8 | 2026-05-28,Anthropic,Claude Opus 4.8,2026-05-28,24,7,,,,,,,,pending,
-Anthropic | Claude Sonnet 5 | 2026-06-30,Anthropic,Claude Sonnet 5,2026-06-30,15,8,,,,,,,,pending,
-Anthropic | Claude Opus 5 | 2026-07-24,Anthropic,Claude Opus 5,2026-07-24,16,8,,,,,,,,pending,
-Baichuan | Baichuan2-13B | 2023-09-06,Baichuan,Baichuan2-13B,2023-09-06,8,2,,,,,,,,pending,
-DeepSeek | DeepSeek-V3 | 2024-12-26,DeepSeek,DeepSeek-V3,2024-12-26,15,2,,,,,,,,pending,
-DeepSeek | DeepSeek-R1 | 2025-01-20,DeepSeek,DeepSeek-R1,2025-01-20,11,1,,,,,,,,pending,
-DeepSeek | DeepSeek-V3 (Mar 2025) | 2025-03-24,DeepSeek,DeepSeek-V3 (Mar 2025),2025-03-24,10,3,,,,,,,,pending,
-DeepSeek | DeepSeek-R1 (May 2025) | 2025-05-28,DeepSeek,DeepSeek-R1 (May 2025),2025-05-28,10,2,,,,,,,,pending,
-DeepSeek | DeepSeek-V3.2 | 2025-12-01,DeepSeek,DeepSeek-V3.2,2025-12-01,12,5,,,,,,,,pending,
-DeepSeek | DeepSeek-V4-Pro | 2026-04-24,DeepSeek,DeepSeek-V4-Pro,2026-04-24,13,1,,,,,,,,pending,
-DeepSeek | DeepSeek V4 Flash 0731 | 2026-07-31,DeepSeek,DeepSeek V4 Flash 0731,2026-07-31,11,2,,,,,,,,pending,
-DeepSeek | DeepSeek V4 Pro 0813 | 2026-08-13,DeepSeek,DeepSeek V4 Pro 0813,2026-08-13,7,2,,,,,,,,pending,
-Google DeepMind | Gemini 3.1 Flash-Lite | 2026-03-03,Google,Gemini 3.1 Flash-Lite,2026-03-03,13,4,,,,,,,,pending,
-Google DeepMind | Gemini 3.5 Flash | 2026-05-19,Google,Gemini 3.5 Flash,2026-05-19,20,9,,,,,,,,pending,
-Google DeepMind | Gemini 1.5 Flash | 2024-05-14,Google DeepMind,Gemini 1.5 Flash,2024-05-14,5,1,,,,,,,,pending,
-Google DeepMind | Gemini 1.5 Flash | 2024-09-24,Google DeepMind,Gemini 1.5 Flash,2024-09-24,4,2,,,,,,,,pending,
-Google DeepMind | Gemini 1.5 Pro | 2024-09-24,Google DeepMind,Gemini 1.5 Pro,2024-09-24,3,4,,,,,,,,pending,
-Google DeepMind | Gemma 3 27B | 2025-03-12,Google DeepMind,Gemma 3 27B,2025-03-12,8,2,,,,,,,,pending,
-Google DeepMind | Gemini 2.5 Pro (Mar 2025) | 2025-03-25,Google DeepMind,Gemini 2.5 Pro (Mar 2025),2025-03-25,14,6,,,,,,,,pending,
-Google DeepMind | Gemini 2.5 Flash | 2025-04-17,Google DeepMind,Gemini 2.5 Flash,2025-04-17,12,5,,,,,,,,pending,
-Google DeepMind | Gemini 2.5 Pro (May 2025) | 2025-05-06,Google DeepMind,Gemini 2.5 Pro (May 2025),2025-05-06,10,7,,,,,,,,pending,
-Google DeepMind | Gemini 2.5 Pro (Jun 2025) | 2025-06-05,Google DeepMind,Gemini 2.5 Pro (Jun 2025),2025-06-05,20,8,,,,,,,,pending,
-Google DeepMind | Gemini 2.5 Flash | 2025-06-17,Google DeepMind,Gemini 2.5 Flash,2025-06-17,6,6,,,,,,,,pending,
-Google DeepMind | Gemini 3 Pro | 2025-11-18,Google DeepMind,Gemini 3 Pro,2025-11-18,25,9,,,,,,,,pending,
-Google DeepMind | Gemini 3 Flash | 2025-12-17,Google DeepMind,Gemini 3 Flash,2025-12-17,20,8,,,,,,,,pending,
-Google DeepMind | Gemini 3.1 Pro | 2026-02-19,Google DeepMind,Gemini 3.1 Pro,2026-02-19,26,10,,,,,,,,pending,
-Google DeepMind | Gemini 3.5 Flash-Lite | 2026-07-21,Google DeepMind,Gemini 3.5 Flash-Lite,2026-07-21,10,5,,,,,,,,pending,
-Google DeepMind | Gemini 3.6 Flash | 2026-07-21,Google DeepMind,Gemini 3.6 Flash,2026-07-21,13,10,,,,,,,,pending,
-Google DeepMind | Gemini 3.7 Flash | 2026-08-13,Google DeepMind,Gemini 3.7 Flash,2026-08-13,8,11,,,,,,,,pending,
-Google DeepMind | Gemini 2.0 Flash | 2025-02-05,"Google DeepMind,Google",Gemini 2.0 Flash,2025-02-05,6,4,,,,,,,,pending,
-Meta AI | Llama 2-70B | 2023-07-18,Meta AI,Llama 2-70B,2023-07-18,13,1,,,,,,,,pending,
-Meta AI | Llama 3-8B | 2024-04-18,Meta AI,Llama 3-8B,2024-04-18,8,1,,,,,,,,pending,
-Meta AI | Llama 3.1-8B | 2024-07-23,Meta AI,Llama 3.1-8B,2024-07-23,7,2,,,,,,,,pending,
-Meta AI | Llama 3.3 70B | 2024-12-06,Meta AI,Llama 3.3 70B,2024-12-06,8,4,,,,,,,,pending,
-Meta AI | Muse Spark | 2026-04-08,Meta AI,Muse Spark,2026-04-08,9,1,,,,,,,,pending,
-Meta AI | Muse Spark 1.1 | 2026-07-09,Meta AI,Muse Spark 1.1,2026-07-09,6,2,,,,,,,,pending,
-Microsoft | Phi-2 | 2023-12-12,Microsoft,Phi-2,2023-12-12,8,2,,,,,,,,pending,
-MiniMax | MiniMax-M2.5 | 2026-02-12,MiniMax,MiniMax-M2.5,2026-02-12,7,4,,,,,,,,pending,
-MiniMax | MiniMax-M2.7 | 2026-03-18,MiniMax,MiniMax-M2.7,2026-03-18,6,5,,,,,,,,pending,
-MiniMax | MiniMax-M3 | 2026-06-01,MiniMax,MiniMax-M3,2026-06-01,9,6,,,,,,,,pending,
-Mistral AI | Mistral 7B | 2023-09-27,Mistral AI,Mistral 7B,2023-09-27,12,1,,,,,,,,pending,
-Mistral AI | Mixtral 8x7B | 2023-12-11,Mistral AI,Mixtral 8x7B,2023-12-11,11,1,,,,,,,,pending,
-Mistral AI | Mistral Medium 3.5 | 2026-04-28,Mistral AI,Mistral Medium 3.5,2026-04-28,5,2,,,,,,,,pending,
-Moonshot | Kimi K2.5 | 2026-01-27,Moonshot,Kimi K2.5,2026-01-27,22,3,,,,,,,,pending,
-Moonshot | Kimi K2.6 | 2026-04-20,Moonshot,Kimi K2.6,2026-04-20,15,4,,,,,,,,pending,
-Moonshot | Kimi K3 | 2026-07-16,Moonshot,Kimi K3,2026-07-16,16,5,,,,,,,,pending,
-OpenAI | GPT-4 (Jun 2023) | 2023-06-13,OpenAI,GPT-4 (Jun 2023),2023-06-13,5,3,,,,,,,,pending,
-OpenAI | GPT-3.5 Turbo | 2023-11-06,OpenAI,GPT-3.5 Turbo,2023-11-06,7,2,,,,,,,,pending,
-OpenAI | GPT-4 Turbo (Apr 2024) | 2024-04-09,OpenAI,GPT-4 Turbo (Apr 2024),2024-04-09,3,3,,,,,,,,pending,
-OpenAI | GPT-4o mini | 2024-07-18,OpenAI,GPT-4o mini,2024-07-18,8,1,,,,,,,,pending,
-OpenAI | GPT-4o | 2024-08-06,OpenAI,GPT-4o,2024-08-06,5,5,,,,,,,,pending,
-OpenAI | o1-mini | 2024-09-12,OpenAI,o1-mini,2024-09-12,5,1,,,,,,,,pending,
-OpenAI | GPT-4o | 2024-11-20,OpenAI,GPT-4o,2024-11-20,8,6,,,,,,,,pending,
-OpenAI | o1 | 2024-12-17,OpenAI,o1,2024-12-17,5,1,,,,,,,,pending,
-OpenAI | o3-mini | 2025-01-31,OpenAI,o3-mini,2025-01-31,11,2,,,,,,,,pending,
-OpenAI | GPT-4.5 | 2025-02-27,OpenAI,GPT-4.5,2025-02-27,15,8,,,,,,,,pending,
-OpenAI | GPT-4.1 mini | 2025-04-14,OpenAI,GPT-4.1 mini,2025-04-14,10,2,,,,,,,,pending,
-OpenAI | GPT-4.1 nano | 2025-04-14,OpenAI,GPT-4.1 nano,2025-04-14,10,1,,,,,,,,pending,
-OpenAI | GPT-4.1 | 2025-04-14,OpenAI,GPT-4.1,2025-04-14,15,10,,,,,,,,pending,
-OpenAI | o3 | 2025-04-16,OpenAI,o3,2025-04-16,19,2,,,,,,,,pending,
-OpenAI | o4-mini | 2025-04-16,OpenAI,o4-mini,2025-04-16,17,3,,,,,,,,pending,
-OpenAI | GPT-5 mini | 2025-08-07,OpenAI,GPT-5 mini,2025-08-07,19,3,,,,,,,,pending,
-OpenAI | GPT-5 nano | 2025-08-07,OpenAI,GPT-5 nano,2025-08-07,13,2,,,,,,,,pending,
-OpenAI | GPT-5 | 2025-08-07,OpenAI,GPT-5,2025-08-07,27,11,,,,,,,,pending,
-OpenAI | GPT-5 Pro | 2025-10-07,OpenAI,GPT-5 Pro,2025-10-07,8,1,,,,,,,,pending,
-OpenAI | GPT-5.1 | 2025-11-13,OpenAI,GPT-5.1,2025-11-13,22,12,,,,,,,,pending,
-OpenAI | GPT-5.2 | 2025-12-11,OpenAI,GPT-5.2,2025-12-11,25,13,,,,,,,,pending,
-OpenAI | GPT-5.3 Codex | 2026-02-05,OpenAI,GPT-5.3 Codex,2026-02-05,8,4,,,,,,,,pending,
-OpenAI | GPT-5.4 Pro | 2026-03-05,OpenAI,GPT-5.4 Pro,2026-03-05,12,3,,,,,,,,pending,
-OpenAI | GPT-5.4 | 2026-03-05,OpenAI,GPT-5.4,2026-03-05,25,14,,,,,,,,pending,
-OpenAI | GPT-5.5 Pro | 2026-04-23,OpenAI,GPT-5.5 Pro,2026-04-23,10,4,,,,,,,,pending,
-OpenAI | GPT-5.5 | 2026-04-23,OpenAI,GPT-5.5,2026-04-23,25,15,,,,,,,,pending,
-Technology Innovation Institute | Falcon-40B | 2023-03-15,Technology Innovation Institute,Falcon-40B,2023-03-15,11,1,,,,,,,,pending,
-Z.ai (Zhipu AI) | GLM-4.7 | 2025-12-22,Z.ai (Zhipu AI),GLM-4.7,2025-12-22,13,3,,,,,,,,pending,
-Z.ai (Zhipu AI) | GLM-5 | 2026-02-11,Z.ai (Zhipu AI),GLM-5,2026-02-11,16,4,,,,,,,,pending,
-Z.ai (Zhipu AI) | GLM-5.1 | 2026-04-07,Z.ai (Zhipu AI),GLM-5.1,2026-04-07,14,5,,,,,,,,pending,
-Z.ai (Zhipu AI) | GLM-5.2 | 2026-06-16,Z.ai (Zhipu AI),GLM-5.2,2026-06-16,17,6,,,,,,,,pending,
-Z.ai (Zhipu AI) | GLM-4.6 | 2025-09-30,"Z.ai (Zhipu AI),Tsinghua University",GLM-4.6,2025-09-30,6,2,,,,,,,,pending,
-xAI | Grok-2 | 2024-12-12,xAI,Grok-2,2024-12-12,4,1,,,,,,,,pending,
-xAI | Grok 3 | 2025-04-09,xAI,Grok 3,2025-04-09,12,2,,,,,,,,pending,
-xAI | Grok-3 mini | 2025-04-09,xAI,Grok-3 mini,2025-04-09,9,1,,,,,,,,pending,
-xAI | Grok 4 | 2025-07-09,xAI,Grok 4,2025-07-09,18,3,,,,,,,,pending,
-xAI | Grok 4.20 | 2026-02-17,xAI,Grok 4.20,2026-02-17,12,5,,,,,,,,pending,
-xAI | Grok 4.5 | 2026-07-08,xAI,Grok 4.5,2026-07-08,16,6,,,,,,,,pending,
-xAI | Grok 4.6 | 2026-08-12,xAI,Grok 4.6,2026-08-12,13,7,,,,,,,,pending,
+read_order,release_id,organization,model_name,release_date,n_cells,family_rank,source_tier,source_url,source_date,artifact_kind,reported_slugs,coder,flagged_for_review,fetch_status,notes,drop_capable,pair_member,shared_with_prior,prior_release
+1,Anthropic | Claude 3 Opus | 2024-02-29,Anthropic,Claude 3 Opus,2024-02-29,4,1,,,,,,,,pending,,0,1,0,
+2,Anthropic | Claude Opus 4 | 2025-05-22,Anthropic,Claude Opus 4,2025-05-22,19,2,,,,,,,,pending,,1,1,2,Anthropic | Claude 3 Opus | 2024-02-29
+3,Anthropic | Claude Opus 4.1 | 2025-08-05,Anthropic,Claude Opus 4.1,2025-08-05,19,3,,,,,,,,pending,,1,1,13,Anthropic | Claude Opus 4 | 2025-05-22
+4,Anthropic | Claude Opus 4.5 | 2025-11-24,Anthropic,Claude Opus 4.5,2025-11-24,27,4,,,,,,,,pending,,1,1,17,Anthropic | Claude Opus 4.1 | 2025-08-05
+5,Anthropic | Claude Opus 4.6 | 2026-02-05,Anthropic,Claude Opus 4.6,2026-02-05,25,5,1.0,,2026-02-05,,,,,pending,,1,1,22,Anthropic | Claude Opus 4.5 | 2025-11-24
+6,Anthropic | Claude Opus 4.7 | 2026-04-16,Anthropic,Claude Opus 4.7,2026-04-16,23,6,1.0,,2026-04-16,,,,,pending,,1,1,19,Anthropic | Claude Opus 4.6 | 2026-02-05
+7,Anthropic | Claude Opus 4.8 | 2026-05-28,Anthropic,Claude Opus 4.8,2026-05-28,24,7,,,,,,,,pending,,1,1,20,Anthropic | Claude Opus 4.7 | 2026-04-16
+8,Anthropic | Claude Opus 5 | 2026-07-24,Anthropic,Claude Opus 5,2026-07-24,16,8,,,,,,,,pending,,1,1,16,Anthropic | Claude Opus 4.8 | 2026-05-28
+9,OpenAI | GPT-4 (Jun 2023) | 2023-06-13,OpenAI,GPT-4 (Jun 2023),2023-06-13,5,3,,,,,,,,pending,,0,0,0,
+10,OpenAI | GPT-4o | 2024-08-06,OpenAI,GPT-4o,2024-08-06,5,5,,,,,,,,pending,,0,1,0,
+11,OpenAI | GPT-4o | 2024-11-20,OpenAI,GPT-4o,2024-11-20,8,6,,,,,,,,pending,,1,1,5,OpenAI | GPT-4o | 2024-08-06
+12,OpenAI | GPT-4.5 | 2025-02-27,OpenAI,GPT-4.5,2025-02-27,15,8,,,,,,,,pending,,0,0,0,
+13,OpenAI | GPT-4.1 | 2025-04-14,OpenAI,GPT-4.1,2025-04-14,15,10,,,,,,,,pending,,0,1,0,
+14,OpenAI | GPT-5 | 2025-08-07,OpenAI,GPT-5,2025-08-07,27,11,,,,,,,,pending,,1,1,15,OpenAI | GPT-4.1 | 2025-04-14
+15,OpenAI | GPT-5.1 | 2025-11-13,OpenAI,GPT-5.1,2025-11-13,22,12,,,,,,,,pending,,1,1,19,OpenAI | GPT-5 | 2025-08-07
+16,OpenAI | GPT-5.2 | 2025-12-11,OpenAI,GPT-5.2,2025-12-11,25,13,,,,,,,,pending,,1,1,19,OpenAI | GPT-5.1 | 2025-11-13
+17,OpenAI | GPT-5.4 | 2026-03-05,OpenAI,GPT-5.4,2026-03-05,25,14,,,,,,,,pending,,1,1,21,OpenAI | GPT-5.2 | 2025-12-11
+18,OpenAI | GPT-5.5 | 2026-04-23,OpenAI,GPT-5.5,2026-04-23,25,15,,,,,,,,pending,,1,1,21,OpenAI | GPT-5.4 | 2026-03-05
+19,Anthropic | Claude 3.5 Sonnet | 2024-06-20,Anthropic,Claude 3.5 Sonnet,2024-06-20,4,2,,,,,,,,pending,,0,1,0,
+20,Anthropic | Claude 3.5 Sonnet (October 2024) | 2024-10-22,Anthropic,Claude 3.5 Sonnet (October 2024),2024-10-22,6,3,,,,,,,,pending,,1,1,4,Anthropic | Claude 3.5 Sonnet | 2024-06-20
+21,Anthropic | Claude 3.7 Sonnet | 2025-02-24,Anthropic,Claude 3.7 Sonnet,2025-02-24,17,4,,,,,,,,pending,,1,1,4,Anthropic | Claude 3.5 Sonnet (October 2024) | 2024-10-22
+22,Anthropic | Claude Sonnet 4 | 2025-05-22,Anthropic,Claude Sonnet 4,2025-05-22,21,5,,,,,,,,pending,,1,1,15,Anthropic | Claude 3.7 Sonnet | 2025-02-24
+23,Anthropic | Claude Sonnet 4.5 | 2025-09-29,Anthropic,Claude Sonnet 4.5,2025-09-29,26,6,,,,,,,,pending,,1,1,16,Anthropic | Claude Sonnet 4 | 2025-05-22
+24,Anthropic | Claude Sonnet 4.6 | 2026-02-17,Anthropic,Claude Sonnet 4.6,2026-02-17,21,7,,,,,,,,pending,,1,1,16,Anthropic | Claude Sonnet 4.5 | 2025-09-29
+25,Anthropic | Claude Sonnet 5 | 2026-06-30,Anthropic,Claude Sonnet 5,2026-06-30,15,8,,,,,,,,pending,,1,1,12,Anthropic | Claude Sonnet 4.6 | 2026-02-17
+26,Google DeepMind | Gemini 1.5 Pro | 2024-09-24,Google DeepMind,Gemini 1.5 Pro,2024-09-24,3,4,,,,,,,,pending,,0,0,0,
+27,Google DeepMind | Gemini 2.5 Pro (Mar 2025) | 2025-03-25,Google DeepMind,Gemini 2.5 Pro (Mar 2025),2025-03-25,14,6,,,,,,,,pending,,0,1,0,
+28,Google DeepMind | Gemini 2.5 Pro (May 2025) | 2025-05-06,Google DeepMind,Gemini 2.5 Pro (May 2025),2025-05-06,10,7,,,,,,,,pending,,1,1,9,Google DeepMind | Gemini 2.5 Pro (Mar 2025) | 2025-03-25
+29,Google DeepMind | Gemini 2.5 Pro (Jun 2025) | 2025-06-05,Google DeepMind,Gemini 2.5 Pro (Jun 2025),2025-06-05,20,8,,,,,,,,pending,,1,1,7,Google DeepMind | Gemini 2.5 Pro (May 2025) | 2025-05-06
+30,Google DeepMind | Gemini 3 Pro | 2025-11-18,Google DeepMind,Gemini 3 Pro,2025-11-18,25,9,,,,,,,,pending,,1,1,16,Google DeepMind | Gemini 2.5 Pro (Jun 2025) | 2025-06-05
+31,Google DeepMind | Gemini 3.1 Pro | 2026-02-19,Google DeepMind,Gemini 3.1 Pro,2026-02-19,26,10,,,,,,,,pending,,1,1,21,Google DeepMind | Gemini 3 Pro | 2025-11-18
+32,Z.ai (Zhipu AI) | GLM-4.6 | 2025-09-30,"Z.ai (Zhipu AI),Tsinghua University",GLM-4.6,2025-09-30,6,2,,,,,,,,pending,,0,1,0,
+33,Z.ai (Zhipu AI) | GLM-4.7 | 2025-12-22,Z.ai (Zhipu AI),GLM-4.7,2025-12-22,13,3,,,,,,,,pending,,1,1,6,Z.ai (Zhipu AI) | GLM-4.6 | 2025-09-30
+34,Z.ai (Zhipu AI) | GLM-5 | 2026-02-11,Z.ai (Zhipu AI),GLM-5,2026-02-11,16,4,,,,,,,,pending,,1,1,10,Z.ai (Zhipu AI) | GLM-4.7 | 2025-12-22
+35,Z.ai (Zhipu AI) | GLM-5.1 | 2026-04-07,Z.ai (Zhipu AI),GLM-5.1,2026-04-07,14,5,,,,,,,,pending,,1,1,11,Z.ai (Zhipu AI) | GLM-5 | 2026-02-11
+36,Z.ai (Zhipu AI) | GLM-5.2 | 2026-06-16,Z.ai (Zhipu AI),GLM-5.2,2026-06-16,17,6,,,,,,,,pending,,1,1,11,Z.ai (Zhipu AI) | GLM-5.1 | 2026-04-07
+37,Google DeepMind | Gemini 1.5 Flash | 2024-05-14,Google DeepMind,Gemini 1.5 Flash,2024-05-14,5,1,,,,,,,,pending,,0,1,0,
+38,Google DeepMind | Gemini 1.5 Flash | 2024-09-24,Google DeepMind,Gemini 1.5 Flash,2024-09-24,4,2,,,,,,,,pending,,1,1,3,Google DeepMind | Gemini 1.5 Flash | 2024-05-14
+39,Google DeepMind | Gemini 2.0 Flash | 2025-02-05,"Google DeepMind,Google",Gemini 2.0 Flash,2025-02-05,6,4,,,,,,,,pending,,0,1,0,
+40,Google DeepMind | Gemini 2.5 Flash | 2025-04-17,Google DeepMind,Gemini 2.5 Flash,2025-04-17,12,5,,,,,,,,pending,,1,1,2,Google DeepMind | Gemini 2.0 Flash | 2025-02-05
+41,Google DeepMind | Gemini 2.5 Flash | 2025-06-17,Google DeepMind,Gemini 2.5 Flash,2025-06-17,6,6,,,,,,,,pending,,1,1,1,Google DeepMind | Gemini 2.5 Flash | 2025-04-17
+42,Google DeepMind | Gemini 3 Flash | 2025-12-17,Google DeepMind,Gemini 3 Flash,2025-12-17,20,8,,,,,,,,pending,,0,1,0,
+43,Google DeepMind | Gemini 3.5 Flash | 2026-05-19,Google,Gemini 3.5 Flash,2026-05-19,20,9,,,,,,,,pending,,1,1,15,Google DeepMind | Gemini 3 Flash | 2025-12-17
+44,Google DeepMind | Gemini 3.6 Flash | 2026-07-21,Google DeepMind,Gemini 3.6 Flash,2026-07-21,13,10,,,,,,,,pending,,1,1,10,Google DeepMind | Gemini 3.5 Flash | 2026-05-19
+45,Moonshot | Kimi K2.5 | 2026-01-27,Moonshot,Kimi K2.5,2026-01-27,22,3,,,,,,,,pending,,0,1,0,
+46,Moonshot | Kimi K2.6 | 2026-04-20,Moonshot,Kimi K2.6,2026-04-20,15,4,,,,,,,,pending,,1,1,14,Moonshot | Kimi K2.5 | 2026-01-27
+47,Moonshot | Kimi K3 | 2026-07-16,Moonshot,Kimi K3,2026-07-16,16,5,,,,,,,,pending,,1,1,11,Moonshot | Kimi K2.6 | 2026-04-20
+48,xAI | Grok-2 | 2024-12-12,xAI,Grok-2,2024-12-12,4,1,,,,,,,,pending,,0,1,0,
+49,xAI | Grok 3 | 2025-04-09,xAI,Grok 3,2025-04-09,12,2,,,,,,,,pending,,1,1,3,xAI | Grok-2 | 2024-12-12
+50,xAI | Grok 4 | 2025-07-09,xAI,Grok 4,2025-07-09,18,3,,,,,,,,pending,,1,1,11,xAI | Grok 3 | 2025-04-09
+51,xAI | Grok 4.20 | 2026-02-17,xAI,Grok 4.20,2026-02-17,12,5,,,,,,,,pending,,0,1,0,
+52,xAI | Grok 4.5 | 2026-07-08,xAI,Grok 4.5,2026-07-08,16,6,,,,,,,,pending,,1,1,10,xAI | Grok 4.20 | 2026-02-17
+53,OpenAI | o1-mini | 2024-09-12,OpenAI,o1-mini,2024-09-12,5,1,,,,,,,,pending,,0,1,0,
+54,OpenAI | o3-mini | 2025-01-31,OpenAI,o3-mini,2025-01-31,11,2,,,,,,,,pending,,1,1,5,OpenAI | o1-mini | 2024-09-12
+55,OpenAI | o4-mini | 2025-04-16,OpenAI,o4-mini,2025-04-16,17,3,,,,,,,,pending,,1,1,8,OpenAI | o3-mini | 2025-01-31
+56,OpenAI | GPT-4o mini | 2024-07-18,OpenAI,GPT-4o mini,2024-07-18,8,1,,,,,,,,pending,,0,1,0,
+57,OpenAI | GPT-4.1 mini | 2025-04-14,OpenAI,GPT-4.1 mini,2025-04-14,10,2,,,,,,,,pending,,1,1,2,OpenAI | GPT-4o mini | 2024-07-18
+58,OpenAI | GPT-5 mini | 2025-08-07,OpenAI,GPT-5 mini,2025-08-07,19,3,,,,,,,,pending,,1,1,9,OpenAI | GPT-4.1 mini | 2025-04-14
+59,Alibaba | Qwen3-Max | 2025-09-24,Alibaba,Qwen3-Max,2025-09-24,5,2,,,,,,,,pending,,0,1,0,
+60,Alibaba | Qwen 3.6 Max (Preview) | 2026-04-20,Alibaba,Qwen 3.6 Max (Preview),2026-04-20,10,3,,,,,,,,pending,,1,1,3,Alibaba | Qwen3-Max | 2025-09-24
+61,Alibaba | Qwen3.7-Max | 2026-05-19,Alibaba,Qwen3.7-Max,2026-05-19,10,4,,,,,,,,pending,,1,1,7,Alibaba | Qwen 3.6 Max (Preview) | 2026-04-20
+62,OpenAI | GPT-5 Pro | 2025-10-07,OpenAI,GPT-5 Pro,2025-10-07,8,1,,,,,,,,pending,,0,0,0,
+63,OpenAI | GPT-5.4 Pro | 2026-03-05,OpenAI,GPT-5.4 Pro,2026-03-05,12,3,,,,,,,,pending,,0,1,0,
+64,OpenAI | GPT-5.5 Pro | 2026-04-23,OpenAI,GPT-5.5 Pro,2026-04-23,10,4,,,,,,,,pending,,1,1,9,OpenAI | GPT-5.4 Pro | 2026-03-05
+65,Google DeepMind | Gemini 3.1 Flash-Lite | 2026-03-03,Google,Gemini 3.1 Flash-Lite,2026-03-03,13,4,,,,,,,,pending,,0,1,0,
+66,Google DeepMind | Gemini 3.5 Flash-Lite | 2026-07-21,Google DeepMind,Gemini 3.5 Flash-Lite,2026-07-21,10,5,,,,,,,,pending,,1,1,8,Google DeepMind | Gemini 3.1 Flash-Lite | 2026-03-03
+67,OpenAI | GPT-4.1 nano | 2025-04-14,OpenAI,GPT-4.1 nano,2025-04-14,10,1,,,,,,,,pending,,0,1,0,
+68,OpenAI | GPT-5 nano | 2025-08-07,OpenAI,GPT-5 nano,2025-08-07,13,2,,,,,,,,pending,,1,1,8,OpenAI | GPT-4.1 nano | 2025-04-14
+69,DeepSeek | DeepSeek-R1 | 2025-01-20,DeepSeek,DeepSeek-R1,2025-01-20,11,1,,,,,,,,pending,,0,1,0,
+70,DeepSeek | DeepSeek-R1 (May 2025) | 2025-05-28,DeepSeek,DeepSeek-R1 (May 2025),2025-05-28,10,2,,,,,,,,pending,,1,1,7,DeepSeek | DeepSeek-R1 | 2025-01-20
+71,DeepSeek | DeepSeek-V3 | 2024-12-26,DeepSeek,DeepSeek-V3,2024-12-26,15,2,,,,,,,,pending,,0,1,0,
+72,DeepSeek | DeepSeek-V3 (Mar 2025) | 2025-03-24,DeepSeek,DeepSeek-V3 (Mar 2025),2025-03-24,10,3,,,,,,,,pending,,1,1,7,DeepSeek | DeepSeek-V3 | 2024-12-26
+73,DeepSeek | DeepSeek-V3.2 | 2025-12-01,DeepSeek,DeepSeek-V3.2,2025-12-01,12,5,,,,,,,,pending,,0,0,0,
+74,MiniMax | MiniMax-M2.5 | 2026-02-12,MiniMax,MiniMax-M2.5,2026-02-12,7,4,,,,,,,,pending,,0,1,0,
+75,MiniMax | MiniMax-M2.7 | 2026-03-18,MiniMax,MiniMax-M2.7,2026-03-18,6,5,,,,,,,,pending,,1,1,3,MiniMax | MiniMax-M2.5 | 2026-02-12
+76,MiniMax | MiniMax-M3 | 2026-06-01,MiniMax,MiniMax-M3,2026-06-01,9,6,,,,,,,,pending,,1,1,4,MiniMax | MiniMax-M2.7 | 2026-03-18
+77,Anthropic | Claude 3 Haiku | 2024-03-07,Anthropic,Claude 3 Haiku,2024-03-07,5,1,,,,,,,,pending,,0,1,0,
+78,Anthropic | Claude 3.5 Haiku | 2024-10-22,Anthropic,Claude 3.5 Haiku,2024-10-22,5,2,,,,,,,,pending,,1,1,3,Anthropic | Claude 3 Haiku | 2024-03-07
+79,Anthropic | Claude Haiku 4.5 | 2025-10-15,Anthropic,Claude Haiku 4.5,2025-10-15,16,3,,,,,,,,pending,,1,1,3,Anthropic | Claude 3.5 Haiku | 2024-10-22
+80,OpenAI | o1 | 2024-12-17,OpenAI,o1,2024-12-17,5,1,,,,,,,,pending,,0,1,0,
+81,OpenAI | o3 | 2025-04-16,OpenAI,o3,2025-04-16,19,2,,,,,,,,pending,,1,1,4,OpenAI | o1 | 2024-12-17
+82,Meta AI | Llama 3-8B | 2024-04-18,Meta AI,Llama 3-8B,2024-04-18,8,1,,,,,,,,pending,,0,1,0,
+83,Meta AI | Llama 3.1-8B | 2024-07-23,Meta AI,Llama 3.1-8B,2024-07-23,7,2,,,,,,,,pending,,1,1,3,Meta AI | Llama 3-8B | 2024-04-18
+84,Meta AI | Muse Spark | 2026-04-08,Meta AI,Muse Spark,2026-04-08,9,1,,,,,,,,pending,,0,1,0,
+85,Meta AI | Muse Spark 1.1 | 2026-07-09,Meta AI,Muse Spark 1.1,2026-07-09,6,2,,,,,,,,pending,,1,1,3,Meta AI | Muse Spark | 2026-04-08
+86,Alibaba | Qwen 3.8 Max | 2026-08-02,Alibaba,Qwen 3.8 Max,2026-08-02,6,5,,,,,,,,pending,,0,0,0,
+87,DeepSeek | DeepSeek V4 Pro 0813 | 2026-08-13,DeepSeek,DeepSeek V4 Pro 0813,2026-08-13,7,2,,,,,,,,pending,,0,0,0,
+88,Google DeepMind | Gemini 3.7 Flash | 2026-08-13,Google DeepMind,Gemini 3.7 Flash,2026-08-13,8,11,,,,,,,,pending,,0,0,0,
+89,Mistral AI | Mistral Medium 3.5 | 2026-04-28,Mistral AI,Mistral Medium 3.5,2026-04-28,5,2,,,,,,,,pending,,0,0,0,
+90,xAI | Grok 4.6 | 2026-08-12,xAI,Grok 4.6,2026-08-12,13,7,,,,,,,,pending,,0,0,0,
+91,Alibaba | Qwen3-235B-A22B (Jul 2025) | 2025-07-25,Alibaba,Qwen3-235B-A22B (Jul 2025),2025-07-25,11,2,,,,,,,,pending,,0,0,0,
+92,Alibaba | Qwen2.5-72B | 2024-09-19,Alibaba,Qwen2.5-72B,2024-09-19,11,3,,,,,,,,pending,,0,0,0,
+93,Alibaba | Qwen 3.6 Flash | 2026-04-27,Alibaba,Qwen 3.6 Flash,2026-04-27,8,1,,,,,,,,pending,,0,0,0,
+94,Alibaba | Qwen 3.6 Plus | 2026-03-31,Alibaba,Qwen 3.6 Plus,2026-03-31,12,3,,,,,,,,pending,,0,0,0,
+95,Baichuan | Baichuan2-13B | 2023-09-06,Baichuan,Baichuan2-13B,2023-09-06,8,2,,,,,,,,pending,,0,0,0,
+96,DeepSeek | DeepSeek V4 Flash 0731 | 2026-07-31,DeepSeek,DeepSeek V4 Flash 0731,2026-07-31,11,2,,,,,,,,pending,,0,0,0,
+97,DeepSeek | DeepSeek-V4-Pro | 2026-04-24,DeepSeek,DeepSeek-V4-Pro,2026-04-24,13,1,,,,,,,,pending,,0,0,0,
+98,Google DeepMind | Gemma 3 27B | 2025-03-12,Google DeepMind,Gemma 3 27B,2025-03-12,8,2,,,,,,,,pending,,0,0,0,
+99,Meta AI | Llama 2-70B | 2023-07-18,Meta AI,Llama 2-70B,2023-07-18,13,1,,,,,,,,pending,,0,0,0,
+100,Meta AI | Llama 3.3 70B | 2024-12-06,Meta AI,Llama 3.3 70B,2024-12-06,8,4,,,,,,,,pending,,0,0,0,
+101,Microsoft | Phi-2 | 2023-12-12,Microsoft,Phi-2,2023-12-12,8,2,,,,,,,,pending,,0,0,0,
+102,Mistral AI | Mistral 7B | 2023-09-27,Mistral AI,Mistral 7B,2023-09-27,12,1,,,,,,,,pending,,0,0,0,
+103,Mistral AI | Mixtral 8x7B | 2023-12-11,Mistral AI,Mixtral 8x7B,2023-12-11,11,1,,,,,,,,pending,,0,0,0,
+104,OpenAI | GPT-5.3 Codex | 2026-02-05,OpenAI,GPT-5.3 Codex,2026-02-05,8,4,,,,,,,,pending,,0,0,0,
+105,OpenAI | GPT-3.5 Turbo | 2023-11-06,OpenAI,GPT-3.5 Turbo,2023-11-06,7,2,,,,,,,,pending,,0,0,0,
+106,OpenAI | GPT-4 Turbo (Apr 2024) | 2024-04-09,OpenAI,GPT-4 Turbo (Apr 2024),2024-04-09,3,3,,,,,,,,pending,,0,0,0,
+107,Technology Innovation Institute | Falcon-40B | 2023-03-15,Technology Innovation Institute,Falcon-40B,2023-03-15,11,1,,,,,,,,pending,,0,0,0,
+108,xAI | Grok-3 mini | 2025-04-09,xAI,Grok-3 mini,2025-04-09,9,1,,,,,,,,pending,,0,0,0,
