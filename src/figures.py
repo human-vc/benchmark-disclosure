@@ -463,7 +463,7 @@ def table_one(numbers, path=None):
     clusters = ladder["release FE"]["n_clusters"]
 
     lines = [
-        r"\begin{table}[t]",
+        r"\begin{table}[H]",
         r"\centering",
         r"\small",
         r"\begin{tabular}{lrrr}",
@@ -542,7 +542,7 @@ def table_two(numbers, panel=None, path=None):
                  f"{100 * numbers['balanced_coverage']['defined_share_eligible_or_placebo']:.1f}"))
 
     lines = [
-        r"\begin{table}[t]",
+        r"\begin{table}[H]",
         r"\centering",
         r"\small",
         r"\setlength{\tabcolsep}{4pt}",
@@ -564,9 +564,9 @@ def table_two(numbers, panel=None, path=None):
         removed = 1 - rows[2][1]["mean"] / base
         trim_note = (f"Trimming to two-sided windows removes only "
                      f"{removed * 100:.0f}\\% of the contamination while discarding "
-                     f"{100 - float(rows[2][2]):.0f}\\% of the cells, and no window "
-                     r"width escapes, because a shorter window trades window "
-                     r"asymmetry for peer-count asymmetry. ")
+                     f"{100 - float(rows[2][2]):.0f}\\% of the cells, and shortening "
+                     r"the window trades window asymmetry for peer-count "
+                     r"asymmetry rather than removing either. ")
     lines += [
         r"\bottomrule",
         r"\end{tabular}",
