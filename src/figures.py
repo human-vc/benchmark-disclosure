@@ -564,9 +564,9 @@ def table_two(numbers, panel=None, path=None):
         removed = 1 - rows[2][1]["mean"] / base
         trim_note = (f"Trimming to two-sided windows removes only "
                      f"{removed * 100:.0f}\\% of the contamination while discarding "
-                     f"{100 - float(rows[2][2]):.0f}\\% of the cells, and shortening "
-                     r"the window trades window asymmetry for peer-count "
-                     r"asymmetry rather than removing either. ")
+                     f"{100 - float(rows[2][2]):.0f}\\% of the cells. Shortening the window "
+                     r"reduces the gap in proportion to the asymmetry it removes, "
+                     r"to $+8.59$ at 91 days, and never to zero. ")
     lines += [
         r"\bottomrule",
         r"\end{tabular}",

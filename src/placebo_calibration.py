@@ -197,6 +197,57 @@ def _asymmetry_slope(panel):
     return float(np.cov(y, x, bias=True)[0, 1] / x.var())
 
 
+def trend_recovery(panel, draws=200, seed=11, window_days=WINDOW_DAYS):
+    """Does a bare capability trend reproduce the observed asymmetry slope?
+
+    The shuffle null removes the trend and finds no gradient. This is the other
+    half: keep a trend and remove everything else. Scores are replaced by a
+    within-benchmark linear fit on date plus residuals permuted within the same
+    benchmark, so the only structure left is the trend, and the slope is
+    recomputed from scratch. A single draw is not a result, so this reports the
+    mean and spread over `draws`.
+    """
+    blocks = _window_blocks(panel, window_days)
+    size = len(panel)
+    observed = _asymmetry_slope(panel)
+    if not np.isfinite(observed):
+        return {"observed": observed, "recovered_mean": np.nan, "recovered_sd": np.nan,
+                "share_recovered": np.nan, "draws": 0}
+
+    frame = panel.copy()
+    day = frame["Release date"].map(pd.Timestamp.toordinal).to_numpy(float)
+    fitted = np.empty(len(frame))
+    resid = np.empty(len(frame))
+    for _, index in frame.groupby("slug").indices.items():
+        x, y = day[index], frame["score"].to_numpy(float)[index]
+        if len(index) < 3 or x.var() < MIN_VARIANCE:
+            fitted[index], resid[index] = y, 0.0
+            continue
+        slope = np.cov(y, x, bias=True)[0, 1] / x.var()
+        line = y.mean() + slope * (x - x.mean())
+        fitted[index], resid[index] = line, y - line
+
+    rng = np.random.default_rng(seed)
+    groups = list(frame.groupby("slug").indices.values())
+    recovered = np.empty(draws)
+    for draw in range(draws):
+        synthetic = fitted.copy()
+        for index in groups:
+            synthetic[index] += rng.permutation(resid[index])
+        scored = _percentiles_from(synthetic, blocks, size)
+        replaced = frame.assign(percentile=scored)
+        recovered[draw] = _asymmetry_slope(replaced)
+
+    good = recovered[np.isfinite(recovered)]
+    return {
+        "observed": float(observed),
+        "recovered_mean": float(good.mean()),
+        "recovered_sd": float(good.std(ddof=1)),
+        "share_recovered": float(good.mean() / observed),
+        "draws": int(good.size),
+    }
+
+
 def balanced_contrast(panel):
     """The contrast restricted to cells with a genuinely two-sided peer window."""
     lo, hi = BALANCED_SHARE
@@ -278,6 +329,11 @@ def main():
           f"positive in {(contrast['contrast'] > 0).mean():.1%} of "
           f"{len(contrast)} releases, {contrast['organization'].nunique()} providers")
     print("  design.md predicts zero here under every innocent explanation")
+
+    trend = trend_recovery(panel)
+    print(f"  a bare capability trend recovers {trend['share_recovered']:.0%} of the "
+          f"observed slope ({trend['recovered_mean']:+.2f} against {trend['observed']:+.2f}, "
+          f"sd {trend['recovered_sd']:.2f} over {trend['draws']} draws)")
 
     print("\nwhere it comes from (coefficient on placebo, always within release)")
     for _, row in decomposition(panel).iterrows():

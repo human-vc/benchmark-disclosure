@@ -51,11 +51,11 @@ The gap is close to twice as large as earlier builds of this repository recorded
 
 ## Data
 
-Independent scores come from [Epoch AI's Benchmarking Hub](https://epoch.ai/benchmarks) (CC-BY): 839 model-versions, 345 base models, 74 benchmarks, with columns for organization, release date, model accessibility, and training compute.
+Independent scores come from [Epoch AI's Benchmarking Hub](https://epoch.ai/benchmarks) (CC-BY): 819 model-versions, 74 benchmarks, with columns for organization, release date, model accessibility, and training compute.
 
-Those 839 model-versions are **354 releases**. Epoch's `Model version` splits one shipped model across reasoning-effort and context-window scaffolds — GPT-5.5 appears six times, Claude 3.7 Sonnet ten. A provider publishes one model card per release, not one per scaffold, so the panel is keyed on `(organization, model name, release date)` and scores are maximised across scaffolds. The release date is part of the key because a name alone merges separate disclosure events: "GPT-4o" spans five snapshots across ten months, each with its own release post.
+Those 819 model-versions are **353 releases**. Epoch's `Model version` splits one shipped model across reasoning-effort and context-window scaffolds — GPT-5.5 appears six times, Claude 3.7 Sonnet ten. A provider publishes one model card per release, not one per scaffold, so the panel is keyed on `(organization, model name, release date)` and scores are maximised across scaffolds. The release date is part of the key because a name alone merges separate disclosure events: "GPT-4o" spans five snapshots across ten months, each with its own release post.
 
-Provider disclosures have no structured source and are hand-coded from official release artifacts. The coding sheet schema is in [`protocol/`](protocol/).
+Provider disclosures have no structured source and are read from official release artifacts. An earlier pass assigned the ORBIT categories with a language model; those labels were cleared in `1775c3e` and the sheet now awaits human coding. The coding sheet schema is in [`protocol/`](protocol/).
 
 ## Usage
 
@@ -79,9 +79,9 @@ python -m src.reliability        # 20% double-coding draw and Cohen's kappa
 pytest                           # 114 tests
 ```
 
-`build_matrix` produces the release × benchmark eligibility matrix with the temporal gate applied — currently 3,138 pairs across 354 releases, of which 2,393 are eligible and 476 fall in the placebo group. The temporal gate now reaches 91.4% of pairs, up from 45.5% on first reproduction.
+`build_matrix` produces the release × benchmark eligibility matrix with the temporal gate applied — currently 3,082 pairs across 353 releases, of which 2,355 are eligible and 476 fall in the placebo group. The temporal gate now reaches 91.4% of pairs, up from 45.5% on first reproduction.
 
-`worklist` is what makes the hand-coding finishable. Coding every eligible cell means reading model cards for 1,502 cells, most of which can never produce a drop. A drop is undefined without a predecessor in the same family, so restricting to multi-release families and to releases Epoch scores densely enough cuts the reading to **1,346 cells across 108 releases and 39 families** without discarding a single potential drop. Three providers — OpenAI, Anthropic, Google DeepMind — are most of it. The count rose from 772 as the temporal gate closed: those are pairs previously dropped for unknown vintage, not new work invented. Placebo rows are emitted pre-filled at `reported=0` and cost no reading time.
+`worklist` is what makes the hand-coding finishable. Coding every eligible cell means reading model cards for 1,502 cells, most of which can never produce a drop. A drop is undefined without a predecessor in the same family, so restricting to multi-release families and to releases Epoch scores densely enough cuts the reading to **1,298 cells across 103 releases and 38 families** without discarding a single potential drop. Three providers — OpenAI, Anthropic, Google DeepMind — are most of it. The count rose from 772 as the temporal gate closed: those are pairs previously dropped for unknown vintage, not new work invented. Placebo rows are emitted pre-filled at `reported=0` and cost no reading time.
 
 `selectivity` computes all three estimators; `falsification` runs the four tests; both need the coded sheet and say so until one exists.
 

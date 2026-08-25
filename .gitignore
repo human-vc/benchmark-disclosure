@@ -17,3 +17,5 @@ paper/*.bbl
 paper/*.blg
 paper/figures/*.png
 paper/main.pdf
+paper/figures/*.pdf
+data/sensitivity_*.csv

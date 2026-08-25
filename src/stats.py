@@ -6,6 +6,36 @@ MIN_CLUSTERS = 12
 
 GRANULAR_CLUSTERS = 10
 
+WEBB_CLUSTERS = 11
+
+WEBB_SUPPORT = (-np.sqrt(1.5), -1.0, -np.sqrt(0.5),
+                np.sqrt(0.5), 1.0, np.sqrt(1.5))
+
+
+def sign_support(n_groups, weights="auto"):
+    """Rademacher, or Webb's six points when the cluster count is small.
+
+    Rademacher offers 2**G distinct sign vectors, and mirrored vectors give the
+    same two-sided statistic, so the smallest attainable p is 2**-(G-1). Below
+    twelve clusters that floor is coarser than the draw count suggests, and the
+    remedy is a support with more mass points: MacKinnon and Webb (2018) switch
+    to the six-point distribution of Webb (2014) at G <= 11.
+    """
+    if weights == "auto":
+        weights = "webb" if n_groups <= WEBB_CLUSTERS else "rademacher"
+    if weights == "webb":
+        return np.array(WEBB_SUPPORT), 6.0 ** n_groups, weights
+    return np.array([-1.0, 1.0]), 2.0 ** n_groups, weights
+
+
+def p_value_floor(n_groups, draws, weights):
+    """Smallest two-sided p the draw count and the sign support can return."""
+    if weights == "webb":
+        distinct = 6.0 ** n_groups
+    else:
+        distinct = 2.0 ** max(n_groups - 1, 0)
+    return float(1.0 / (min(float(draws), distinct) + 1.0))
+
 
 def _fit(y, X):
     beta, *_ = np.linalg.lstsq(X, y, rcond=None)
@@ -65,7 +95,8 @@ def ols(y, X, names=None, cluster=None, min_clusters=MIN_CLUSTERS):
             if n_clusters is not None else "HC1"}
 
 
-def wild_cluster_bootstrap(y, X, cluster, index, draws=9999, seed=0):
+def wild_cluster_bootstrap(y, X, cluster, index, draws=9999, seed=0,
+                           weights="auto"):
     """p-value for one coefficient by the restricted wild cluster bootstrap."""
     y = np.asarray(y, float)
     X = np.asarray(X, float)
@@ -83,12 +114,13 @@ def wild_cluster_bootstrap(y, X, cluster, index, draws=9999, seed=0):
 
     groups = np.unique(cluster)
     codes = np.searchsorted(groups, cluster)
+    support, distinct, kind = sign_support(len(groups), weights)
     rng = np.random.default_rng(seed)
 
     extreme = 0
     for _ in range(draws):
-        weights = rng.choice([-1.0, 1.0], size=len(groups))[codes]
-        y_star = fitted_null + weights * resid_null
+        draw = rng.choice(support, size=len(groups))[codes]
+        y_star = fitted_null + draw * resid_null
         beta_star, resid_star = _fit(y_star, X)
         se_star = np.sqrt(
             np.diag(_cluster_vcov(X, resid_star, cluster, XtX_inv))[index])
@@ -98,14 +130,23 @@ def wild_cluster_bootstrap(y, X, cluster, index, draws=9999, seed=0):
     return {
         "t_observed": float(observed),
         "p_value": (extreme + 1) / (draws + 1),
+        "p_floor": p_value_floor(len(groups), draws, kind),
         "n_clusters": len(groups),
         "granular": len(groups) < GRANULAR_CLUSTERS,
-        "distinct_draws_available": 2 ** min(len(groups), 30),
+        "weights": kind,
+        "distinct_draws_available": float(distinct),
     }
 
 
 def randomization_test_mean(values, cluster=None, draws=9999, seed=0):
-    """Is a mean distinguishable from zero, without asymptotics?"""
+    """Is a mean distinguishable from zero, without asymptotics?
+
+    Signs are Rademacher and stay Rademacher. The test is exact under its own
+    null because flipping a cluster's sign leaves the null distribution
+    invariant, and Webb's six-point support would break that: its points differ
+    in magnitude as well as sign, so a one-cluster sample would stop returning
+    p = 1. Webb belongs in the bootstrap, where the statistic is a t ratio.
+    """
     values = np.asarray(values, float)
     values = values[~np.isnan(values)]
     if len(values) == 0:
@@ -126,9 +167,12 @@ def randomization_test_mean(values, cluster=None, draws=9999, seed=0):
     return {
         "mean": float(observed),
         "p_value": float(((np.abs(null) >= abs(observed)).sum() + 1) / (draws + 1)),
+        "p_floor": p_value_floor(n_groups, draws, "rademacher"),
         "n": int(len(values)),
         "n_clusters": n_groups,
         "granular": n_groups < GRANULAR_CLUSTERS,
+        "weights": "rademacher",
+        "distinct_draws_available": 2.0 ** n_groups,
     }
 
 

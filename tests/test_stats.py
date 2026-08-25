@@ -137,5 +137,10 @@ def test_wild_bootstrap_reports_its_own_resolution_limit():
     rng = np.random.default_rng(10)
     X, y, g = design(120, rng, clusters=5)
     result = wild_cluster_bootstrap(y, X, g, index=1, draws=99)
-    assert result["distinct_draws_available"] == 2 ** 5
+    assert result["weights"] == "webb"
+    assert result["distinct_draws_available"] == 6 ** 5
+    rademacher = wild_cluster_bootstrap(y, X, g, index=1, draws=99,
+                                        weights="rademacher")
+    assert rademacher["distinct_draws_available"] == 2 ** 5
+    assert rademacher["p_floor"] == 1 / (min(99, 2 ** 4) + 1)
     assert result["p_value"] >= 1 / 100

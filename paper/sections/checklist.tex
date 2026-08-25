@@ -23,7 +23,7 @@
     \item {\bf Experimental result reproducibility}
     \item[] Question: Does the paper fully disclose all the information needed to reproduce the main experimental results of the paper to the extent that it affects the main claims and/or conclusions of the paper (regardless of whether the code and data are provided or not)?
     \item[] Answer: \answerYes{}
-    \item[] Justification: Every number in the paper is written by one command into a single machine-readable file, and the data snapshot it was computed against is pinned by a per-file SHA-256 manifest in the released code. Section~2 states the release key, the eligibility rule, the window width and the analysis threshold.
+    \item[] Justification: Every number in the paper is written by one command into a single machine-readable file, and the data snapshot it was computed against is pinned by a per-file SHA-256 manifest in the released code. Section~2 states the release key, the eligibility rule, the window width, and which estimates impose a minimum benchmark count and which do not.
 
 
 
@@ -99,7 +99,7 @@
     \item[] Question: Does the paper describe the usage of LLMs if it is an important, original, or non-standard component of the core methods in this research? Note that if the LLM is used only for writing, editing, or formatting purposes and does \emph{not} impact the core methodology, scientific rigor, or originality of the research, declaration is not required.
     %this research?
     \item[] Answer: \answerYes{}
-    \item[] Justification: An earlier pass used a large language model to assign the disclosure-coding categories. Those labels have been cleared and the coded sheet is empty, as Section~\ref{sec:reach} states, so no number reported here depends on a model's judgment. Every number is produced by the released code from the pinned snapshot. Language models were otherwise used only for writing and code assistance.
+    \item[] Justification: An earlier pass used a large language model to assign the disclosure-coding categories. Those labels have been cleared and no ORBIT category now stands on any cell, as Section~\ref{sec:reach} states, so no number reported here depends on a model's judgment. Every number is produced by the released code from the pinned snapshot. Language models were otherwise used only for writing and code assistance.
 
 
 \end{enumerate}
