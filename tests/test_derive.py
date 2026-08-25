@@ -100,3 +100,35 @@ def test_releases_without_evidence_are_left_uncoded():
     families = pd.DataFrame(columns=["release_id","family_id","family_rank","model_name"])
     panel = pd.DataFrame(columns=[RELEASE_COL,"slug","primary_org","Release date"])
     assert build(worklist, artifacts, families, panel).empty
+
+
+class TestCategoryF:
+    """The one absence the protocol treats as innocent, and the only one the
+    evidence format can record. GPT-4's report excludes BIG-bench because
+    "portions of BIG-bench were inadvertently mixed into the training set";
+    without the slug!reason form that documented exclusion would derive as a
+    silent omission."""
+
+    def test_reason_form_parses(self):
+        from src.derive_coding import parse_reported
+
+        parsed = parse_reported("mmlu=86.4|bbh!contaminated by training data")
+        assert parsed["bbh"] == (None, None, "contaminated by training data")
+        assert parsed["mmlu"] == ("86.4", None, None)
+
+    def test_reason_derives_F_not_E(self):
+        from src.derive_coding import category_for
+
+        parsed = {"bbh": (None, None, "contaminated by training data")}
+        # even with a predecessor that reported it, a quoted reason wins
+        category, _, _, reason = category_for(
+            "bbh", parsed, {"bbh": "prior release"}, {"bbh"}
+        )
+        assert category == "F"
+        assert reason == "contaminated by training data"
+
+    def test_F_is_not_counted_as_reported(self):
+        from src.derive_coding import category_for
+
+        category, *_ = category_for("bbh", {"bbh": (None, None, "why")}, {}, set())
+        assert category not in {"A", "B", "C"}

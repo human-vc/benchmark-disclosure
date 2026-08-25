@@ -9,6 +9,7 @@ them is how a coding sheet becomes unfalsifiable.
 
   2. Given that, which ORBIT category applies? A *rule*, not a judgment:
      - reported here                                   -> A (or B/C by form)
+     - absent, with a benign reason quoted in the doc  -> F
      - not reported, but a predecessor reported it     -> E, the drop
      - not reported, no predecessor, contemporaries did-> G
      - not reported, and nobody comparable did either  -> H
@@ -33,12 +34,20 @@ CONTEMPORARY_WINDOW_DAYS = 45
 
 
 def parse_reported(cell):
-    """'gpqa_diamond=0.83|mmlu~MMLU-Pro=0.87|hle' -> dict of slug -> (value, variant).
+    """'gpqa_diamond=0.83|mmlu~MMLU-Pro=0.87|hle|bbh!contaminated' -> dict.
 
-    Three forms, matching the protocol's A/B/C split:
-      slug=value        numeric score reported          -> A
-      slug              named but no number given       -> B
-      slug~Variant=val  a variant reported instead      -> C
+    Four forms, matching the protocol's categories:
+      slug=value        numeric score reported                 -> A
+      slug              named but no number given              -> B
+      slug~Variant=val  a variant reported instead             -> C
+      slug!reason       NOT reported, benign reason quoted     -> F
+
+    The F form is the only one that records an absence, and it is the only
+    absence the protocol treats as innocent: the artifact itself says why the
+    benchmark is missing. GPT-4's technical report is the case that forced it --
+    BIG-bench is excluded there because "portions of BIG-bench were inadvertently
+    mixed into the training set". Without a way to say that, a documented
+    exclusion would have been coded as a silent omission.
     """
     out = {}
     if not isinstance(cell, str) or not cell.strip():
@@ -47,30 +56,36 @@ def parse_reported(cell):
         token = token.strip()
         if not token:
             continue
-        variant = None
-        value = None
+        reason = variant = value = None
+        if "!" in token:
+            token, reason = token.split("!", 1)
+            out[token.strip()] = (None, None, reason.strip())
+            continue
         if "=" in token:
             token, value = token.split("=", 1)
             value = value.strip()
         if "~" in token:
             token, variant = token.split("~", 1)
-        out[token.strip()] = (value, variant)
+        out[token.strip()] = (value, variant, None)
     return out
 
 
 def category_for(slug, reported, predecessor_reported, contemporaries):
+    """Rules, not judgment. See the module docstring."""
     if slug in reported:
-        value, variant = reported[slug]
+        value, variant, reason = reported[slug]
+        if reason:
+            return "F", None, None, reason
         if variant:
-            return "C", value, variant
+            return "C", value, variant, None
         if value in (None, ""):
-            return "B", None, None
-        return "A", value, None
+            return "B", None, None, None
+        return "A", value, None, None
     if slug in predecessor_reported:
-        return "E", None, None
+        return "E", None, None, None
     if slug in contemporaries:
-        return "G", None, None
-    return "H", None, None
+        return "G", None, None, None
+    return "H", None, None, None
 
 
 def build(worklist, artifacts, families, panel):
@@ -123,7 +138,7 @@ def build(worklist, artifacts, families, panel):
                 if abs((other_date - this_date).days) <= CONTEMPORARY_WINDOW_DAYS:
                     contemporaries |= set(other_reported)
 
-        category, value, variant = category_for(
+        category, value, variant, reason = category_for(
             row.benchmark_slug, reported, predecessor_reported, contemporaries
         )
         prior_release = predecessor_reported.get(row.benchmark_slug)
@@ -147,7 +162,7 @@ def build(worklist, artifacts, families, panel):
             "reverse_gap": "",
             "coder": meta.loc[release, "coder"],
             "flagged_for_review": meta.loc[release, "flagged_for_review"],
-            "notes": "",
+            "notes": reason or "",
             "organization": row.organization,
             "model_name": row.model_name,
             "release_date": row.release_date,
