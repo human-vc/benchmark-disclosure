@@ -12,11 +12,25 @@ This repository builds the measurement. For each model release we compare the se
 
 ## Status
 
-Early. The pipeline runs and a six-model pilot is complete; the full disclosure coding is not.
+The disclosure coding is done: every release on the worklist has been read
+against its official artifact, and the estimators and falsification suite run
+end to end. The headline is not an estimate of selective disclosure. It is that
+**the identifying test fails**, so no estimate is warranted from this design.
 
-**Pilot result (n=6):** reported-benchmark percentile exceeded omitted-benchmark percentile in all five codeable cases, with gaps of 20.6 to 40.9 percentile points. Both closed-API and open-weights providers showed the pattern.
+**The placebo contrast is not zero.** Benchmarks a provider could have reported
+and did not stand *above* benchmarks that did not yet exist, by about eleven
+percentile points. Both sets are non-disclosures, so under every innocent
+explanation that number should be zero. It is not, and it does not need a single
+disclosure label to compute. Whatever the disclosed-versus-omitted gap measures,
+it is not concealment alone.
 
-**Pilot non-result:** open-weights providers were *not* less selective than closed-API providers. The largest single gap belonged to an open-weights model. Treat any open-vs-closed hypothesis as unsupported until the full sample says otherwise.
+**The one design that isolates withholding is small.** The within-family drop —
+a provider reported benchmark X for v1, omitted it for v2, and an independent
+score for v2 exists — is available 48 times across 11 releases in the current
+record, and its confidence interval spans zero.
+
+**Open-vs-closed remains unsupported.** The access-type term is not
+distinguishable from zero once coverage and capability are conditioned on.
 
 ## Design
 
@@ -70,10 +84,48 @@ python -m src.selectivity        # the three estimators
 python -m src.falsification      # the four falsification tests
 python -m src.reliability        # 20% double-coding draw and Cohen's kappa
 
-pytest                           # 51 tests
+pytest                           # 97 tests
 ```
 
 `build_matrix` produces the release × benchmark eligibility matrix with the temporal gate applied — currently 3,138 pairs across 354 releases, of which 2,393 are eligible and 476 fall in the placebo group. The temporal gate now reaches 91.4% of pairs, up from 45.5% on first reproduction.
+
+## Reading the artifacts
+
+The expensive half of this study is one factual question per release: what does
+its official artifact actually report? `extract_evidence` fetches the artifact
+and surfaces every place it could be reporting one of that release's eligible
+benchmarks, plus the non-hits; it never decides. Whether a hit is a score *for
+this model* rather than a competitor's number or a citation is the judgment the
+protocol reserves for the coder. `record_artifact` then writes the answer to
+`data/artifacts.csv`, and `derive_coding` turns it into ORBIT categories by
+rule, so no category is assigned by hand.
+
+```bash
+python -m src.extract_evidence "<release_id>" <url>              # hits + non-hits
+python -m src.extract_evidence "<release_id>" <url> --tables     # HTML/markdown tables
+python -m src.extract_evidence "<release_id>" <url> --pdf-images # embedded PDF rasters
+python -m src.extract_evidence "<release_id>" <url> --vega       # embedded chart data
+python -m src.record_artifact  "<release_id>" --url ... --slugs ...
+python -m src.derive_coding                                      # -> data/disclosures.csv
+```
+
+Every one of those flags exists because an artifact would otherwise read as
+silence. Providers put their results table in a picture (Qwen, Mixtral,
+MiniMax, Anthropic, Meta), in a single raster spanning a whole PDF page
+(every Gemini model card), or in a client-rendered chart with no table and no
+image at all (every OpenAI launch post). A fetch that returns prose and no
+numbers looks exactly like a provider that reported nothing — and a false
+omission is evidence *for* this study's own hypothesis, which is the one
+direction of error it cannot afford. `docs/run-log.md` lists the eight distinct
+ways this happened.
+
+The OpenAI reader deserves one note. Its chart bars are stacked, so a model's
+score is split across segments under the same label: GPT-5's 94.6 on AIME 2025
+is stored as 32.7 plus 61.9. Summing them reproduces OpenAI's own prose figures
+across AIME, SWE-bench and Aider, which is the check that the reader is right.
+Where a chart instead groups two different measures under one model — Aider
+Polyglot's whole and diff formats — the sum is meaningless, so the tool prints
+the segments and the sum and lets the coder choose.
 
 `worklist` is what makes the hand-coding finishable. Coding every eligible cell means reading model cards for 1,502 cells, most of which can never produce a drop. A drop is undefined without a predecessor in the same family, so restricting to multi-release families and to releases Epoch scores densely enough cuts the reading to **1,346 cells across 108 releases and 39 families** without discarding a single potential drop. Three providers — OpenAI, Anthropic, Google DeepMind — are most of it. The count rose from 772 as the temporal gate closed: those are pairs previously dropped for unknown vintage, not new work invented. Placebo rows are emitted pre-filled at `reported=0` and cost no reading time.
 
