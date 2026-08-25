@@ -42,6 +42,13 @@ class TestAliases:
         ("Humanity's Last Exam 26.5", "hle"),
         ("Terminal-Bench 2.0 65.4", "terminalbench"),
         ("ARC-AGI-2 (Verified) 68.8", "arc_agi_2"),
+        # surface forms that dropped a word and were missed once
+        ("SWE Verified (Resolved) | 80.6", "swe_bench_verified"),
+        ("OSWorld-Verified 72.7%", "os_world"),
+        ("GDPval-AA (Elo) 1554", "gdpval"),
+        ("SimpleQA-Verified (Pass@1) 57.9", "simpleqa_verified"),
+        ("Aider-Polyglot (Acc.) 49.6", "aider_polyglot"),
+        ("Terminal Bench 2.0 (Acc) 67.9", "terminalbench"),
     ])
     def test_real_mentions_match(self, text, slug):
         assert slug in hits(text)
