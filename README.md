@@ -72,6 +72,7 @@ Provider disclosures have no structured source and are hand-coded from official 
 ```bash
 pip install -r requirements.txt
 python -m src.download_data      # fetch Epoch's bundle
+python -m src.snapshot pin       # SHA-256 per raw file, so drift announces itself
 python -m src.build_matrix       # panel, temporal gate, release collapsing
 python -m src.coverage           # the access-type confound
 python -m src.families           # seed the family linkage, then hand-review it
@@ -82,7 +83,8 @@ python -m src.date_worklist      # rank the missing benchmark dates by impact
 python -m src.validate_coding    # gate: protocol rules, non-zero exit on failure
 python -m src.selectivity        # the three estimators
 python -m src.falsification      # the four falsification tests
-python -m src.reliability        # 20% double-coding draw and Cohen's kappa
+python -m src.reliability        # 20% re-extraction draw, then Cohen's kappa
+python -m src.numbers            # every reported quantity -> data/processed/numbers.json
 
 pytest                           # 97 tests
 ```
@@ -143,6 +145,21 @@ Filtering on releases with a known organization, a known release date, and at le
 - n ≥ 10: 121
 
 The ≥ 8 filter is the working analysis sample. These are lower than earlier builds recorded and describe more data, not less: they count releases rather than scaffold variants.
+
+## Reproducibility
+
+Epoch's bundle is fetched from a live URL, so a rebuild months later analyses a
+different dataset while every downstream number still prints happily.
+`src/snapshot.py` records a SHA-256 per raw file and `build_matrix` checks it
+before computing anything, so a moved snapshot announces itself rather than
+being discovered when a figure stops matching the prose. Content changes under
+an unchanged file name are called out separately, because that is the case that
+would otherwise pass unremarked.
+
+`src/numbers.py` writes every reported quantity into
+`data/processed/numbers.json` in one command, carrying the manifest digest it
+was computed against. Two runs that disagree are then immediately separable
+into "the data moved" and "the code moved".
 
 ## Known limitations
 

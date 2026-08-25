@@ -341,6 +341,14 @@ def collapse_to_releases(panel):
 def main():
     INTERIM.mkdir(parents=True, exist_ok=True)
 
+    # Announce a moved snapshot before anything is computed from it. Epoch's
+    # bundle is fetched live, so a rebuild months later analyses different data
+    # while every downstream number still prints happily.
+    from .snapshot import report as snapshot_report
+
+    snapshot_report()
+    print()
+
     index = load_index(RAW)
     meta = load_benchmark_meta(RAW)
     scores = load_scores(RAW)
