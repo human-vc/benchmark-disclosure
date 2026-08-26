@@ -1,10 +1,4 @@
-"""Coverage diagnostics for the independent-score panel.
-
-The headline check: Epoch does not evaluate all models equally densely. If
-coverage correlates with model accessibility, then measured "availability"
-differs by access type and raw selectivity rates are not comparable across it.
-Every downstream comparison has to condition on coverage.
-"""
+"""Coverage diagnostics for the independent-score panel."""
 
 import pandas as pd
 from scipy.stats import mannwhitneyu

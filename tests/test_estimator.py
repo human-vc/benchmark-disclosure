@@ -1,12 +1,4 @@
-"""Does the estimator recover an effect that is really there, and stay at zero
-when it is not?
-
-An estimator that has never been shown to recover a planted signal is not
-evidence about the world. These build panels with a known answer: one where
-omission is deliberately concentrated on the release's worst benchmarks, and
-one where omission is random. The first must come back positive, the second
-must come back at zero, and the placebo must come back at zero in both.
-"""
+"""Does the estimator recover an effect that is really there, and stay at zero"""
 import numpy as np
 import pandas as pd
 
@@ -35,11 +27,10 @@ def synthetic(n_releases=60, n_bench=10, n_placebo=3, strategic=True, seed=0):
         columns=[RELEASE_COL, "Organization", "Release date", "slug", "is_placebo", "score"],
     )
     panel["Model accessibility"] = "API access"
+    panel["primary_org"] = panel["Organization"]
     panel = within_benchmark_percentile(panel, window_days=182)
     panel["group"] = np.where(panel["is_placebo"] == 1, "placebo", "eligible")
 
-    # Disclosure rule: strategic providers omit their three worst eligible
-    # benchmarks; the null provider omits three at random.
     panel["reported"] = 1.0
     for release, group in panel[panel["group"] == "eligible"].groupby(RELEASE_COL):
         if strategic:
@@ -67,10 +58,7 @@ def test_null_panel_shows_no_gap():
 
 
 def test_placebo_group_cannot_support_the_headline_statistic():
-    """Every benchmark postdating a release is non-disclosed, so the placebo
-    group contains no disclosed set to compare against. Running the headline
-    statistic 'within the placebo group' is not defined -- which is why the
-    falsification is omission_deficit(), not this."""
+    """Every benchmark postdating a release is non-disclosed, so the placebo"""
     panel = synthetic(strategic=True)
     placebo_only = panel[panel["group"] == "placebo"]
     assert (placebo_only["reported"] == 0).all()
@@ -78,8 +66,7 @@ def test_placebo_group_cannot_support_the_headline_statistic():
 
 
 def test_headline_gap_tracks_disclosed_selection():
-    """Sanity: with strategic omission the disclosed set really does sit above
-    the unselected placebo set, and with random omission it does not."""
+    """Sanity: with strategic omission the disclosed set really does sit above"""
     strategic = gap_by_release(
         release_sets(synthetic(strategic=True)), against="placebo"
     )
@@ -96,8 +83,7 @@ def test_omission_deficit_is_zero_when_omission_is_random():
 
 
 def test_omission_deficit_is_negative_when_omission_is_strategic():
-    """The same contrast, under the alternative. Both sets are non-disclosures,
-    so the only difference is whether the benchmark could have been reported."""
+    """The same contrast, under the alternative. Both sets are non-disclosures,"""
     panel = synthetic(strategic=True)
     deficit = omission_deficit(release_sets(panel))
     assert deficit["gap"].mean() < -25, deficit["gap"].mean()
@@ -106,6 +92,7 @@ def test_omission_deficit_is_negative_when_omission_is_strategic():
 def test_drop_estimator_is_negative_when_drops_are_the_worst_benchmarks():
     panel = synthetic(strategic=True)
     panel["Model accessibility"] = "API access"
+    panel["primary_org"] = panel["Organization"]
     drops = drop_estimator(panel[panel["group"] == "eligible"])
     assert len(drops) == 60
     assert drops["drop_gap"].mean() < -25, drops["drop_gap"].mean()
@@ -114,5 +101,5 @@ def test_drop_estimator_is_negative_when_drops_are_the_worst_benchmarks():
 def test_gap_requires_minimum_counts():
     panel = synthetic(strategic=True)
     thin = panel[panel[RELEASE_COL] == panel[RELEASE_COL].iloc[0]].copy()
-    thin.loc[thin["reported"] == 1, "reported"] = 0.0  # nothing disclosed
+    thin.loc[thin["reported"] == 1, "reported"] = 0.0
     assert gap_by_release(release_sets(thin), against="omitted").empty

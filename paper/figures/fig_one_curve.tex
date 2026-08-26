@@ -1,0 +1,30 @@
+\begin{tikzpicture}
+  \begin{axis}[causalre body, xmin=0, xmax=1, xtick={0,0.5,1}, xlabel={share of window newer than the focal model}, ymin=20, ymax=80,
+    ylabel={within-benchmark standing}, title={(a)},
+    legend to name=leg:onecurve, legend columns=3]
+    \addplot[cMUTE, line width=2.2pt, smooth, forget plot]
+      coordinates {(0.050,60.90) (0.150,61.31) (0.250,57.85) (0.350,53.26) (0.450,52.33) (0.550,46.42) (0.650,44.05) (0.750,40.62) (0.850,41.55) (0.950,28.06)};
+    \addplot[black, dashed, thin, forget plot] coordinates {(0.5,20) (0.5,80)};
+    \addplot[cNYC, only marks, mark=*, mark size=1.4pt,
+             error bars/.cd, y dir=both, y explicit]
+      coordinates {(0.050,61.50) +- (0,12.43) (0.150,61.72) +- (0,13.22) (0.250,57.82) +- (0,10.51) (0.350,53.48) +- (0,10.97) (0.450,52.57) +- (0,9.92) (0.550,46.30) +- (0,9.40) (0.650,45.17) +- (0,10.66) (0.750,40.39) +- (0,12.27) (0.850,43.18) +- (0,13.62)};
+    \addlegendentry{benchmark predates the release}
+    \addplot[cSF, only marks, mark=square*, mark size=1.4pt,
+             error bars/.cd, y dir=both, y explicit]
+      coordinates {(0.350,49.27) +- (0,22.78) (0.450,49.40) +- (0,16.17) (0.550,46.96) +- (0,13.89) (0.650,40.71) +- (0,15.04) (0.750,40.99) +- (0,13.29) (0.850,40.43) +- (0,14.91)};
+    \addlegendentry{benchmark postdates the release}
+    \addplot[cMUTE, line width=2.2pt] coordinates {(0,0)};
+    \addlegendentry{all cells pooled}
+  \end{axis}
+  \begin{axis}[causalre body, xmin=0, xmax=1, xtick={0,0.5,1}, xlabel={share of window newer than the focal model}, ymin=35, ymax=65, xshift=0.50\textwidth,
+    title={(b)}, legend to name=leg:correction, legend columns=2]
+    \addplot[cSF, smooth, mark=*, mark size=1.4pt]
+      coordinates {(0.050,53.05) (0.150,55.63) (0.250,54.01) (0.350,53.06) (0.450,52.26) (0.550,48.46) (0.650,50.81) (0.750,45.60) (0.850,43.13)};
+    \addlegendentry{windowed percentile}
+    \addplot[cNYC, smooth, mark=square*, mark size=1.4pt]
+      coordinates {(0.050,47.81) (0.150,52.05) (0.250,49.32) (0.350,49.54) (0.450,50.57) (0.550,47.87) (0.650,51.82) (0.750,46.51) (0.850,44.84)};
+    \addlegendentry{side-balanced}
+  \end{axis}
+\end{tikzpicture}
+\\[2pt]
+{\footnotesize \ref{leg:onecurve} \hfill \ref{leg:correction}}

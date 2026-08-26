@@ -1,0 +1,18 @@
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lrrr}
+\toprule
+Conditioning set & Placebo coefficient & $t$ & Absorbed \\
+\midrule
+Release fixed effects only & $-13.443$ (1.238) & $-10.855$ & 0.0\% \\
+\quad + benchmark fixed effects (two-way absorbed) & $-4.869$ (1.260) & $-3.865$ & 63.8\% \\
+\quad + peer-window asymmetry & $-9.515$ (1.254) & $-7.587$ & 29.2\% \\
+\quad + peer count & $-2.566$ (1.305) & $-1.967$ & 80.9\% \\
+Two-way fixed effects + both window terms & $+0.246$ (1.618) & $+0.152$ & 98.2\% \\
+\bottomrule
+\end{tabular}
+\caption{%
+Each row is the coefficient on a placebo indicator in a regression of within-benchmark standing on that indicator, always within release, so the release's own capability level is differenced out throughout. Provider-clustered standard errors in parentheses over 46 organisations; $n = 2831$ cells (2355 eligible, 476 placebo). Absorbed is the reduction in the absolute coefficient relative to the first row. Peer count is a suppressor when entered alone, so the final row is joint conditioning on both window terms and must not be read as peer count explaining a remainder.}
+\label{tab:decomposition}
+\end{table}

@@ -1,9 +1,4 @@
-"""The four falsification tests docs/design.md commits to.
-
-Each is written to be capable of failing. A suite that can only confirm is
-decoration, so the pass condition is stated with each test and the result is
-printed whatever it says.
-"""
+"""The four falsification tests docs/design.md commits to."""
 
 import sys
 
@@ -19,7 +14,7 @@ from .selectivity import (
     omission_deficit,
     release_sets,
 )
-from .stats import bootstrap_mean, ols, print_ols
+from .stats import bootstrap_mean, ols, print_ols, randomization_test_mean
 
 
 def eligible_vs_placebo(panel, value="percentile", min_each=1):
@@ -62,16 +57,7 @@ def eligible_vs_placebo(panel, value="percentile", min_each=1):
 
 
 def permutation_test(merged, draws=2000, seed=0):
-    """Relabel which benchmarks were disclosed, at random within release.
-
-    Holding each release's disclosed *count* fixed is what makes this a test of
-    selection rather than of table size: the convention explanation in
-    design.md says providers report a fixed number of benchmarks, and this null
-    grants that and asks only whether *which* ones is random.
-
-    Vectorised over draws; the previous groupby-transform implementation
-    rebuilt the frame 2,000 times.
-    """
+    """Relabel which benchmarks were disclosed, at random within release."""
     eligible = merged[merged["group"] == "eligible"].copy()
     codes, releases = pd.factorize(eligible[RELEASE_COL])
     percentile = eligible["percentile"].to_numpy(float)
@@ -110,17 +96,7 @@ def permutation_test(merged, draws=2000, seed=0):
 
 
 def excess_omission(sets):
-    """Does the omitted set sit below what the disclosed set predicts?
-
-    design.md: "If omission is strategic, omitted-benchmark percentiles should
-    sit below what the model's disclosed benchmarks predict. If innocent, they
-    should be unrelated to the model's level."
-
-    Fits mean_omitted = a + b * mean_disclosed. Under innocent omission the
-    omitted benchmarks are a random slice of the release's standing, so b ~ 1
-    and a ~ 0. Strategic omission pushes a below zero: the same model, held at
-    the same disclosed level, does worse on what it withheld.
-    """
+    """Does the omitted set sit below what the disclosed set predicts?"""
     usable = sets.dropna(subset=["mean_disclosed", "mean_omitted"])
     if len(usable) < 10:
         return None
@@ -133,13 +109,7 @@ def excess_omission(sets):
 
 
 def reverse_gap(coding):
-    """Benchmarks a provider reports that the independent source does not cover.
-
-    design.md keeps these rather than discarding them: under a pure concealment
-    story that set should not be systematically favourable. A provider reaching
-    for benchmarks Epoch does not run is doing something, and it is not
-    concealment.
-    """
+    """Benchmarks a provider reports that the independent source does not cover."""
     if "reverse_gap" not in coding.columns:
         return None
     flagged = coding[
@@ -254,18 +224,25 @@ def main():
 
     print("=" * 62)
     print("1. PLACEBO -- omitted vs postdating benchmarks")
-    print("   pass condition: indistinguishable from zero means the measure is")
-    print("   picking up something other than concealment.")
+    print("   this contrast does NOT have a null of zero. Measured on the panel")
+    print("   with no disclosure labels it sits at +12.2 percentile points, a")
+    print("   peer-window artifact. Read any value here against that, never")
+    print("   against zero. See src/placebo_calibration.py.")
     deficit = omission_deficit(sets)
     if deficit.empty:
         print("   not computable: no release has both an omitted and a placebo cell")
     else:
-        mean, (lo, hi) = bootstrap_mean(
-            deficit["gap"].to_numpy(float), cluster=deficit["organization"].to_numpy()
-        )
-        print(f"   n={len(deficit)}  mean {mean:+.1f}  95% CI [{lo:+.1f}, {hi:+.1f}]")
-        verdict = "excludes zero" if hi < 0 or lo > 0 else "includes zero"
-        print(f"   -> {verdict}")
+        values = deficit["gap"].to_numpy(float)
+        providers = deficit["organization"].to_numpy()
+        mean, (lo, hi) = bootstrap_mean(values, cluster=providers)
+        test = randomization_test_mean(values, cluster=providers)
+        if np.isfinite(lo):
+            print(f"   n={len(deficit)}  mean {mean:+.1f}  95% CI [{lo:+.1f}, {hi:+.1f}]")
+            print(f"   -> {'excludes' if hi < 0 or lo > 0 else 'includes'} zero")
+        else:
+            print(f"   n={len(deficit)}  mean {mean:+.1f}  "
+                  f"(no interval: {test['n_clusters']} provider(s))")
+        print(f"   randomization test, provider sign-flip: p = {test['p_value']:.3f}")
 
     print("\n" + "=" * 62)
     print("2. EXCESS OMISSION -- omitted vs what disclosed predicts")

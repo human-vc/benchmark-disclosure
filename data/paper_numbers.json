@@ -1,0 +1,272 @@
+{
+  "_provenance": {
+    "generated": "2026-08-25",
+    "index_rows": 819,
+    "snapshot": "snapshot: 2026-08-17 (819 model-versions)",
+    "snapshot_status": "match"
+  },
+  "asymmetry": {
+    "share_newer_eligible": 0.4374,
+    "share_newer_placebo": 0.632,
+    "slope_balanced": -8.018,
+    "slope_windowed": -29.092
+  },
+  "balanced_coverage": {
+    "defined_share_all_cells": 0.964,
+    "defined_share_eligible_or_placebo": 0.9654
+  },
+  "decomposition": {
+    "+ benchmark FE": {
+      "absorbed": 0.6378,
+      "coef": -4.869,
+      "n_clusters": 46,
+      "se": 1.26,
+      "t": -3.865
+    },
+    "+ peer count": {
+      "absorbed": 0.8091,
+      "coef": -2.566,
+      "n_clusters": 46,
+      "se": 1.305,
+      "t": -1.967
+    },
+    "+ peer-window asymmetry": {
+      "absorbed": 0.2922,
+      "coef": -9.515,
+      "n_clusters": 46,
+      "se": 1.254,
+      "t": -7.587
+    },
+    "release FE": {
+      "absorbed": 0.0,
+      "coef": -13.443,
+      "n_clusters": 46,
+      "se": 1.238,
+      "t": -10.855
+    },
+    "two-way FE + both": {
+      "absorbed": 0.9817,
+      "coef": 0.246,
+      "n_clusters": 46,
+      "se": 1.618,
+      "t": 0.152
+    }
+  },
+  "drop_capacity": [
+    {
+      "definition": "all adjacent pairs",
+      "pairs": 144,
+      "providers": 15,
+      "shared_benchmarks": 711
+    },
+    {
+      "definition": "both releases >= 8 eligible",
+      "pairs": 37,
+      "providers": 8,
+      "shared_benchmarks": 482
+    }
+  ],
+  "helm_lite": {
+    "frozen_cells": {
+      "cells": 240,
+      "changed": 0,
+      "max_spread": 0.0
+    },
+    "frozen_models": 24,
+    "headline": {
+      "corr_change_with_initial": -0.7660833020330821,
+      "fell": 22,
+      "max_abs_change": 0.21777971501140814,
+      "mean_abs_change": 0.12324001427812936,
+      "models": 24,
+      "moved": 24,
+      "pairs": 276,
+      "reversal_examples": [
+        {
+          "a": "Falcon (40B)",
+          "b": "Jurassic-2 Jumbo (178B)",
+          "first": [
+            0.3241,
+            0.331
+          ],
+          "last": [
+            0.2168,
+            0.2145
+          ]
+        },
+        {
+          "a": "GPT-3.5 (text-davinci-002)",
+          "b": "GPT-3.5 Turbo (0613)",
+          "first": [
+            0.5138,
+            0.5069
+          ],
+          "last": [
+            0.3357,
+            0.358
+          ]
+        },
+        {
+          "a": "GPT-3.5 (text-davinci-002)",
+          "b": "LLaMA (65B)",
+          "first": [
+            0.5138,
+            0.5034
+          ],
+          "last": [
+            0.3357,
+            0.3446
+          ]
+        },
+        {
+          "a": "Mixtral (8x7B 32K seqlen)",
+          "b": "PaLM-2 (Bison)",
+          "first": [
+            0.7276,
+            0.6862
+          ],
+          "last": [
+            0.5098,
+            0.5264
+          ]
+        },
+        {
+          "a": "PaLM-2 (Unicorn)",
+          "b": "Palmyra X V2 (33B)",
+          "first": [
+            0.7759,
+            0.7828
+          ],
+          "last": [
+            0.6436,
+            0.5889
+          ]
+        }
+      ],
+      "reversals_endpoint": 5,
+      "reversals_ever": 6,
+      "rose": 2
+    },
+    "pool_size_first": 30,
+    "pool_size_last": 91,
+    "releases": 14,
+    "scenario_columns_stable": true
+  },
+  "identity_max_abs_error": 2.842170943040401e-14,
+  "min_benchmarks": 8,
+  "null_calibration": [
+    {
+      "draws": 46800,
+      "n_dropped": 1,
+      "null_sd": 19.401621515578416
+    },
+    {
+      "draws": 46800,
+      "n_dropped": 2,
+      "null_sd": 14.381752624412407
+    },
+    {
+      "draws": 46800,
+      "n_dropped": 3,
+      "null_sd": 12.440113197137988
+    }
+  ],
+  "opportunity": {
+    "dated_stock_by_year": {
+      "2016": 1,
+      "2017": 2,
+      "2018": 4,
+      "2019": 11,
+      "2020": 12,
+      "2021": 14,
+      "2022": 17,
+      "2023": 18,
+      "2024": 31,
+      "2025": 57,
+      "2026": 62
+    },
+    "eligible_per_release_by_half": {
+      "2019H2": 5.0,
+      "2020H1": 2.0,
+      "2021H2": 6.0,
+      "2022H1": 6.444,
+      "2022H2": 3.0,
+      "2023H1": 6.762,
+      "2023H2": 6.464,
+      "2024H1": 3.905,
+      "2024H2": 4.021,
+      "2025H1": 6.763,
+      "2025H2": 8.49,
+      "2026H1": 10.05,
+      "2026H2": 9.875
+    },
+    "saturation": {
+      "early_top_decile_share": 0.1316,
+      "late_top_decile_share": 0.0828,
+      "mannwhitney_p": 0.0147,
+      "n_benchmarks": 54
+    }
+  },
+  "panel": {
+    "benchmarks": 74,
+    "eligible": 2355,
+    "pairs": 3082,
+    "placebo": 476,
+    "releases": 353,
+    "window_days": 182
+  },
+  "permutation_null": {
+    "draws": 300,
+    "draws_at_least_as_extreme": 0,
+    "null_mean": -0.0665,
+    "null_sd": 3.1969,
+    "observed": -29.0924,
+    "sd_away": 9.0795
+  },
+  "placebo_null": {
+    "randomization": {
+      "distinct_draws_available": 262144.0,
+      "granular": false,
+      "mean": 12.2271,
+      "n": 146,
+      "n_clusters": 18,
+      "p_floor": 0.0001,
+      "p_value": 0.0001,
+      "weights": "rademacher"
+    },
+    "side_balanced": {
+      "mean": 8.689,
+      "median": 9.361,
+      "n_releases": 142,
+      "share_positive": 0.7254
+    },
+    "windowed_percentile": {
+      "mean": 12.227,
+      "median": 10.691,
+      "n_releases": 146,
+      "share_positive": 0.7808
+    }
+  },
+  "sensitivity": {
+    "leave_one_out_max": 13.197,
+    "leave_one_out_min": 11.447,
+    "max": 21.655,
+    "min": 8.595,
+    "organisations_dropped": 18,
+    "positive": 16,
+    "share_newer_gap_correlation": 0.989,
+    "specifications": 16
+  },
+  "trend_recovery": {
+    "draws": 200,
+    "observed": -29.09239225733928,
+    "recovered_mean": -29.37516007551782,
+    "recovered_sd": 2.8007218254234245,
+    "share_recovered": 1.0097196482048396
+  },
+  "worklist": {
+    "cells": 1298,
+    "families": 38,
+    "releases": 103
+  }
+}

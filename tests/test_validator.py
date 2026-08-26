@@ -1,9 +1,4 @@
-"""The validator has to reject bad sheets, not just accept good ones.
-
-Every check here corresponds to a rule the protocol commits to in writing.
-If a rule stops being enforced, this fails rather than the sheet silently
-passing.
-"""
+"""The validator has to reject bad sheets, not just accept good ones."""
 import pandas as pd
 import pytest
 

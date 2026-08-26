@@ -90,9 +90,80 @@ Epoch runs them precisely because they discriminate -- applies to both and
 differences out. What is left is the single asymmetry that cannot be anything
 else: the eligible benchmark was available to report and was not reported.
 Under strategic omission that statistic is negative; under irrelevance, never
-having run it, or conventional table size, it is zero. This is the identifying
-estimator in `src/selectivity.py`; the disclosed-minus-omitted gap is retained
-as a descriptive statistic and is not treated as identifying.
+having run it, or conventional table size, it is zero.
+
+**That last sentence is false on this panel, and the correction is the most
+important thing in this document.** Computed with no disclosure labels of any
+kind, eligible benchmarks outscore postdating ones by 12.2 percentile points
+within a release, positive in 78 percent of the 146 releases carrying both sets.
+Twelve points is the estimator's null. The bias runs in the direction that
+manufactures false nulls, because concealment has to overcome a twelve-point
+head start before the statistic registers anything at all.
+
+The cause is two things at once, and an earlier version of this paragraph got the
+split wrong because the code behind it demeaned by release and then by benchmark in
+a single pass, which does not remove both sets of effects on an unbalanced panel.
+Absorbing them jointly, benchmark composition carries most of the contrast, moving
+the coefficient from -13.4 to -4.9. The outcome is a within-benchmark rank, but the
+panel is unbalanced and placebo cells concentrate in the benchmarks that entered
+late. Peer-window composition carries the rest. The percentile window is symmetric
+in days, but a benchmark's model coverage is not: it begins when the benchmark is
+built. A release that predates its benchmark therefore sits at the left edge of
+that coverage and is ranked against a peer set drawn 63 percent from models newer
+than itself, against 44 percent for eligible cells, and it scores low for a reason
+that has nothing to do with standing. Conditioning on peer-window asymmetry within release
+absorbs 29 percent of the contrast. Absorbing release and benchmark effects jointly
+and conditioning on peer-window composition leaves +0.25 with a standard error of
+1.62, which is not distinguishable from zero. Restricting to cells with a genuinely
+two-sided window removes only 12 percent, so this is a conditioning problem and not
+a trimming problem. Peer count belongs in that specification as a joint control and
+not as a further channel: entered alone it is a suppressor, making the asymmetry
+slope more negative rather than less.
+
+The consequence reaches past this one estimator. Peer-window asymmetry predicts
+standing at -29.1 percentile points per unit share among eligible cells alone, so
+it contaminates the outcome variable wherever two groups being compared differ in
+it. Every contrast in this repository now reports peer-window composition
+alongside the number, and `src/placebo_calibration.py` reproduces the whole
+decomposition.
+
+The estimator is therefore **not identifying and is no longer described as such**.
+It is reported against its measured null rather than against zero, and the placebo
+group returns to the narrower role it can support, which is validating that the
+coding instrument returns nothing where nothing could have been omitted.
+Identification has to come from the within-release and within-benchmark margin,
+where the variation is which providers omitted a given benchmark while both the
+release's overall standing and the benchmark's identity are held fixed. The
+disclosed-minus-omitted gap remains descriptive and is not promoted by this
+correction; it is simply no longer outranked by a statistic that does not work.
+
+## Inference
+
+The cluster count here is small and unevenly distributed. The estimation sample
+spans 46 organisations, but 24 of them contribute fewer than ten cells, 20 appear
+in a single release, and the five largest hold 68 percent of the sample, so the
+effective number of clusters is far below the nominal one. Cluster-robust
+asymptotics are unreliable in that range and they fail silently rather than
+loudly, which is the dangerous property.
+
+Three rules follow, and they are enforced in `src/stats.py` rather than left to
+discipline. Below twelve clusters the analytic standard error is not reported at
+all; the function returns a point estimate, a missing error and a sentence saying
+why. Regression coefficients in that range are tested with the restricted wild
+cluster bootstrap of Cameron, Gelbach and Miller, which imposes the null before
+resampling and keeps within-cluster correlation intact through cluster-level
+Rademacher weights. Release-level means are tested by flipping the signs of whole
+clusters, which is exact under its own null and does not degrade as clusters
+become scarce, it only becomes granular. With one provider that test returns a
+p-value of one, and that is the correct answer rather than a failure of the test.
+
+No result in this repository is called significant on a cluster-t alone.
+
+An earlier version of `stats.py` did none of this. Handed two releases from a
+single provider it reported standard errors of zero, t-statistics of order 1e15
+and three significance stars. The arithmetic was correct throughout. The
+asymptotics it rested on did not exist, and the code had no way to say so, so it
+said something confident instead.
 
 ## Falsification
 

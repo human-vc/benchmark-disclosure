@@ -1,12 +1,4 @@
-"""Validate a disclosure coding sheet against protocol/coding-protocol.md.
-
-Coding errors are expensive to find downstream: a mis-keyed row silently drops
-out of the merge in selectivity.py and shrinks the sample without saying so, and
-a category E with no named predecessor is not evidence of anything. This checks
-the rules the protocol commits to, at the point where they are cheap to fix.
-
-Exits non-zero on any error so it can gate the estimator.
-"""
+"""Validate a disclosure coding sheet against protocol/coding-protocol.md."""
 
 import sys
 
@@ -43,7 +35,6 @@ def check(sheet, panel, families):
 
     coded = sheet[sheet["orbit_category"].notna() & (sheet["orbit_category"] != "")]
 
-    # --- keys resolve, and are unique -------------------------------------
     dupes = sheet.duplicated(["release_id", "benchmark_slug"], keep=False)
     fail(dupes, "duplicate (release_id, benchmark_slug)")
 
@@ -53,14 +44,12 @@ def check(sheet, panel, families):
     )
     fail(unresolved, "row does not resolve to a (release, benchmark) cell in the panel")
 
-    # --- categories -------------------------------------------------------
     bad_cat = coded[~coded["orbit_category"].isin(CATEGORIES)]
     if len(bad_cat):
         errors.append(
             f"illegal orbit_category: {sorted(set(bad_cat['orbit_category']))}"
         )
 
-    # --- reported flag must follow from the category ----------------------
     if "reported" in sheet.columns:
         expected = coded["orbit_category"].isin(REPORTED).astype(int)
         actual = pd.to_numeric(coded["reported"], errors="coerce")
@@ -71,7 +60,6 @@ def check(sheet, panel, families):
                 "A/B/C are reported, D-I are not"
             )
 
-    # --- per-category required fields (protocol "Decision rules") ---------
     def requires(category, column, why):
         if column not in coded.columns:
             errors.append(f"missing column {column!r}, required for category {category}")
@@ -90,7 +78,6 @@ def check(sheet, panel, families):
     requires("F", "notes", "F must quote the stated benign reason")
     requires("A", "reported_value", "A is a numeric score and must carry it")
 
-    # --- E must actually have a predecessor in the family ------------------
     if "family_id" in families.columns:
         rank = families.set_index("release_id")["family_rank"]
         e_rows = coded[coded["orbit_category"] == "E"]
@@ -101,7 +88,6 @@ def check(sheet, panel, families):
                 f"from: {len(orphan)} row(s)"
             )
 
-    # --- sources ----------------------------------------------------------
     if "source_tier" in coded.columns:
         tier = pd.to_numeric(coded["source_tier"], errors="coerce")
         bad = coded[tier.notna() & ((tier < 1) | (tier > MAX_SOURCE_TIER))]
@@ -128,7 +114,6 @@ def check(sheet, panel, families):
                 f"reported category with no source_url: {len(need_url)} row(s)"
             )
 
-    # --- completeness -----------------------------------------------------
     uncoded = sheet[
         (sheet.get("group", "eligible") == "eligible")
         & (sheet["orbit_category"].isna() | (sheet["orbit_category"] == ""))

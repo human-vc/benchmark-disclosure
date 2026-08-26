@@ -1,9 +1,4 @@
-"""The falsification tests must fire on a planted effect and stay quiet without one.
-
-A permutation test that never rejects, or an excess-omission regression whose
-intercept is negative regardless of the data, would let the study confirm
-itself. These check both directions.
-"""
+"""The falsification tests must fire on a planted effect and stay quiet without one."""
 import numpy as np
 import pandas as pd
 import pytest
@@ -28,12 +23,11 @@ def test_permutation_does_not_reject_random_omission():
 
 
 def test_permutation_null_preserves_disclosed_counts():
-    """The convention explanation is granted, not tested: each release keeps
-    exactly as many disclosed benchmarks as it really had."""
+    """The convention explanation is granted, not tested: each release keeps"""
     panel = synthetic(strategic=True, n_releases=10)
     eligible = panel[panel["group"] == "eligible"]
     counts = eligible.groupby("release_id")["reported"].sum()
-    assert counts.nunique() == 1  # synthetic omits exactly 3 everywhere
+    assert counts.nunique() == 1
     observed, null, p = permutation_test(panel, draws=50, seed=0)
     assert np.isfinite(observed)
 

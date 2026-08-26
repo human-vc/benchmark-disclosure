@@ -1,9 +1,4 @@
-"""Assemble the model x benchmark availability matrix and apply the temporal gate.
-
-Output is long-format: one row per (model, benchmark) pair for which an
-independent score exists, annotated with whether that benchmark was eligible
-for disclosure at the model's release date.
-"""
+"""Assemble the model x benchmark availability matrix and apply the temporal gate."""
 
 import re
 
@@ -31,27 +26,14 @@ SLUG_OVERRIDES = {
 }
 
 
-# Maps the slug derived from Epoch's metadata name onto the slug used by the
-# score file, which is the filename. The two sides normalise differently --
-# metadata says "HellaSwag", the file is hella_swag_external.csv -- and an
-# unmapped pair is silently dropped, so this table is load-bearing. Anything
-# missing from it costs the panel a whole benchmark.
 SLUG_ALIASES = {
     "terminal_bench": "terminalbench",
     "fiction_livebench": "fictionlivebench",
     "gso_bench": "gso",
     "deepresearch_bench": "deepresearchbench",
     "otis_mock_aime": "otis_mock_aime_2024_2025",
-    # OSWorld and OSWorld 2.0 are different benchmarks with different score
-    # files (os_world, 9 models; osworld_2, 8 models). Mapping both onto
-    # osworld_2, as this table previously did, orphaned the OSWorld file and
-    # attributed OSWorld's 2024-04-11 date to OSWorld 2.0 -- which would admit
-    # models to a choice set containing a benchmark that did not yet exist.
     "osworld": "os_world",
     "osworld_2_0": "osworld_2",
-    # Epoch's metadata drops the word boundary; the score files keep it. These
-    # eight were previously documented as "no score file in the public bundle"
-    # when in fact the files ship and the join was failing on normalisation.
     "hellaswag": "hella_swag",
     "winogrande": "wino_grande",
     "triviaqa": "trivia_qa",
@@ -59,17 +41,12 @@ SLUG_ALIASES = {
     "openbookqa": "open_book_qa",
     "cadeval": "cad_eval",
     "remote_labor_index": "rli",
-    # FrontierMath ships several private variants in metadata against one
-    # score file per tier. Collapsed in collapse_meta().
     "frontiermath_2025_02_28_private": "frontiermath",
     "frontiermath_tiers_1_3_v2_private": "frontiermath",
     "frontiermath_tier_4_2025_07_01_private": "frontiermath_tier_4",
     "frontiermath_tier_4_v2_private": "frontiermath_tier_4",
 }
 
-# Metadata benchmarks with genuinely no score file in the public bundle.
-# An unjoined slug outside this set means the alias table has gone stale
-# against a new Epoch release, and is an error rather than a warning.
 KNOWN_UNJOINED = {"ebr_bench"}
 
 
@@ -96,25 +73,7 @@ def load_index(root):
 
 
 def collapse_meta(meta):
-    """Reduce the metadata to one row per slug.
-
-    Epoch lists several private variants of the same benchmark as separate
-    metadata rows (FrontierMath tiers, OSWorld and OSWorld 2.0), while the
-    score side ships a single file per canonical slug. SLUG_ALIASES maps the
-    variants onto that slug, which leaves duplicate slugs on the metadata side
-    and makes the downstream merge fan out rather than join. Collapse here so
-    the merge can be asserted many-to-one.
-
-    Date rule: take the *latest* known release date among the collapsed names.
-    In every observed case the score file is named after the newest variant
-    (osworld_2, frontiermath_tier_4), so the latest date is the better
-    attribution, and it is the conservative direction for the temporal gate --
-    it admits fewer models to the choice set rather than more. Attributing the
-    older variant's date to a newer benchmark would manufacture omissions of a
-    benchmark that did not yet exist.
-
-    Collapsed slugs are flagged so the hand-filled date file can override them.
-    """
+    """Reduce the metadata to one row per slug."""
     grouped = meta.groupby("slug", as_index=False).agg(
         benchmark_name=("benchmark_name", "first"),
         benchmark_release_date=("benchmark_release_date", "max"),
@@ -125,19 +84,7 @@ def collapse_meta(meta):
 
 
 def apply_date_overrides(meta, path=BENCHMARK_DATES):
-    """Merge the hand-collected benchmark release dates over Epoch's.
-
-    Epoch's metadata carries a release date for a minority of benchmarks and
-    omits ~20 benchmarks it nonetheless scores. Those pairs are neither
-    eligible nor placebo, so they leave the analysis entirely -- filling them
-    is the single highest-leverage manual task in the repository.
-
-    Precedence: Epoch's date wins where it exists, because it is the published
-    source. A hand row with status="override" beats it, which is the escape
-    hatch for cases where Epoch's row is known wrong -- notably slugs that
-    collapse several metadata variants onto one score file. Rows with no date
-    are worklist stubs and are ignored.
-    """
+    """Merge the hand-collected benchmark release dates over Epoch's."""
     if not path.exists():
         meta["date_source"] = np.where(
             meta["benchmark_release_date"].notna(), "epoch", "none"
@@ -152,9 +99,6 @@ def apply_date_overrides(meta, path=BENCHMARK_DATES):
     if hand["slug"].duplicated().any():
         raise ValueError(f"duplicate slugs in {path}")
 
-    # Outer, not left: 20 of the benchmarks needing a hand date are score files
-    # with no metadata row at all, so a left join would silently drop exactly
-    # the rows this file exists to supply.
     merged = meta.merge(
         hand[["slug", "benchmark_release_date", "status"]],
         on="slug",
@@ -205,9 +149,7 @@ def load_benchmark_meta(root):
 
 
 def score_column(frame):
-    """Epoch names the score column per benchmark. Take the first numeric
-    column after the model identifier, preferring the explicit best-score
-    column when the file provides one."""
+    """Epoch names the score column per benchmark. Take the first numeric"""
     if SCORE_COL in frame.columns:
         return SCORE_COL
     for column in frame.columns[1:]:
@@ -241,32 +183,13 @@ def load_scores(root):
     return pd.concat(frames, ignore_index=True)
 
 
-# Epoch labels the same provider inconsistently across releases: five Gemini
-# models sit under "Google" while the other 29 sit under "Google DeepMind".
-# The entity making the disclosure decision is the same either way, and leaving
-# them split breaks the Gemini Flash and Flash-Lite families in half.
-ORG_ALIASES = {"Google": "Google DeepMind"}
+ORG_ALIASES = {"Google": "Google DeepMind", "DeepMind": "Google DeepMind"}
 
 MERGE_WINDOW_DAYS = 45
 
 
 def canonical_release_date(panel):
-    """Collapse same-model entries that sit within MERGE_WINDOW_DAYS.
-
-    Epoch's index sometimes carries one shipped model twice with dates a few
-    days apart -- Llama 4 Maverick one day, GLM-4.5 two, Qwen2.5-Coder one.
-    Those are not two disclosure events; there is one model card. Left split
-    they inflate family ranks and can manufacture a "drop" between a release
-    and itself.
-
-    The threshold has to exist because the same-name-different-release case is
-    real and must survive: GPT-4o covers five snapshots 57 to 106 days apart,
-    each with its own release post. 45 days separates the two populations
-    cleanly in this build -- the duplicate gaps run 1 to 38 days and the
-    genuine snapshot gaps start at 55. It is a judgment call on a bimodal gap
-    distribution, not a principled constant, and it is printed at build time so
-    it can be checked rather than trusted.
-    """
+    """Collapse same-model entries that sit within MERGE_WINDOW_DAYS."""
     dates = panel["Release date"]
     keys = panel["primary_org"] + "|" + panel["Model name"]
     canonical = dates.copy()
@@ -281,24 +204,7 @@ def canonical_release_date(panel):
 
 
 def collapse_to_releases(panel):
-    """Collapse scaffold variants to one row per (release, benchmark).
-
-    Epoch's "Model version" separates reasoning-effort and context-window
-    variants of the same shipped model: GPT-5.5 appears six times, Claude 3.7
-    Sonnet ten. A provider publishes one model card per release, so leaving
-    these split would enter the same release into a benchmark's percentile
-    distribution up to ten times and would make "one row per model release"
-    -- the coding unit in the protocol -- ill-defined.
-
-    Model name alone is not the key: "GPT-4o" spans five snapshots across ten
-    months, each with its own release post and its own disclosure decision.
-    The key is (Organization, Model name, Release date), which collapses
-    scaffolds while preserving those snapshots.
-
-    Score rule: maximum across scaffolds, which is the rule design.md already
-    states for scaffolds within a benchmark file, applied consistently. The
-    spread is retained so the choice can be audited rather than assumed.
-    """
+    """Collapse scaffold variants to one row per (release, benchmark)."""
     panel = panel.dropna(subset=["Organization", "Model name", "Release date"]).copy()
     panel["primary_org"] = (
         panel["Organization"].str.split(",").str[0].str.strip().replace(ORG_ALIASES)

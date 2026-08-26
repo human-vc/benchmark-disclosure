@@ -1,0 +1,18 @@
+\begin{table}[H]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrrrrr}
+\toprule
+Standing measure & Mean & Median & Positive & Releases & Cells \\
+\midrule
+Windowed percentile (under audit) & $+12.23$ & $+10.69$ & 78.1\% & 146 & 100.0\% \\
+Rank against all models ever & $+22.75$ & $+22.66$ & 89.0\% & 146 & 100.0\% \\
+Trim to two-sided windows & $+10.73$ & $+10.57$ & 77.7\% & 130 & 74.1\% \\
+Side-balanced percentile & $+8.69$ & $+9.36$ & 72.5\% & 142 & 96.5\% \\
+\bottomrule
+\end{tabular}
+\caption{%
+The placebo null under each candidate measure: the release-level mean standing of eligible benchmarks minus that of postdating ones, computed with no disclosure labels of any kind. Positive is the share of releases whose gap is above zero and Cells is the share of panel cells on which the measure is defined. Every entry should be zero and none is. Ranking against every model ever scored nearly doubles the contamination. Trimming to two-sided windows removes only 12\% of the contamination while discarding 26\% of the cells. Shortening the window reduces the gap in proportion to the asymmetry it removes, to $+8.59$ at 91 days, and never to zero. Raw scores are not comparable across benchmarks, so they have no common unit in which to state the same contrast. The side-balanced measure is a partial repair: it cuts the eligible-only gradient on peer-window asymmetry from $-29.09$ to $-8.02$ percentile points per unit share, and it is undefined for cells with an empty side.}
+\label{tab:remedies}
+\end{table}

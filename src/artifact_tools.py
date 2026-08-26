@@ -1,20 +1,4 @@
-"""Fetch and search provider artifacts so extraction is reproducible.
-
-The coding sheet records a source_url per release. That is only meaningful if
-someone else can go back to the URL and recover the same reported-benchmark
-set, so the extraction runs through here rather than by hand.
-
-Two things this exists to work around:
-
-  - Provider release *blog posts* usually render their benchmark table as an
-    image. Text extraction sees the prose and misses the table, which would
-    silently code a reported benchmark as omitted -- a false drop, biased
-    toward the study's own hypothesis. System cards and technical reports
-    carry the same table as real text and are the right source anyway under
-    the protocol's hierarchy.
-  - Those PDFs run to hundreds of pages and tens of megabytes, past what a
-    page fetch will return.
-"""
+"""Fetch and search provider artifacts so extraction is reproducible."""
 
 import hashlib
 import re
@@ -24,9 +8,6 @@ from pathlib import Path
 
 CACHE = Path(__file__).resolve().parent.parent / "data" / "artifact_cache"
 
-# Benchmark names worth locating in a long document. Deliberately broad: a term
-# that hits nothing costs a line of output, a term that is missing costs a
-# false omission.
 SEARCH_TERMS = [
     "SWE-bench", "SWE bench", "GPQA", "AIME", "Terminal-Bench", "Terminal Bench",
     "MMLU", "MMMLU", "MMMU", "ARC-AGI", "ARC AGI", "HLE", "Humanity's Last Exam",
@@ -87,13 +68,7 @@ def pdf_pages(path):
 
 
 def locate(path, terms=SEARCH_TERMS):
-    """Which pages mention which benchmark terms.
-
-    Word-boundary matched. A substring search puts METR inside "symmetric",
-    MATH inside "mathematics", DROP inside "dropped" and RLI inside "earlier",
-    and a false hit here is worse than a miss: it would code a benchmark as
-    reported when the artifact never mentions it.
-    """
+    """Which pages mention which benchmark terms."""
     patterns = {
         term: re.compile(r"(?<![A-Za-z0-9])" + re.escape(term) + r"(?![A-Za-z0-9])",
                          re.IGNORECASE)
