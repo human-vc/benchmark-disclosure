@@ -57,3 +57,24 @@ def test_draw_sample_skips_autofilled_placebo_rows():
         "benchmark_slug": ["b"] * 10,
     })
     assert draw_sample(sheet).empty
+
+
+def test_draw_takes_whole_releases():
+    """A chosen release must arrive with every one of its cells, or the second
+    coder is recoding fragments of a document the first coder read whole."""
+    import pandas as pd
+    from src.reliability import draw_sample
+    rows = []
+    for org, rel, n in (("O1", "r1", 6), ("O1", "r2", 6), ("O1", "r3", 6),
+                        ("O2", "r4", 5), ("O2", "r5", 5)):
+        for k in range(n):
+            rows.append({"organization": org, "release_id": rel,
+                         "benchmark_slug": f"b{k}", "orbit_category": "H",
+                         "coder": "human"})
+    sheet = pd.DataFrame(rows)
+    sample = draw_sample(sheet, share=0.4, seed=1)
+    full = sheet.groupby("release_id").size()
+    got = sample.groupby("release_id").size()
+    for rel, count in got.items():
+        assert count == full[rel], f"{rel} arrived with {count} of {full[rel]} cells"
+    assert sample["organization"].nunique() == 2

@@ -1,4 +1,15 @@
-"""Double-coding draw and inter-rater agreement."""
+"""Double-coding draw and inter-rater agreement.
+
+The unit of second coding is the release artifact, not the row. Cells derive
+from a document by rule, so a second coder who receives rows cannot recode
+independently: several labels stand or fall with one reading of one document.
+The draw therefore selects whole releases, stratified by provider, and blanks
+the artifact evidence for an independent read; cells are re-derived from the
+second reading and agreement is computed on the derived cells,
+pre-adjudication. Reported: kappa on the full category set, on the collapsed
+high/low-suspicion split, and on E versus not-E, the cell the drop design
+rests on.
+"""
 
 import sys
 
@@ -30,18 +41,26 @@ def cohens_kappa(a, b):
 
 
 def draw_sample(sheet, share=SAMPLE_SHARE, seed=0):
-    """Random rows for second coding, stratified by provider."""
+    """Whole releases for second coding, stratified by provider.
+
+    Selecting rows would hand the second coder fragments of documents the
+    first coder read whole. Selecting releases keeps the coding unit intact
+    and keeps the derived labels internally consistent within each document.
+    """
     coded = sheet[sheet["orbit_category"].notna() & (sheet["orbit_category"] != "")]
     coded = coded[coded.get("coder", "") != "auto"]
     if coded.empty:
         return coded
 
     rng = np.random.default_rng(seed)
+    releases = coded[["release_id", "organization"]].drop_duplicates()
     picks = []
-    for _, group in coded.groupby("organization"):
+    for _, group in releases.groupby("organization"):
         k = max(1, int(round(len(group) * share)))
         picks.append(group.iloc[rng.choice(len(group), size=k, replace=False)])
-    return pd.concat(picks).sort_values(["organization", "release_id"])
+    chosen = pd.concat(picks)["release_id"]
+    return (coded[coded["release_id"].isin(set(chosen))]
+            .sort_values(["organization", "release_id", "benchmark_slug"]))
 
 
 def report(first, second):
@@ -60,7 +79,14 @@ def report(first, second):
     b_high = b.isin(HIGH_SUSPICION).map({True: "high", False: "low"})
     kappa_split, agree_split = cohens_kappa(a_high, b_high)
 
-    print(f"double-coded rows: {len(merged)}")
+    a_drop = (a == "E").map({True: "E", False: "not-E"})
+    b_drop = (b == "E").map({True: "E", False: "not-E"})
+    kappa_drop, agree_drop = cohens_kappa(a_drop, b_drop)
+
+    print(f"double-coded cells: {len(merged)} across "
+          f"{merged['release_id'].nunique()} releases")
+    print(f"\nE versus not-E, the drop design's cell:")
+    print(f"  agreement {agree_drop:.1%}   kappa {kappa_drop:.3f}")
     print(f"\ncollapsed high (D/E/G) vs low (A/B/C/F/H/I):")
     print(f"  agreement {agree_split:.1%}   kappa {kappa_split:.3f}")
     print(f"full nine-category assignment:")
