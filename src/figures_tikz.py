@@ -96,46 +96,81 @@ def fig_one_curve(panel):
 
 
 def fig_helm():
-    """Rank against release, for models whose evidence never changed."""
-    def ranks(path, headline=None):
+    """Rank at the first release against rank at the last, as a slopegraph.
+
+    The claim is that pairs reverse order while the evidence is frozen, and in
+    a two-point rank plot a reversed pair is a crossing, one to one, so the
+    statistic counts itself on the page. The fourteen intermediate releases
+    added wiggle without adding evidence; a bump chart of them buried the five
+    crossings in one-rank noise.
+    """
+    def endpoints(path, headline=None):
         payload, order = load(path)
         models = frozen_models(payload, order)
         drift = headline_drift(payload, order, models, headline=headline)
         series = drift["series"]
         names = sorted(series)
-        table = {m: [] for m in names}
-        for t in range(len(order)):
-            for place, m in enumerate(sorted(names, key=lambda k: -series[k][t]), 1):
-                table[m].append(place)
-        movers = {m for m in names if len(set(table[m])) > 1}
-        return table, movers, len(order), len(names)
+        def rank_at(t):
+            return {m: place for place, m in enumerate(
+                sorted(names, key=lambda k: -series[k][t]), 1)}
+        first, last = rank_at(0), rank_at(len(order) - 1)
+        import itertools
+        pairs = [(a, b) for a, b in itertools.combinations(names, 2)
+                 if (first[a] - first[b]) * (last[a] - last[b]) < 0]
+        sloped = {m for m in names if first[m] != last[m]}
+        return first, last, pairs, sloped, order[0], order[-1], len(names)
 
-    lite, lite_movers, lite_n, lite_k = ranks(FROZEN)
-    ctl, ctl_movers, ctl_n, ctl_k = ranks(CONTROL, CONTROL_HEADLINE)
+    def components(pairs):
+        """Groups of mutually reversing models, one hue each, so every
+        crossing is a same-coloured X and the five are countable."""
+        parent = {}
+        def find(x):
+            parent.setdefault(x, x)
+            while parent[x] != x:
+                parent[x] = parent[parent[x]]
+                x = parent[x]
+            return x
+        for a, b in pairs:
+            parent[find(a)] = find(b)
+        groups = {}
+        for m in parent:
+            groups.setdefault(find(m), []).append(m)
+        return list(groups.values())
 
-    def lines(table, movers, colour_moving, colour_static):
+    def lines(first, last, pairs):
+        hues = ["cSF", "cNYC", "cGRN", "cPNK"]
+        hue_of = {}
+        for k, group in enumerate(sorted(components(pairs), key=min)):
+            for m in group:
+                hue_of[m] = hues[k % len(hues)]
         out = []
-        for m in sorted(table, key=lambda k: k in movers):
-            colour = colour_moving if m in movers else colour_static
-            width = "1.1pt" if m in movers else "0.4pt"
-            pts = " ".join(f"({i},{r})" for i, r in enumerate(table[m]))
-            out.append(f"    \\addplot[{colour}, line width={width}, forget plot] "
-                       f"coordinates {{{pts}}};")
+        for m in sorted(first, key=lambda k: k in hue_of):
+            if m in hue_of:
+                style = f"{hue_of[m]}, line width=0.9pt, mark=*, mark size=1.0pt"
+            else:
+                style = "cMUTE, line width=0.4pt"
+            out.append(f"    \\addplot[{style}, forget plot] "
+                       f"coordinates {{(0.3,{first[m]}) (0.7,{last[m]})}};")
         return "\n".join(out)
 
-    axis = ("causalre body, y dir=reverse, ymin=0.4, xmin=-0.4, "
+    lf, ll, lc, ls, l0, l1, lk = endpoints(FROZEN)
+    cf, cl, cc, cs, c0, c1, ck = endpoints(CONTROL, CONTROL_HEADLINE)
+    print(f"  lite: {lk} models, {len(lc)} reversed pairs in "
+          f"{len(components(lc))} groups, {len(ls)} sloped; "
+          f"capabilities: {ck} models, {len(cc)} pairs, {len(cs)} sloped")
+
+    axis = ("causalre body, y dir=reverse, ymin=0.4, xmin=0, xmax=1, "
             "xlabel={release}, ytick={1,6,12,18,24}")
     return f"""\\begin{{tikzpicture}}
-  \\begin{{axis}}[{axis}, xmax={lite_n - 0.6}, ymax={lite_k + 0.6},
-    ylabel={{published rank}}, title={{(a)}}]
-{lines(lite, lite_movers, "cSF", "cMUTE")}
+  \\begin{{axis}}[{axis}, xtick={{0.3,0.7}}, xticklabels={{{l0},{l1}}}, ymax={lk + 0.6},
+    ylabel={{rank among the constant models}}, title={{(a)}}]
+{lines(lf, ll, lc)}
   \\end{{axis}}
-  \\begin{{axis}}[{axis}, xmax={ctl_n - 0.6}, ymax={ctl_k + 0.6},
+  \\begin{{axis}}[{axis}, xtick={{0.3,0.7}}, xticklabels={{{c0},{c1}}}, ymax={ck + 0.6},
     xshift=0.50\\textwidth, yticklabels={{,,}}, title={{(b)}}]
-{lines(ctl, ctl_movers, "cSF", "cMUTE")}
+{lines(cf, cl, cc)}
   \\end{{axis}}
-\\end{{tikzpicture}}
-"""
+\\end{{tikzpicture}}"""
 
 
 def fig_geometry(panel, slug="hle", window=182):
