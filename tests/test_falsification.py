@@ -60,18 +60,18 @@ class TestLabelFreePlacebo:
 
     PANEL = pd.DataFrame([
         dict(release_id="R1", group="eligible", percentile=70.0,
-             percentile_balanced=60.0, Organization="A"),
+             pct_balanced=60.0, Organization="A"),
         dict(release_id="R1", group="eligible", percentile=80.0,
-             percentile_balanced=70.0, Organization="A"),
+             pct_balanced=70.0, Organization="A"),
         dict(release_id="R1", group="placebo", percentile=50.0,
-             percentile_balanced=55.0, Organization="A"),
+             pct_balanced=55.0, Organization="A"),
         dict(release_id="R2", group="eligible", percentile=40.0,
-             percentile_balanced=40.0, Organization="B"),
+             pct_balanced=40.0, Organization="B"),
         dict(release_id="R2", group="placebo", percentile=40.0,
-             percentile_balanced=40.0, Organization="B"),
+             pct_balanced=40.0, Organization="B"),
         # a release with only one kind of cell carries no contrast
         dict(release_id="R3", group="eligible", percentile=90.0,
-             percentile_balanced=90.0, Organization="B"),
+             pct_balanced=90.0, Organization="B"),
     ])
 
     def test_gap_is_eligible_minus_placebo(self):
@@ -96,7 +96,7 @@ class TestLabelFreePlacebo:
     def test_alternative_measure_is_honoured(self):
         from src.falsification import eligible_vs_placebo
 
-        got = eligible_vs_placebo(self.PANEL, value="percentile_balanced")
+        got = eligible_vs_placebo(self.PANEL, value="pct_balanced")
         assert got.set_index("release_id")["gap"]["R1"] == pytest.approx(10.0)
 
 

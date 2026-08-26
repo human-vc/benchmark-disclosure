@@ -180,13 +180,26 @@ def collect():
         "sensitivity": _sensitivity(panel),
     }
 
+    # The decomposition lands on `pct_sided`, the windowed percentile taken
+    # over peers only, not on `percentile`, which also carries the focal
+    # model's own midrank contribution. Under a convention that folds the model
+    # into its own older side the identity holds against `percentile` exactly,
+    # but only because the model is counted among its own peers; see
+    # src/percentiles.py. Checking it against `pct_sided` is the arithmetic
+    # check it was meant to be.
     identity = (
         (1 - panel["share_newer"]) * panel["pct_old_side"].fillna(0)
         + panel["share_newer"] * panel["pct_new_side"].fillna(0)
     )
-    defined = panel["percentile"].notna()
+    defined = panel["pct_sided"].notna()
     numbers["identity_max_abs_error"] = float(
-        np.nanmax(np.abs(identity[defined] - panel["percentile"][defined]))
+        np.nanmax(np.abs(identity[defined] - panel["pct_sided"][defined]))
+    )
+    # What the focal model's own inclusion is worth, cell by cell. It is the
+    # gap between the reported measure and the one the identity decomposes, and
+    # it is reported rather than absorbed.
+    numbers["self_inclusion_max_abs_gap"] = float(
+        np.nanmax(np.abs(panel["percentile"][defined] - panel["pct_sided"][defined]))
     )
     return panel, numbers
 

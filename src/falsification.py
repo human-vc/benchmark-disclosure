@@ -134,7 +134,7 @@ def placebo_under_each_measure(panel):
         ("windowed percentile (under audit)", "percentile", None),
         ("rank against all models ever", "percentile_alltime", None),
         ("trim to two-sided windows", "percentile", "two_sided"),
-        ("side-balanced percentile", "percentile_balanced", None),
+        ("side-balanced percentile", "pct_balanced", None),
     ]
     total = len(panel[panel["group"].isin({"eligible", "placebo"})])
     for label, value, trim in variants:
@@ -143,8 +143,8 @@ def placebo_under_each_measure(panel):
         subset = panel
         if trim == "two_sided":
             # keep only cells with peers on both sides of the release
-            subset = panel[panel["percentile_older"].notna()
-                           & panel["percentile_newer"].notna()]
+            subset = panel[panel["pct_old_side"].notna()
+                           & panel["pct_new_side"].notna()]
         gaps = eligible_vs_placebo(subset, value)
         if gaps.empty:
             continue
@@ -167,7 +167,7 @@ def report_label_free_placebo(panel):
     print("   uses no disclosure coding at all: both sets are defined by")
     print("   dates alone. Zero under every innocent explanation.")
     for value, label in (("percentile", "windowed percentile"),
-                         ("percentile_balanced", "side-balanced percentile")):
+                         ("pct_balanced", "side-balanced percentile")):
         if value not in panel.columns:
             continue
         gaps = eligible_vs_placebo(panel, value)
@@ -192,7 +192,7 @@ def report_label_free_placebo(panel):
             print(f"   {row.measure:38} {row.mean:+7.2f} {row.median:+7.2f} "
                   f"{row.positive:5.1%} {row.releases:5d} {row.cell_share:6.1%}")
 
-    shares = panel.groupby("group")["newer_share"].mean()
+    shares = panel.groupby("group")["share_newer"].mean()
     if {"eligible", "placebo"} <= set(shares.index):
         print(f"   peer windows: mean share of the window newer than the focal "
               f"model is {shares['eligible']:.4f} for available cells and "

@@ -6,59 +6,68 @@ should say so, rather than be discovered when a figure stops matching prose.
 
 import json
 
-import pandas as pd
 import pytest
 
 from src import snapshot
 
 
 class TestManifest:
+    def _pin(self, tmp_path, files):
+        root = tmp_path / "raw"
+        root.mkdir(exist_ok=True)
+        for name, text in files.items():
+            path = root / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(text)
+        manifest = tmp_path / "snapshot.json"
+        snapshot.capture(root, captured="test", manifest=manifest)
+        return root, manifest
+
     def test_changed_content_is_detected_under_an_unchanged_name(self, tmp_path):
         """The case that would otherwise pass unremarked: same file name, new
         bytes. Epoch republishes in place."""
-        root = tmp_path / "raw"
-        root.mkdir()
-        (root / "scores.csv").write_text("a,b\n1,2\n")
-        manifest = tmp_path / "manifest.csv"
-        snapshot.write(root, manifest)
+        root, manifest = self._pin(tmp_path, {"scores.csv": "a,b\n1,2\n"})
 
         (root / "scores.csv").write_text("a,b\n1,3\n")
-        added, removed, changed = snapshot.verify(root, manifest)
-        assert changed == ["scores.csv"]
-        assert not added and not removed
+        result = snapshot.compare(root, manifest)
+        assert result["changed"] == ["scores.csv"]
+        assert not result["added"] and not result["removed"]
+        assert result["status"] == "drift"
 
     def test_additions_and_removals_are_separated(self, tmp_path):
-        root = tmp_path / "raw"
-        root.mkdir()
-        (root / "one.csv").write_text("x")
-        manifest = tmp_path / "manifest.csv"
-        snapshot.write(root, manifest)
+        root, manifest = self._pin(tmp_path, {"one.csv": "x"})
 
         (root / "one.csv").unlink()
         (root / "two.csv").write_text("y")
-        added, removed, changed = snapshot.verify(root, manifest)
-        assert added == ["two.csv"] and removed == ["one.csv"] and changed == []
+        result = snapshot.compare(root, manifest)
+        assert result["added"] == ["two.csv"]
+        assert result["removed"] == ["one.csv"]
+        assert result["changed"] == []
 
-    def test_an_unchanged_snapshot_reports_clean(self, tmp_path, capsys):
-        root = tmp_path / "raw"
-        root.mkdir()
-        (root / "one.csv").write_text("x")
-        manifest = tmp_path / "manifest.csv"
-        snapshot.write(root, manifest)
+    def test_an_unchanged_snapshot_reports_clean(self, tmp_path):
+        root, manifest = self._pin(tmp_path, {"one.csv": "x"})
+        assert snapshot.compare(root, manifest)["status"] == "match"
         assert snapshot.report(root, manifest) is True
 
     def test_missing_manifest_is_not_silently_clean(self, tmp_path):
         root = tmp_path / "raw"
         root.mkdir()
-        assert snapshot.verify(root, tmp_path / "absent.csv") is None
-        assert snapshot.report(root, tmp_path / "absent.csv") is False
+        absent = tmp_path / "absent.json"
+        assert snapshot.load(absent) is None
+        assert snapshot.compare(root, absent)["status"] == "unpinned"
+        assert snapshot.report(root, absent) is False
 
     def test_nested_files_are_hashed(self, tmp_path):
         root = tmp_path / "raw"
         (root / "sub").mkdir(parents=True)
         (root / "sub" / "deep.csv").write_text("z")
-        got = snapshot.scan(root)
-        assert list(got["path"]) == ["sub/deep.csv"]
+        assert list(snapshot.fingerprint(root)["files"]) == ["sub/deep.csv"]
+
+    def test_row_counts_are_pinned_alongside_the_hash(self, tmp_path):
+        """A hash says something moved. The row count says how much, which is
+        what tells a rebuild apart from a republication."""
+        root, manifest = self._pin(tmp_path, {"scores.csv": "a,b\n1,2\n3,4\n"})
+        assert snapshot.load(manifest)["files"]["scores.csv"]["rows"] == 2
 
 
 class TestNumbers:
@@ -66,17 +75,21 @@ class TestNumbers:
         """numpy scalars are not JSON, and a file that fails to write is a file
         the write-up quietly keeps quoting from a stale copy."""
         from src.config import INTERIM
-        from src.numbers import collect
+        from src.paper_numbers import collect
 
         if not (INTERIM / "panel.csv").exists():
             pytest.skip("panel not built")
-        json.dumps(collect())
+        _, numbers = collect()
+        json.dumps(numbers)
 
-    def test_the_snapshot_digest_travels_with_the_numbers(self):
-        from src.config import INTERIM
-        from src.numbers import collect
+    def test_the_snapshot_stamp_travels_with_the_numbers(self):
+        """Every number ships with the vintage of the data it came from, or the
+        file is quotable without being reproducible."""
+        from src.config import ROOT
 
-        if not (INTERIM / "panel.csv").exists():
-            pytest.skip("panel not built")
-        got = collect()
-        assert "snapshot_manifest_digest" in got
+        emitted = ROOT / "data" / "paper_numbers.json"
+        if not emitted.exists():
+            pytest.skip("paper_numbers.json not built")
+        provenance = json.loads(emitted.read_text())["_provenance"]
+        assert provenance["snapshot"].startswith("snapshot:")
+        assert provenance["snapshot_status"] in {"match", "drift", "unpinned"}
