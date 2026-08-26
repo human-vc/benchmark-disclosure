@@ -1,6 +1,6 @@
 {
   "_provenance": {
-    "generated": "2026-08-25",
+    "generated": "2026-08-26",
     "index_rows": 819,
     "snapshot": "snapshot: 2026-08-17 (819 model-versions)",
     "snapshot_status": "match"
@@ -19,37 +19,47 @@
     "+ benchmark FE": {
       "absorbed": 0.6378,
       "coef": -4.869,
+      "n_benchmarks": 62,
       "n_clusters": 46,
-      "se": 1.26,
-      "t": -3.865
+      "se": 2.138,
+      "se_provider": 1.26,
+      "t": -2.278
     },
     "+ peer count": {
       "absorbed": 0.8091,
       "coef": -2.566,
+      "n_benchmarks": 62,
       "n_clusters": 46,
-      "se": 1.305,
-      "t": -1.967
+      "se": 1.816,
+      "se_provider": 1.305,
+      "t": -1.413
     },
     "+ peer-window asymmetry": {
       "absorbed": 0.2922,
       "coef": -9.515,
+      "n_benchmarks": 62,
       "n_clusters": 46,
-      "se": 1.254,
-      "t": -7.587
+      "se": 1.871,
+      "se_provider": 1.254,
+      "t": -5.086
     },
     "release FE": {
       "absorbed": 0.0,
       "coef": -13.443,
+      "n_benchmarks": 62,
       "n_clusters": 46,
-      "se": 1.238,
-      "t": -10.855
+      "se": 2.002,
+      "se_provider": 1.238,
+      "t": -6.713
     },
     "two-way FE + both": {
       "absorbed": 0.9817,
       "coef": 0.246,
+      "n_benchmarks": 62,
       "n_clusters": 46,
-      "se": 1.618,
-      "t": 0.152
+      "se": 1.682,
+      "se_provider": 1.618,
+      "t": 0.146
     }
   },
   "drop_capacity": [

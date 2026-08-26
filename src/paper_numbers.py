@@ -160,8 +160,10 @@ def collect():
                 "coef": round(float(row["placebo_coef"]), 3),
                 "se": round(float(row["se"]), 3),
                 "t": round(float(row["t"]), 3),
+                "se_provider": round(float(row["se_provider"]), 3),
                 "absorbed": round(float(row["share_absorbed"]), 4),
                 "n_clusters": int(row["n_clusters"]),
+                "n_benchmarks": int(row["n_benchmarks"]),
             }
             for step, row in ladder.iterrows()
         },

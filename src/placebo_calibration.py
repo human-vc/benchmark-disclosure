@@ -5,7 +5,7 @@ import pandas as pd
 
 from .config import INTERIM, MIN_BENCHMARKS, RELEASE_COL, WINDOW_DAYS
 from .percentiles import within_benchmark_percentile
-from .stats import ols
+from .stats import ols, two_way_se
 
 MIN_VARIANCE = 1e-12
 
@@ -86,12 +86,19 @@ def decomposition(panel):
         design = np.column_stack([np.ones(len(outcome))] + regressors)
         names = ["const", "placebo"] + [f"z{i}" for i in range(len(regressors) - 1)]
         fit = ols(outcome, design, names, cluster=cluster)
+        both = two_way_se(outcome, design, cluster, benchmark)
         rows.append({
             "step": label,
             "placebo_coef": fit["beta"][1],
-            "se": fit["se"][1],
-            "t": fit["t"][1],
+            # two-way provider-and-benchmark errors are primary: a benchmark
+            # shock correlates residuals across providers, and provider-only
+            # clustering cannot see it
+            "se": both["se"][1],
+            "t": both["beta"][1] / both["se"][1],
+            "se_provider": fit["se"][1],
+            "t_provider": fit["t"][1],
             "n_clusters": fit["n_clusters"],
+            "n_benchmarks": both["n_clusters_b"],
             "n_cells": len(outcome),
         })
     out = pd.DataFrame(rows)
