@@ -16,11 +16,10 @@ The mechanism behind the second dimension is geometric. The comparison window is
 
 \begin{figure}[H]\centering
 \input{figures/fig_geometry}
-\caption{Why the window is one-sided at the boundary. A benchmark's model
-coverage begins when the benchmark is built. A release near that boundary is
-ranked against peers drawn almost entirely from models newer than itself, while
-a release in the interior is not. Peer counts are recomputed from the panel
-under the same 182 day rule.}
+\caption{Why the window is one-sided at the boundary. One benchmark, born at the green rule,
+and two releases (blue), each with a 182 day window (shaded). The upper release ships just
+after the benchmark, so the older half of its window covers a stretch in which nothing was
+scored; the lower ships in the interior and sees peers on both sides.}
 \label{fig:geometry}
 \end{figure}
 
@@ -30,17 +29,11 @@ Standing decomposes into a weighted average of position among older and newer pe
 
 \begin{figure}[H]\centering
 \input{figures/fig_one_curve}
-\caption{Standing against peer-window composition, and the effect of correcting it.
-Panel (b) repeats the eligible cells of panel (a) under two measures. The horizontal axis is the
-share of a cell's ranking window released after the focal model; a symmetric
-window sits at the dashed rule. Eligible and placebo cells lie on one curve, so
-the contrast between them is a position on that curve rather than a fact about
-disclosure. The two group means of that share are 0.437 and 0.632. Intervals are clustered on organisation. In panel (b) the windowed measure
-slopes across the range while the side-balanced one is close to flat over most
-of it, so the correction removes the gradient where cells are dense and leaves
-it where the window is nearly one-sided. The pooled curve runs one bin further right
-than either group series, and that final bin carries no group markers, so its
-drop is not part of the gradient. The panel scales differ.}
+\caption{Standing against peer-window composition. The horizontal axis is the share of a
+cell's ranking window released after the focal model; dashed verticals mark each group's
+mean share, either side of the symmetric window's 0.5. Eligible and placebo cells lie on
+one declining curve, so the contrast between them is a position on that curve rather than
+a fact about disclosure. Intervals are clustered on organisation.}
 \label{fig:one-curve}
 \end{figure}
 
@@ -56,4 +49,4 @@ The phenomenon has a name in nonparametric estimation: local averages are biased
 
 One reading of that number would be too generous to it. Window composition is a function of the same dates that define the placebo indicator, so conditioning on it does not adjust for a confounder sitting outside the comparison; it splits the gap into the channel carrying it. A study that holds disclosure labels and wants an estimate of $\theta$ must first argue that window composition is settled before a provider decides what to report, or it will condition away part of what it is measuring. Provider identity explains little of the variance in window composition, which is suggestive rather than settling; Appendix~\ref{sec:supporting} reports the decomposition and the coverage tilt it does not correct.
 
-The side-balanced percentile is the one change of measure that does substantial work, cutting the placebo mean to $+8.69$ and the eligible-cell gradient to $-8.02$. \autoref{fig:one-curve}(b) puts it against the uncorrected measure on the same cells, and it is close to flat over the range where cells are dense. Reweighting cannot reach what remains, since balancing repairs the weight placed on each side of a model but not which models an evaluator chose to score early, so evaluator attention stays a residual confound. It is undefined wherever a side is empty, so it accompanies the uncorrected measure rather than replacing it.
+The side-balanced percentile is the one change of measure that does substantial work, cutting the placebo mean to $+8.69$ and the eligible-cell gradient to $-8.02$. \autoref{fig:correction} in Appendix~\ref{sec:supporting} puts it against the uncorrected measure on the same cells, close to flat where cells are dense. Reweighting cannot reach what remains, since balancing repairs the weight placed on each side of a model but not which models an evaluator chose to score early, so evaluator attention stays a residual confound. It is undefined wherever a side is empty, so it accompanies the uncorrected measure rather than replacing it.
