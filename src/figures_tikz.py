@@ -76,7 +76,7 @@ def fig_one_curve(panel):
   \\begin{{axis}}[{axis}, ymin=20, ymax=80,
     ylabel={{within-benchmark standing}},
     legend to name=leg:onecurve, legend columns=3]
-    \\addplot[cMUTE, line width=2.2pt, smooth, forget plot]
+    \\addplot[black, line width=1.0pt, smooth, forget plot]
       coordinates {{{_coords(pooled)}}};
     \\addplot[black, dashed, thin, forget plot] coordinates {{(0.5,20) (0.5,80)}};
     \\addplot[cNYC, dashed, thin, forget plot]
@@ -91,7 +91,7 @@ def fig_one_curve(panel):
              error bars/.cd, y dir=both, y explicit]
       coordinates {{{_coords(plac, errors=True)}}};
     \\addlegendentry{{benchmark postdates the release}}
-    \\addplot[cMUTE, line width=2.2pt] coordinates {{(0,0)}};
+    \\addplot[black, line width=1.0pt] coordinates {{(0,0)}};
     \\addlegendentry{{all cells pooled}}
   \\end{{axis}}
 \\end{{tikzpicture}}
@@ -221,10 +221,10 @@ def fig_geometry():
         ]
         if left < 0:
             parts.append(
-                f"    \\fill[pattern=north east lines, pattern color=cMUTE!70] "
+                f"    \\fill[pattern=north east lines, pattern color=black!60] "
                 f"({left},{y - half}) rectangle (0,{y + half});")
             parts.append(
-                f"    \\node[font=\\tiny, text=black] at ({left / 2},{y + half + 0.16}) "
+                f"    \\node[anchor=east, font=\\tiny, text=black] at (-14,{y + half + 0.16}) "
                 f"{{nothing scored}};")
         else:
             parts.append(
@@ -234,7 +234,7 @@ def fig_geometry():
             f"    \\node[font=\\tiny, text=black] at ({focal + window / 2 + 22},{y + half + 0.16}) "
             f"{{newer peers}};")
         parts.append(
-            f"    \\draw[cMUTE, line width=0.6pt] (0,{y}) -- ({span_hi},{y});")
+            f"    \\draw[black, line width=0.6pt] (0,{y}) -- ({span_hi},{y});")
         parts.append(
             f"    \\draw[cNYC, line width=2.2pt] ({focal},{y - half - 0.08}) -- "
             f"({focal},{y + half + 0.08});")
@@ -244,7 +244,7 @@ def fig_geometry():
 {lane(focal_a, top, "older peers")}
 {lane(focal_b, bottom, "older peers")}
     \\draw[cGRN, line width=1.4pt] (0,{bottom - half - 0.22}) -- (0,{top + half + 0.34});
-    \\draw[cMUTE, line width=0.4pt, -stealth] ({span_lo},{bottom - half - 0.22}) -- ({span_hi},{bottom - half - 0.22});
+    \\draw[black, line width=0.4pt, -stealth] ({span_lo},{bottom - half - 0.22}) -- ({span_hi},{bottom - half - 0.22});
 \\end{{tikzpicture}}"""
 
 
