@@ -66,3 +66,20 @@ the focal model jumps $+0.077$ at the cutoff, which at the eligible-cell gradien
 about $-2.2$ percentile points, inside every interval above. Peer count and raw score are continuous.
 The global gap therefore lives in the 793 days that separate the two groups' mean maturity rather
 than in anything happening at the boundary itself.
+
+\paragraph{A standing measure with no comparison window.}
+The conclusion points at a scale estimated jointly across benchmarks rather than against
+contemporaries, which removes the comparison window from the measure entirely. Fitting one does not
+remove the gap. Ability and difficulty are estimated together over the 63 benchmarks reported on a
+common zero-to-one scale, on a logit link, with the loading ridged toward one because a free loading
+is unidentified at this density and takes slopes past $65{,}000$. Restricting to benchmarks carrying
+at least twenty releases and releases carrying at least three benchmarks leaves 1,669 eligible cells
+over 31 benchmarks. The model is fit on eligible cells alone, so the 226 postdating cells it can
+score are out of sample.
+
+The eligible-minus-placebo gap in the residuals is $+0.336$ residual standard deviations, against
+$+0.449$ for the windowed percentile on the same contrast, positive in 64.0\% of the 89 releases
+holding both kinds, at $p = 0.005$. Removing the window shrinks the gap by about a quarter and
+leaves it, which puts a jointly estimated scale beside trimming at 12\% and side-balancing at 29\%
+rather than ahead of them. Shuffling scores within benchmark, which leaves every date and the rank
+deficiency untouched, drops the same quantity to 0.02 on average over thirty draws.
