@@ -29,13 +29,16 @@ DEFAULT_OUT = INTERIM / "second_coder_packets.md"
 FULL_OUT = INTERIM / "coding_packets_all.md"
 
 SYNTAX = """\
-Evidence syntax for `reported_slugs` (space-separated):
+Evidence syntax for `reported_slugs`. Tokens are separated by | (pipe),
+not spaces: a variant name carries spaces of its own.
 
     slug=value      a numeric score for THIS model is reported      -> A
     slug            named, but no number given                      -> B
     slug~Variant=v  a different variant reported instead            -> C
     slug!reason     absent, with a benign reason quoted in the text -> F
     +name           reported here, but not scored by Epoch (reverse gap)
+
+    e.g.  gpqa_diamond=65.0|mmlu=88.7|math_level_5~MATH-500=78.3|+mmlu_pro=78.0
 
 Omit a slug entirely if the artifact does not mention it. Do not write a
 category letter anywhere: categories are derived by rule from this line.
