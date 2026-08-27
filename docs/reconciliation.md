@@ -127,7 +127,11 @@ Nothing here is edited yet — the final values depend on §1.
 ## 5. Separately, and not affected by any of the above
 
 `checklist.tex:102`, `reach.tex:9` and `data.tex:25` state that no cells are
-coded and that the language model's labels "have been cleared". The repo ships
-1,280 coded cells in `data/disclosures.csv`, every one stamped with the tool's default coder name.
-That contradiction is independent of the vintage question and has to be
-resolved before a public push either way.
+coded and that the February language-model labels "have been cleared", which
+remains true of that pass. The repo now ships 1,280 hand-coded cells. They were
+briefly stamped with the tool's default coder name because `record_artifact.py` shipped that string
+as its CLI default and the coder never overrode it; the stamp recorded the
+tool's default, not who exercised judgment. Restamped to `kevin`, the coder, on
+2026-08-27, and the default now matches. What still has to move with the merge
+is the paper's "no ORBIT category is now assigned to any cell" sentences,
+which become a statement of the hand-coded counts.
