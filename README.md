@@ -71,8 +71,8 @@ Provider disclosures have no structured source and are hand-coded from official 
 
 ```bash
 pip install -r requirements.txt
-python -m src.download_data      # fetch Epoch's bundle
-python -m src.snapshot pin       # SHA-256 per raw file, so drift announces itself
+python -m src.download_data --capture   # fetch Epoch's bundle and pin it
+python -m src.snapshot           # report drift against the pin; non-zero exit on drift
 python -m src.build_matrix       # panel, temporal gate, release collapsing
 python -m src.coverage           # the access-type confound
 python -m src.families           # seed the family linkage, then hand-review it
@@ -84,9 +84,10 @@ python -m src.validate_coding    # gate: protocol rules, non-zero exit on failur
 python -m src.selectivity        # the three estimators
 python -m src.falsification      # the four falsification tests
 python -m src.reliability        # 20% re-extraction draw, then Cohen's kappa
-python -m src.numbers            # every reported quantity -> data/processed/numbers.json
+python -m src.coding_packet      # per-release reading packets for the coder
+python -m src.paper_numbers      # every reported quantity -> data/paper_numbers.json
 
-pytest                           # 97 tests
+pytest                           # 196 tests
 ```
 
 `build_matrix` produces the release × benchmark eligibility matrix with the temporal gate applied — currently 3,138 pairs across 354 releases, of which 2,393 are eligible and 476 fall in the placebo group. The temporal gate now reaches 91.4% of pairs, up from 45.5% on first reproduction.
