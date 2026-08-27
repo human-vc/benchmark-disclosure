@@ -176,6 +176,39 @@ def randomization_test_mean(values, cluster=None, draws=9999, seed=0):
     }
 
 
+def two_way_se(y, X, cluster_a, cluster_b):
+    """Standard errors clustered on two crossed dimensions at once.
+
+    Cells here share a provider and share a benchmark, and a benchmark-level
+    shock correlates residuals across providers, which one-way provider
+    clustering cannot see. The Cameron-Gelbach-Miller variance is the sum of
+    the two one-way sandwiches minus the sandwich on their intersection. A
+    negative diagonal entry, possible in finite samples, is returned as NaN
+    rather than clipped, so it cannot masquerade as precision.
+    """
+    y = np.asarray(y, float)
+    X = np.asarray(X, float)
+    n, k = X.shape
+    beta, resid = _fit(y, X)
+    XtX_inv = np.linalg.pinv(X.T @ X)
+
+    a = np.asarray(cluster_a)
+    b = np.asarray(cluster_b)
+    ab = np.array([f"{x}||{z}" for x, z in zip(a, b)])
+    vcov = (_cluster_vcov(X, resid, a, XtX_inv)
+            + _cluster_vcov(X, resid, b, XtX_inv)
+            - _cluster_vcov(X, resid, ab, XtX_inv))
+    diagonal = np.diag(vcov).copy()
+    diagonal[diagonal < 0] = np.nan
+    return {
+        "beta": beta,
+        "se": np.sqrt(diagonal),
+        "n": n,
+        "n_clusters_a": int(len(np.unique(a))),
+        "n_clusters_b": int(len(np.unique(b))),
+    }
+
+
 def print_ols(fit, title):
     header = f"\n{title}  (n={fit['n']}"
     header += f", {fit['n_clusters']} clusters)" if fit["n_clusters"] else ")"

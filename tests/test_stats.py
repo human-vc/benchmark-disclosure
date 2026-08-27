@@ -144,3 +144,28 @@ def test_wild_bootstrap_reports_its_own_resolution_limit():
     assert rademacher["distinct_draws_available"] == 2 ** 5
     assert rademacher["p_floor"] == 1 / (min(99, 2 ** 4) + 1)
     assert result["p_value"] >= 1 / 100
+
+
+def test_two_way_se_widens_when_the_second_dimension_carries_shocks():
+    """A benchmark-level shock is invisible to provider clustering alone."""
+    from src.stats import ols, two_way_se
+    rng = np.random.default_rng(4)
+    n_prov, n_bench, reps = 12, 20, 4
+    rows = []
+    bench_shock = rng.normal(0, 2.0, n_bench)
+    for p in range(n_prov):
+        for b in range(n_bench):
+            for _ in range(reps):
+                x = rng.normal()
+                y = 0.5 * x + bench_shock[b] + rng.normal(0, 0.3)
+                rows.append((y, x, p, b))
+    y = np.array([r[0] for r in rows]); x = np.array([r[1] for r in rows])
+    prov = np.array([r[2] for r in rows]); bench = np.array([r[3] for r in rows])
+    X = np.column_stack([np.ones(len(x)), x])
+    one = ols(y, X, cluster=prov)
+    two = two_way_se(y, X, prov, bench)
+    assert np.allclose(one["beta"], two["beta"])
+    assert two["n_clusters_a"] == n_prov and two["n_clusters_b"] == n_bench
+    # the intercept absorbs the benchmark shocks' level, so its two-way se
+    # must be far wider than the provider-only se
+    assert two["se"][0] > 2 * one["se"][0]

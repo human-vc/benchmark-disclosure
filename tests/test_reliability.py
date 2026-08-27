@@ -94,3 +94,45 @@ class TestSecondExtraction:
                  fetch_status="blocked"),
         ])
         assert list(draw_releases(rows, share=1.0)["release_id"]) == ["ok1"]
+
+
+class TestDrawInvariants:
+    """Carried over from the release-level draw on origin/main, which this
+    branch replaced. The implementations differ -- that one hands the second
+    coder cells to re-categorise, this one hands a blank evidence sheet -- but
+    the invariants it pinned hold either way, and dropping its tests without
+    replacing them would lose the guard rather than the design."""
+
+    FRAME = pd.DataFrame([
+        dict(release_id=f"{org} | M{i} | 2025-01-0{i}", organization=org,
+             model_name=f"M{i}", release_date=f"2025-01-0{i}",
+             fetch_status=status, coder="kevin", n_cells=5, family_rank=1,
+             source_tier="1", source_url="u", extra_source_urls="",
+             source_date="2025-01-01", artifact_kind="model_card",
+             reported_slugs="mmlu=1", flagged_for_review="", notes="")
+        for org, i, status in [
+            ("OpenAI", 1, "ok"), ("OpenAI", 2, "ok"), ("OpenAI", 3, "ok"),
+            ("Anthropic", 4, "ok"), ("Anthropic", 5, "ok"),
+            ("Google DeepMind", 6, "ok"), ("Google DeepMind", 7, "blocked"),
+        ]
+    ])
+
+    def test_the_draw_is_whole_releases_never_fragments(self):
+        """Selecting cells would hand the second coder pieces of documents the
+        first coder read whole."""
+        from src.reliability import draw_releases
+
+        drawn = draw_releases(self.FRAME, share=0.5, exclude=set())
+        assert drawn["release_id"].is_unique
+        assert set(drawn["release_id"]) <= set(self.FRAME["release_id"])
+
+    def test_nothing_auto_filled_is_ever_drawn(self):
+        """Placebo rows are emitted at reported=0 by rule, never read. Double
+        coding one would compare a human against an autofill and report the
+        agreement as reliability. Here it is structural rather than filtered:
+        the frame is one row per release, and placebo cells do not live in it."""
+        from src.reliability import draw_releases
+
+        drawn = draw_releases(self.FRAME, share=1.0, exclude=set())
+        assert "auto" not in set(drawn["coder"])
+        assert (drawn["fetch_status"] == "ok").all()

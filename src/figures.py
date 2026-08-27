@@ -461,6 +461,7 @@ def table_one(numbers, path=None):
     panel = numbers["panel"]
     cells = panel["eligible"] + panel["placebo"]
     clusters = ladder["release FE"]["n_clusters"]
+    benchmarks = ladder["release FE"]["n_benchmarks"]
 
     lines = [
         r"\begin{table}[H]",
@@ -484,8 +485,10 @@ def table_one(numbers, path=None):
         r"Each row is the coefficient on a placebo indicator in a regression of "
         r"within-benchmark standing on that indicator, always within release, so "
         r"the release's own capability level is differenced out throughout. "
-        f"Provider-clustered standard errors in parentheses over {clusters} "
-        f"organisations; $n = {cells}$ cells "
+        f"Standard errors in parentheses cluster on provider and benchmark "
+        f"jointly, {clusters} by {benchmarks} clusters; provider-only errors "
+        r"are uniformly smaller and sit in Appendix~\ref{sec:supporting}. "
+        f"$n = {cells}$ cells "
         f"({panel['eligible']} eligible, {panel['placebo']} placebo). "
         r"Absorbed is the reduction in the absolute coefficient relative to the "
         r"first row. Peer count is a suppressor when entered alone, so the final "

@@ -1,0 +1,14 @@
+\begin{tikzpicture}
+  \begin{axis}[causalre body, xmin=0, xmax=1, xtick={0,0.5,1}, xlabel={share of window newer than the focal model}, ymin=35, ymax=65,
+    ylabel={within-release standing},
+    legend to name=leg:correction, legend columns=2]
+    \addplot[cSF, smooth, mark=*, mark size=1.4pt]
+      coordinates {(0.050,53.05) (0.150,55.63) (0.250,54.01) (0.350,53.06) (0.450,52.26) (0.550,48.46) (0.650,50.81) (0.750,45.60) (0.850,43.13)};
+    \addlegendentry{windowed percentile}
+    \addplot[cNYC, smooth, mark=square*, mark size=1.4pt]
+      coordinates {(0.050,47.81) (0.150,52.05) (0.250,49.32) (0.350,49.54) (0.450,50.57) (0.550,47.87) (0.650,51.82) (0.750,46.51) (0.850,44.84)};
+    \addlegendentry{side-balanced}
+  \end{axis}
+\end{tikzpicture}
+\\[2pt]
+{\footnotesize \ref{leg:correction}}

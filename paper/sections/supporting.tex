@@ -83,3 +83,20 @@ holding both kinds, at $p = 0.005$. Removing the window shrinks the gap by about
 leaves it, which puts a jointly estimated scale beside trimming at 12\% and side-balancing at 29\%
 rather than ahead of them. Shuffling scores within benchmark, which leaves every date and the rank
 deficiency untouched, drops the same quantity to 0.02 on average over thirty draws.
+
+\begin{figure}[H]\centering
+\input{figures/fig_correction}
+\caption{The side-balanced percentile against the windowed one, on eligible cells within release.
+The windowed measure slopes across the range while the side-balanced one is close to flat where
+cells are dense, cutting the gradient from $-29.09$ to $-8.02$ percentile points per unit share.}
+\label{fig:correction}
+\end{figure}
+
+\paragraph{Provider-only clustering, for comparison.}
+The manuscript's regressions cluster on provider and benchmark jointly. Provider-only errors are
+uniformly smaller: 1.238 against 2.002 on the release-effects row, a ratio of 1.62, and 1.618
+against 1.682 on the fully saturated row, a ratio of 1.04. The benchmark dimension carries real
+dependence on the raw contrast and almost none once benchmark effects and the window terms are in,
+which is what the decomposition says it should. The headline sign-flip test at $p = 0.0001$
+preserves provider dependence only; the two-way regression row above is the statement that the
+contamination survives both dimensions, at $t = -6.7$.

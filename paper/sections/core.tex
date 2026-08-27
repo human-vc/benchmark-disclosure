@@ -8,7 +8,7 @@ It is not zero. Across 146 releases with both kinds of cell, eligible benchmarks
 
 \subsection{Where the gap comes from}\label{sec:core-boundary}
 
-\autoref{tab:decomposition} locates the failure, regressing standing on a placebo indicator, equal to one when the benchmark postdates the release, always within release. With release effects alone the placebo coefficient is $-13.443$ (1.238). Adding benchmark fixed effects absorbs 63.8\% of it and leaves $-4.869$ (1.260). Benchmark composition therefore carries most of the gap, and structurally so: the panel is unbalanced, and placebo cells concentrate by construction in benchmarks that entered late. Those benchmarks are less saturated: splitting the 54 benchmarks carrying ten or more scores at their median publication date, 8.3\% of scores on the later half sit in the top decile of that benchmark's own range against 13.2\% on the earlier half ($p = 0.015$), so a late instrument leaves more room below the ceiling. Adding the peer-window asymmetry term, the share of a cell's comparison window released after the focal model, instead of benchmark effects absorbs 29.2\% and leaves $-9.515$ (1.254). Conditioning jointly on benchmark effects and both window terms absorbs 98.2\% and leaves $+0.246$ (1.618), an interval reaching $+3.4$, so the residual is bounded at roughly a quarter of the original gap rather than at zero.
+\autoref{tab:decomposition} locates the failure, regressing standing on a placebo indicator, equal to one when the benchmark postdates the release, always within release. With release effects alone the placebo coefficient is $-13.443$ (2.002). Adding benchmark fixed effects absorbs 63.8\% of it and leaves $-4.869$ (2.138). Benchmark composition therefore carries most of the gap, and structurally so: the panel is unbalanced, and placebo cells concentrate by construction in benchmarks that entered late. Those benchmarks are less saturated: splitting the 54 benchmarks carrying ten or more scores at their median publication date, 8.3\% of scores on the later half sit in the top decile of that benchmark's own range against 13.2\% on the earlier half ($p = 0.015$), so a late instrument leaves more room below the ceiling. Adding the peer-window asymmetry term, the share of a cell's comparison window released after the focal model, instead of benchmark effects absorbs 29.2\% and leaves $-9.515$ (1.871). Conditioning jointly on benchmark effects and both window terms absorbs 98.2\% and leaves $+0.246$ (1.682), an interval reaching $+3.5$, so the residual is bounded at under a third of the original gap rather than at zero.
 
 \input{figures/table1_decomposition}
 
@@ -16,31 +16,24 @@ The mechanism behind the second dimension is geometric. The comparison window is
 
 \begin{figure}[H]\centering
 \input{figures/fig_geometry}
-\caption{Why the window is one-sided at the boundary. A benchmark's model
-coverage begins when the benchmark is built. A release near that boundary is
-ranked against peers drawn almost entirely from models newer than itself, while
-a release in the interior is not. Peer counts are recomputed from the panel
-under the same 182 day rule.}
+\caption{Why the window is one-sided at the boundary. One benchmark, born at the green rule,
+and two releases (blue), each with a 182 day window (shaded). The upper release ships just
+after the benchmark, so the older half of its window covers a stretch in which nothing was
+scored; the lower ships in the interior and sees peers on both sides.}
 \label{fig:geometry}
 \end{figure}
 
-The share of a cell's window released after the focal model is 0.4374 for eligible cells and 0.6320 for placebo cells, against 0.5 for a two-sided window. Within release, the slope of standing on that share is $-29.09$ percentile points per unit among eligible cells alone. \autoref{fig:one-curve} plots standing against that share for both groups at once. Eligible and placebo cells do not form two clouds at different heights; they sit on a single declining curve and differ only in where along it they fall. A gap read as a difference between the groups is therefore a difference in position on one curve. On the variable that assigns them, benchmark maturity at release, they cannot overlap at all, so the contrast is an extrapolation across that boundary rather than a comparison within common support. That extrapolation can be checked where it is not one. Eligibility is a threshold on maturity, so the boundary is a sharp discontinuity, and standing at the threshold is identified under continuity even where the global contrast is not \citep{hahn2001identification}. Nothing happens there. Local linear estimates are negative across four bandwidths and two polynomial orders, every interval covers zero, and a window chosen on covariate balance puts the difference at $-2.52$ with a randomization $p$ of 0.447 \citep{cattaneo2015randomization}. The two groups' mean maturity differs by 793 days, and the gap lives in that distance rather than at the boundary. Appendix~\ref{sec:supporting} reports the grid and the balance tests.
+The share of a cell's window released after the focal model is 0.4374 for eligible cells and 0.6320 for placebo cells, against 0.5 for a two-sided window. Within release, the slope of standing on that share is $-29.09$ percentile points per unit among eligible cells alone. \autoref{fig:one-curve} plots standing against that share for both groups at once. Eligible and placebo cells do not form two clouds at different heights; they sit on a single declining curve and differ only in where along it they fall. A gap read as a difference between the groups is therefore a difference in position on one curve. On the variable that assigns them, benchmark maturity at release, they cannot overlap at all, so the contrast is an extrapolation across that boundary rather than a comparison within common support. The check is at the boundary, the one place Section \ref{sec:data-model} leaves identified under continuity \citep{hahn2001identification}. Nothing happens there. Local linear estimates are negative across four bandwidths and two polynomial orders, every interval covers zero, and a window chosen on covariate balance puts the difference at $-2.52$ with a randomization $p$ of 0.447 \citep{cattaneo2015randomization}. The two groups' mean maturity differs by 793 days, and the gap lives in that distance rather than at the boundary. Appendix~\ref{sec:supporting} reports the grid and the balance tests.
 
 Standing decomposes into a weighted average of position among older and newer peers, $\text{percentile} = (1 - s)\,P_{\text{old}} + s\,P_{\text{new}}$ with $s$ the newer share, exact cell by cell to $2.84\times10^{-14}$. Replacing the empirical weight with one half defines the side-balanced measure, available for 96.4\% of all cells and 96.5\% of eligible-or-placebo cells, and cuts the same slope to $-8.02$.
 
 \begin{figure}[H]\centering
 \input{figures/fig_one_curve}
-\caption{Standing against peer-window composition, and the effect of correcting it.
-Panel (b) repeats the eligible cells of panel (a) under two measures. The horizontal axis is the
-share of a cell's ranking window released after the focal model; a symmetric
-window sits at the dashed rule. Eligible and placebo cells lie on one curve, so
-the contrast between them is a position on that curve rather than a fact about
-disclosure. The two group means of that share are 0.437 and 0.632. Intervals are clustered on organisation. In panel (b) the windowed measure
-slopes across the range while the side-balanced one is close to flat over most
-of it, so the correction removes the gradient where cells are dense and leaves
-it where the window is nearly one-sided. The pooled curve runs one bin further right
-than either group series, and that final bin carries no group markers, so its
-drop is not part of the gradient. The panel scales differ.}
+\caption{Standing against peer-window composition. The horizontal axis is the share of a
+cell's ranking window released after the focal model; dashed verticals mark each group's
+mean share, either side of the symmetric window's 0.5. Eligible and placebo cells lie on
+one declining curve, so the contrast between them is a position on that curve rather than
+a fact about disclosure. Intervals are clustered on organisation.}
 \label{fig:one-curve}
 \end{figure}
 
@@ -56,4 +49,4 @@ The phenomenon has a name in nonparametric estimation: local averages are biased
 
 One reading of that number would be too generous to it. Window composition is a function of the same dates that define the placebo indicator, so conditioning on it does not adjust for a confounder sitting outside the comparison; it splits the gap into the channel carrying it. A study that holds disclosure labels and wants an estimate of $\theta$ must first argue that window composition is settled before a provider decides what to report, or it will condition away part of what it is measuring. Provider identity explains little of the variance in window composition, which is suggestive rather than settling; Appendix~\ref{sec:supporting} reports the decomposition and the coverage tilt it does not correct.
 
-The side-balanced percentile is the one change of measure that does substantial work, cutting the placebo mean to $+8.69$ and the eligible-cell gradient to $-8.02$. \autoref{fig:one-curve}(b) puts it against the uncorrected measure on the same cells, and it is close to flat over the range where cells are dense. Reweighting cannot reach what remains, since balancing repairs the weight placed on each side of a model but not which models an evaluator chose to score early, so evaluator attention stays a residual confound. It is undefined wherever a side is empty, so it accompanies the uncorrected measure rather than replacing it.
+The side-balanced percentile is the one change of measure that does substantial work, cutting the placebo mean to $+8.69$ and the eligible-cell gradient to $-8.02$. \autoref{fig:correction} in Appendix~\ref{sec:supporting} puts it against the uncorrected measure on the same cells, close to flat where cells are dense. Reweighting cannot reach what remains, since balancing repairs the weight placed on each side of a model but not which models an evaluator chose to score early, so evaluator attention stays a residual confound. It is undefined wherever a side is empty, so it accompanies the uncorrected measure rather than replacing it.
