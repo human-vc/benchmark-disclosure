@@ -135,6 +135,7 @@ def main():
         sheet = pd.read_csv(ARTIFACTS, dtype=str)
         worklist = pd.read_csv(WORKLIST, dtype=str)
         out = ROOT / (args.out or str(FULL_OUT))
+        out.parent.mkdir(parents=True, exist_ok=True)
         with open(out, "w") as handle:
             handle.write(packets(sheet, worklist,
                                  title="Reading packets — full panel"))
@@ -152,6 +153,7 @@ def main():
 
     text = packets(sheet, worklist)
     out = ROOT / (args.out or str(DEFAULT_OUT))
+    out.parent.mkdir(parents=True, exist_ok=True)
     with open(out, "w") as handle:
         handle.write(text)
     print(f"wrote {out}")
