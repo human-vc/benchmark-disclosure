@@ -39,6 +39,40 @@ import pandas as pd
 from .config import (ARTIFACTS, CODING_SHEET, INTERIM, RELIABILITY_SHEET, ROOT,
                      WORKLIST)
 
+# Releases whose coding outcome -- what the artifact reports, what it drops --
+# is stated in the private handoff note the second coder has read. Blinding is
+# already lost for these, so drawing them would measure recall rather than
+# reading.
+#
+# The line is what the note *states*, not what it mentions. Naming a release is
+# harmless; saying it ships the shortest table in the panel is not. Releases
+# named only as search history (the blocked Qwen and GPT-4o artifacts) or as
+# URL slugs (Grok 4) stay in the frame.
+#
+# Named here rather than quietly dropped, because a sample with an
+# undocumented exclusion is not a random one. Baichuan has exactly one
+# readable release, so this removes that provider from the reliability sample
+# altogether; that is a real loss of coverage and is reported as one.
+LEAKED = {
+    # the note gives the drop, the predecessor, or the reported set
+    "Anthropic | Claude Opus 4.5 | 2025-11-24",
+    "Anthropic | Claude Opus 4.8 | 2026-05-28",
+    "Google DeepMind | Gemini 3 Flash | 2025-12-17",
+    "Google DeepMind | Gemini 3.5 Flash | 2026-05-19",
+    "OpenAI | GPT-5 | 2025-08-07",
+    "OpenAI | GPT-5.2 | 2025-12-11",
+    "OpenAI | GPT-5.4 | 2026-03-05",
+    "OpenAI | GPT-5.5 | 2026-04-23",
+    # the note states the artifact reports nothing, or names what it excludes
+    "OpenAI | GPT-3.5 Turbo | 2023-11-06",
+    "OpenAI | GPT-4 Turbo (Apr 2024) | 2024-04-09",
+    "OpenAI | GPT-4 (Jun 2023) | 2023-06-13",
+    "xAI | Grok 4.20 | 2026-02-17",
+    # the note resolves the co-release rule for these two by name
+    "Baichuan | Baichuan2-13B | 2023-09-06",
+    "Mistral AI | Mixtral 8x7B | 2023-12-11",
+}
+
 HIGH_SUSPICION = {"D", "E", "G"}
 REPORTED = {"A", "B", "C"}
 SAMPLE_SHARE = 0.20
@@ -69,24 +103,51 @@ def cohens_kappa(a, b):
     return (observed - expected) / (1 - expected), observed
 
 
-def draw_releases(artifacts, share=SAMPLE_SHARE, seed=0):
+def provider(artifacts):
+    """The stratifying key: the provider, not Epoch's `Organization` string.
+
+    Epoch's field is not one provider per value. It carries "Google" and
+    "Google DeepMind" as separate organisations and "Google DeepMind,Google"
+    as a third, and "Z.ai (Zhipu AI),Tsinghua University" alongside plain
+    "Z.ai (Zhipu AI)". Grouping on it splits one provider across three strata,
+    which both inflates the draw and defeats the point of stratifying: the
+    guarantee that every provider's artifact style gets checked is met
+    trivially by a fragment of that provider rather than by the provider.
+
+    The release_id prefix is the same key the rest of the pipeline uses, and it
+    is one value per provider by construction. Grouping on it gives 14
+    providers where the raw field gives 17.
+    """
+    return artifacts["release_id"].str.split(" | ", regex=False).str[0]
+
+
+def draw_releases(artifacts, share=SAMPLE_SHARE, seed=0, exclude=LEAKED):
     """Releases for re-extraction, stratified by provider.
 
     Stratifying matters: providers differ in artifact style -- one ships a text
     table, the next a picture, the next a client-rendered chart -- so a simple
     random draw can leave a provider unchecked and hide a systematic misreading
     of one company's documents.
+
+    Every provider contributes at least one release, so the realised share
+    exceeds `share` whenever a provider has fewer than 1/share readable
+    releases -- and six of them have three or fewer. The floor is deliberate
+    and the overshoot is its price, so the protocol reports the realised share
+    rather than the nominal one.
     """
     coded = artifacts[artifacts["fetch_status"] == "ok"]
+    if exclude:
+        coded = coded[~coded["release_id"].isin(exclude)]
     if coded.empty:
         return coded
 
+    coded = coded.assign(provider=provider(coded))
     rng = np.random.default_rng(seed)
     picks = []
-    for _, group in coded.groupby("organization"):
+    for _, group in coded.groupby("provider", sort=True):
         k = max(1, int(round(len(group) * share)))
         picks.append(group.iloc[rng.choice(len(group), size=k, replace=False)])
-    return pd.concat(picks).sort_values(["organization", "release_date"])
+    return pd.concat(picks).sort_values(["provider", "release_date"])
 
 
 def blank_sheet(sample):
@@ -169,14 +230,28 @@ def main():
         sys.exit(1)
     artifacts = pd.read_csv(ARTIFACTS, dtype=str)
 
-    if not SECOND_EVIDENCE.exists():
+    redraw = "--redraw" in sys.argv
+    if redraw and SECOND_EVIDENCE.exists():
+        existing = pd.read_csv(SECOND_EVIDENCE, dtype=str)
+        if existing["reported_slugs"].notna().any():
+            print(f"{SECOND_EVIDENCE} has filled rows; refusing to redraw over "
+                  f"work already done. Move it aside first.")
+            sys.exit(1)
+
+    if redraw or not SECOND_EVIDENCE.exists():
         sample = draw_releases(artifacts)
         if sample.empty:
             print("nothing extracted yet, so there is nothing to double-code.")
             sys.exit(0)
         blank_sheet(sample).to_csv(SECOND_EVIDENCE, index=False)
-        share = len(sample) / (artifacts["fetch_status"] == "ok").sum()
-        print(f"drew {len(sample)} releases ({share:.0%}) for re-extraction")
+        readable = (artifacts["fetch_status"] == "ok").sum()
+        share = len(sample) / readable
+        print(f"drew {len(sample)} releases ({share:.0%} of {readable} readable) "
+              f"across {sample['provider'].nunique()} providers")
+        if LEAKED:
+            print(f"  {len(LEAKED)} release(s) held out as un-blindable:")
+            for release in sorted(LEAKED):
+                print(f"    {release}")
         print(f"wrote {SECOND_EVIDENCE}")
         print("\nIt carries the pinned source_url and extra_source_urls, so the")
         print("second coder reads the same documents; reported_slugs, notes and")
