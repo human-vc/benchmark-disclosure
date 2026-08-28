@@ -482,20 +482,12 @@ def table_one(numbers, path=None):
         r"\bottomrule",
         r"\end{tabular}",
         r"\caption{%",
-        r"Each row is the coefficient on a placebo indicator in a regression of "
-        r"within-benchmark standing, in percentile points, on that indicator, "
-        r"always within release, "
-        r"differencing out the release's capability level. "
-        f"Standard errors in parentheses cluster on provider and benchmark "
-        f"jointly, {clusters} by {benchmarks} clusters, the organisations and "
-        f"benchmarks among the comparable cells; provider-only errors "
-        r"are consistently smaller and sit in Appendix~\ref{sec:supporting}. "
-        f"$n = {cells}$ cells "
-        f"({panel['eligible']} eligible, {panel['placebo']} placebo). "
-        r"Absorbed is the reduction in the absolute coefficient relative to the "
-        r"first row. Peer count is a suppressor when entered alone, so the final "
-        r"row is joint conditioning on both window terms and must not be read as "
-        r"peer count explaining a remainder.}",
+                r"Placebo coefficient by conditioning set, in percentile points, always "
+        r"within release. Two-way provider-by-benchmark standard errors in "
+        f"parentheses ({clusters} by {benchmarks} clusters; provider-only in "
+        r"Appendix~\ref{sec:supporting}). $n = 2{,}831$ cells. Absorbed is the fall in the "
+        r"absolute coefficient from the first row; peer count alone is a "
+        r"suppressor, so the last row conditions on both window terms jointly.}",
         r"\label{tab:decomposition}",
         r"\end{table}",
         "",
@@ -585,19 +577,11 @@ def table_two(numbers, panel=None, path=None):
         r"\bottomrule",
         r"\end{tabular}",
         r"\caption{%",
-        r"The placebo null under each candidate measure, in percentile points: the "
-        r"release-level mean standing of eligible benchmarks minus that of "
-        r"postdating ones, computed with no disclosure labels of any kind. The "
-        r"windowed percentile is the measure under audit. Positive is the share of "
-        r"releases whose gap is above zero, Sign-flip $p$ is the provider-clustered "
-        r"randomization test of Section~\ref{sec:data-inference}, and Cells is the "
-        r"share of the comparable eligible-or-placebo cells on which the measure is "
-        r"defined. Sign-flip $p$ tests each row against zero only. Every entry should "
-        r"be zero and none is. Ranking against every model ever scored nearly "
-        r"doubles the contamination. " + trim_note +
-        r"Raw scores are not comparable across benchmarks, "
-        r"so they have no common unit in which to state the same contrast. The "
-        r"side-balanced measure is undefined for cells with an empty side.}",
+                r"The label-free placebo null under each candidate measure: release-level "
+        r"mean standing of eligible minus postdating benchmarks, in percentile "
+        r"points. Every entry should be zero. Sign-flip $p$ is the "
+        r"provider-clustered test of Section~\ref{sec:data-inference}, against "
+        r"zero; Cells is the share of comparable cells where the measure is defined.}",
         r"\label{tab:remedies}",
         r"\end{table}",
         "",
@@ -640,14 +624,12 @@ def table_three(numbers, path=None):
         r"\bottomrule",
         r"\end{tabular}",
         r"\caption{%",
-        "The coded omission deficit beside the label-free artifact, in percentile "
-        "points. Coded gap is the release-level mean standing of omitted-eligible "
-        f"minus postdating benchmarks over {w['n_releases']} releases and "
-        f"{w['n_providers']} providers ({specs['side_balanced_182']['n_releases']} "
-        "side-balanced), with provider-clustered bootstrap intervals; No labels is "
-        "the contrast between all eligible and all postdating cells, computed with "
-        "no disclosure coding on the same releases; Difference is Coded gap minus "
-        "No labels; four of five coded gaps exclude zero.}",
+                "The coded omission deficit beside the label-free artifact, in percentile "
+        f"points, over {w['n_releases']} releases and {w['n_providers']} providers "
+        f"({specs['side_balanced_182']['n_releases']} side-balanced). No labels is "
+        "the same contrast with no disclosure coding, on the same releases; "
+        "Difference is Coded gap minus No labels. Intervals are provider-clustered "
+        "bootstraps; four of five coded gaps exclude zero.}",
         r"\label{tab:coding}",
         r"\end{table}",
     ]
