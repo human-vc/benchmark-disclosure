@@ -70,7 +70,7 @@ def fig_one_curve(panel):
     mean_e = cells.loc[cells["eligible"], "share_newer"].mean()
     mean_p = cells.loc[cells["placebo"], "share_newer"].mean()
 
-    axis = ("causalre wide, height=3.4cm, xmin=0, xmax=1, xtick={0,0.5,1}, "
+    axis = ("causalre wide, height=3.9cm, xmin=0, xmax=1, xtick={0,0.5,1}, "
             "xlabel={share of window newer than the focal model}")
     return f"""\\begin{{tikzpicture}}
   \\begin{{axis}}[{axis}, ymin=20, ymax=80,
