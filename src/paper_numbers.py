@@ -233,6 +233,10 @@ def main(draws=300):
         "generated": date.today().isoformat(),
     }
 
+    from .config import CODING_SHEET
+    if CODING_SHEET.exists():
+        numbers["coding"] = coding_block()
+
     out = INTERIM.parent / "paper_numbers.json"
     out.write_text(json.dumps(numbers, indent=2, sort_keys=True) + "\n")
 
@@ -255,6 +259,142 @@ def main(draws=300):
               f"{helm['frozen_cells']['changed']} changed, "
               f"{helm['headline']['moved']}/{helm['headline']['models']} win rates moved, "
               f"{helm['headline']['reversals_endpoint']} pairs reordered")
+
+
+def coding_block(kappa_draws=2000):
+    """Every number Section 5 quotes, from the coded sheet and the pinned panel.
+
+    Deficits are computed beside the label-free contrast on the same measure
+    and window, because the section's claim is their difference, not either
+    level. Reliability follows the frozen plan: derived cells, pre-adjudication,
+    intervals from resampling releases rather than cells.
+    """
+    from .falsification import eligible_vs_placebo, permutation_test
+    from .percentiles import add_percentiles
+    from .reliability import (ARTIFACTS, SECOND_EVIDENCE, cohens_kappa,
+                              derive_from, HIGH_SUSPICION, REPORTED)
+    from .selectivity import (drop_estimator, gap_by_release, load_coding,
+                              merge_coding, omission_deficit, release_sets)
+    from .stats import bootstrap_mean, randomization_test_mean
+
+    raw = pd.read_csv(INTERIM / "panel.csv", parse_dates=["Release date"])
+    coding = load_coding()
+
+    def contrast_pair(window, value):
+        scored = add_percentiles(raw.copy(), window_days=window)
+        merged = merge_coding(scored, coding)
+        merged["percentile"] = merged[value]
+        deficit = omission_deficit(release_sets(merged))
+        mean, (lo, hi) = bootstrap_mean(deficit["gap"].values,
+                                        cluster=deficit["organization"].values)
+        test = randomization_test_mean(deficit["gap"].values,
+                                       cluster=deficit["organization"].values)
+        dated = scored.copy()
+        dated["group"] = np.where(dated["eligible"], "eligible",
+                                  np.where(dated["placebo"], "placebo", "unknown"))
+        null = eligible_vs_placebo(dated, value)["gap"].mean()
+        return {"deficit": round(mean, 2), "low": round(lo, 2), "high": round(hi, 2),
+                "n_releases": int(len(deficit)),
+                "n_providers": int(deficit["organization"].nunique()),
+                "sign_flip_p": round(test["p_value"], 4), "null": round(null, 2)}
+
+    specs = {
+        "windowed_182": contrast_pair(182, "percentile"),
+        "side_balanced_182": contrast_pair(182, "pct_balanced"),
+        "alltime": contrast_pair(182, "percentile_alltime"),
+        "windowed_90": contrast_pair(90, "percentile"),
+        "windowed_365": contrast_pair(365, "percentile"),
+    }
+
+    scored = add_percentiles(raw.copy())
+    merged = merge_coding(scored, coding)
+    eligible = merged[merged["group"] == "eligible"]
+    theta_release = eligible.groupby(RELEASE_COL).agg(
+        rate=("reported", lambda s: 1 - s.mean()),
+        organization=("Organization", "first"))
+    theta_mean, (theta_lo, theta_hi) = bootstrap_mean(
+        theta_release["rate"].values, cluster=theta_release["organization"].values)
+
+    gaps = gap_by_release(release_sets(merged), against="omitted")
+    gap_mean, (gap_lo, gap_hi) = bootstrap_mean(
+        gaps["gap"].values, cluster=gaps["organization"].values)
+
+    observed, null_draws, perm_p = permutation_test(merged)
+    drops = drop_estimator(eligible)
+    drop_test = randomization_test_mean(drops["drop_gap"].values,
+                                        cluster=drops["organization"].values)
+
+    artifacts = pd.read_csv(ARTIFACTS, dtype=str)
+    sheet = pd.read_csv(SECOND_EVIDENCE, dtype=str)
+    sheet = sheet[sheet["reported_slugs"].notna()]
+    done = set(sheet["release_id"])
+    first = artifacts[artifacts["release_id"].isin(done)
+                      & (artifacts["fetch_status"] == "ok")]
+    paired = derive_from(first).merge(derive_from(sheet),
+                                      on=["release_id", "benchmark_slug"],
+                                      suffixes=("_1", "_2"))
+    a, b = paired["orbit_category_1"], paired["orbit_category_2"]
+
+    def three_kappas(frame):
+        aa, bb = frame["orbit_category_1"], frame["orbit_category_2"]
+        rep, _ = cohens_kappa(aa.isin(REPORTED).map({True: "r", False: "n"}),
+                              bb.isin(REPORTED).map({True: "r", False: "n"}))
+        full, _ = cohens_kappa(aa, bb)
+        high, _ = cohens_kappa(aa.isin(HIGH_SUSPICION).map({True: "h", False: "l"}),
+                               bb.isin(HIGH_SUSPICION).map({True: "h", False: "l"}))
+        return rep, full, high
+
+    releases = paired["release_id"].unique()
+    groups = {r: g for r, g in paired.groupby("release_id")}
+    rng = np.random.default_rng(0)
+    draws = []
+    for _ in range(kappa_draws):
+        pick = rng.choice(releases, size=len(releases), replace=True)
+        try:
+            draws.append(three_kappas(pd.concat([groups[r] for r in pick])))
+        except Exception:
+            continue
+    draws = np.array(draws)
+    point = three_kappas(paired)
+    names = ("reported", "full", "high_low")
+    reliability = {}
+    for i, name in enumerate(names):
+        lo, hi = np.nanpercentile(draws[:, i], [2.5, 97.5])
+        reliability[name] = {"kappa": round(point[i], 3),
+                             "low": round(lo, 3), "high": round(hi, 3)}
+    reliability["paired_cells"] = int(len(paired))
+    reliability["paired_releases"] = int(paired["release_id"].nunique())
+    reliability["disagreements"] = int((a != b).sum())
+
+    counts = coding[coding["orbit_category"].notna()
+                    & (coding["orbit_category"] != "")
+                    & (coding.get("coder") != "auto")]
+    return {
+        "coverage": {
+            "coded_cells": int(len(counts)),
+            "categories": counts["orbit_category"].value_counts().to_dict(),
+            "eligible_in_panel": int(len(eligible)),
+            "excluded_off_worklist": int(len(counts)) + int((coding.get("coder") == "auto").sum()) - int(len(merged)),
+        },
+        "theta": {"cells": round(1 - eligible["reported"].mean(), 4),
+                  "release_mean": round(theta_mean, 4),
+                  "low": round(theta_lo, 4), "high": round(theta_hi, 4),
+                  "n_providers": int(theta_release["organization"].nunique())},
+        "disclosed_minus_omitted": {"mean": round(gap_mean, 2),
+                                    "low": round(gap_lo, 2), "high": round(gap_hi, 2),
+                                    "n_releases": int(len(gaps))},
+        "deficit_by_spec": specs,
+        "permutation": {"observed": round(float(observed), 2),
+                        "null_sd": round(float(np.nanstd(null_draws)), 2),
+                        "p": round(perm_p, 4)},
+        "drop": {"n_releases": int(len(drops)),
+                 "n_drops": int(drops["n_dropped"].sum()),
+                 "mean": round(drop_test["mean"], 2),
+                 "sign_flip_p": round(drop_test["p_value"], 3),
+                 "p_floor": round(drop_test["p_floor"], 3),
+                 "n_providers": drop_test["n_clusters"]},
+        "reliability": reliability,
+    }
 
 
 if __name__ == "__main__":

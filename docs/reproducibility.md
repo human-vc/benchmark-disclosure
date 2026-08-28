@@ -34,9 +34,13 @@ The bundle regenerates byte-identically from the sections; figures and tables
 are generated, never hand-edited. `pytest` runs the full suite, including a
 test pinning the sensitivity sweep's baseline cell to the headline estimator.
 
-## Disclosure coding (in progress, no cells coded)
+## Disclosure coding
 
 `docs/analysis-plan.md` is the frozen plan, committed before any label
-existed. `data/coding_queue.csv` orders the 108 artifacts; `derive_coding`,
-`validate_coding`, `selectivity`, `falsification` and `reliability` activate
-once `data/disclosures.csv` carries categories.
+existed. `data/artifacts.csv` holds the first coder's evidence record for all
+108 locatable release documents and `data/disclosures.csv` the 1,280 derived
+cells; `data/artifacts_second_coder.csv` holds the independent second coding
+of 20 drawn releases. `python -m src.selectivity` and `python -m
+src.falsification` reproduce the coded results, `python -m src.reliability`
+the kappas, and the `coding` block of `data/paper_numbers.json` carries every
+number Section 5 quotes, including Table 3.

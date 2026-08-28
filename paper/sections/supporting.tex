@@ -4,7 +4,7 @@
 Section~\ref{sec:core-recentring} conditions on window composition and notes that doing so is
 defensible only if composition is settled before a provider decides what to report. Regressing the
 share of a cell's window released after the focal model on provider dummies gives an $R^2$ of
-0.060 across 46 organisations, against 0.024 for benchmark dummies over 62 benchmarks and 0.036
+0.071 across 45 organisations, against 0.002 for benchmark dummies over 61 benchmarks and 0.104
 for the release date alone. Window composition is close to idiosyncratic at the cell level, which
 is consistent with its being set by the evaluator's scoring schedule rather than by the provider,
 and is not enough to establish it.
@@ -62,8 +62,8 @@ Cell counts in the 30 days either side of the cutoff stand at 80 against 84, a r
 running variable is not bunching against the threshold \citep{mccrary2008manipulation}.
 
 The mechanism is discontinuous where standing is not. The share of a cell's window released after
-the focal model jumps $+0.077$ at the cutoff, which at the eligible-cell gradient of $-29.09$ implies
-about $-2.2$ percentile points, inside every interval above. Peer count and raw score are continuous.
+the focal model jumps $+0.083$ at the cutoff, which at the eligible-cell gradient of $-30.63$ implies
+about $-2.5$ percentile points, inside every interval above. Peer count and raw score are continuous.
 The global gap therefore lives in the 793 days that separate the two groups' mean maturity rather
 than in anything happening at the boundary itself.
 
@@ -88,14 +88,26 @@ deficiency untouched, drops the same quantity to 0.02 on average over thirty dra
 \input{figures/fig_correction}
 \caption{The side-balanced percentile against the windowed one, on eligible cells within release.
 The windowed measure slopes across the range while the side-balanced one is close to flat where
-cells are dense, cutting the gradient from $-29.09$ to $-8.02$ percentile points per unit share.}
+cells are dense, cutting the gradient from $-30.63$ to $-8.56$ percentile points per unit share.}
 \label{fig:correction}
 \end{figure}
 
+
+\begin{figure}[H]\centering
+\input{figures/fig_geometry}
+\caption{Why the window is one-sided at the boundary. One benchmark, born at the green rule,
+and two releases (blue) with 182 day windows (shaded): the upper ships just after the
+benchmark, so the older half of its window covers a stretch in which nothing was scored.}
+\label{fig:geometry}
+\end{figure}
+
+\paragraph{Drop-design ceiling and calibration.}
+The panel contains 144 adjacent same-family release pairs covering 711 shared eligible benchmarks and 15 organisations. Requiring both releases in a pair to carry at least eight scored benchmarks leaves 37 pairs, 482 shared benchmarks and 8 organisations, the effective cluster count, in the regime where Section~\ref{sec:data-inference} reports no analytic standard error. Under the null of no selective withholding, the sampling standard deviation of a drop gap, over 400 draws for each of 117 qualifying releases, is 19.4 percentile points when one benchmark is dropped, 14.4 when two are and 12.4 when three are, so at conventional two-sided size a single-drop event must move the gap by roughly 38 points before it separates from noise, three times the contamination itself, and no single drop can be read alone.
+
 \paragraph{Provider-only clustering, for comparison.}
 The manuscript's regressions cluster on provider and benchmark jointly. Provider-only errors are
-uniformly smaller: 1.238 against 2.002 on the release-effects row, a ratio of 1.62, and 1.618
-against 1.682 on the fully saturated row, a ratio of 1.04. The benchmark dimension carries real
+uniformly smaller: 1.271 against 2.038 on the release-effects row, a ratio of 1.60, and 1.652
+against 1.748 on the fully saturated row, a ratio of 1.06. The benchmark dimension carries real
 dependence on the raw contrast and almost none once benchmark effects and the window terms are in,
 which is what the decomposition says it should. The headline sign-flip test at $p = 0.0001$
 preserves provider dependence only; the two-way regression row above is the statement that the

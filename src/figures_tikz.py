@@ -70,7 +70,7 @@ def fig_one_curve(panel):
     mean_e = cells.loc[cells["eligible"], "share_newer"].mean()
     mean_p = cells.loc[cells["placebo"], "share_newer"].mean()
 
-    axis = ("causalre wide, height=4.6cm, xmin=0, xmax=1, xtick={0,0.5,1}, "
+    axis = ("causalre wide, height=4.2cm, xmin=0, xmax=1, xtick={0,0.5,1}, "
             "xlabel={share of window newer than the focal model}")
     return f"""\\begin{{tikzpicture}}
   \\begin{{axis}}[{axis}, ymin=20, ymax=80,
@@ -195,7 +195,7 @@ def fig_helm():
     lo = min(first[m] for m in movers) - 1
     hi = max(first[m] for m in movers) + 1
     return f"""\\begin{{tikzpicture}}
-  \\begin{{axis}}[causalre wide, height=4.6cm, y dir=reverse,
+  \\begin{{axis}}[causalre wide, height=4.1cm, y dir=reverse,
     xmin=0, xmax=1, ymin={lo - 0.2}, ymax={hi + 0.2},
     xtick={{0.45,0.75}}, xticklabels={{{v0},{v1}}}, xlabel={{release}},
     ytick={{4,8,12,16}}, ylabel={{rank among the {total} constant models}}]

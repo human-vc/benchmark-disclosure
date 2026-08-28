@@ -483,8 +483,8 @@ def table_one(numbers, path=None):
         r"\end{tabular}",
         r"\caption{%",
         r"Each row is the coefficient on a placebo indicator in a regression of "
-        r"within-benchmark standing on that indicator, always within release, so "
-        r"the release's own capability level is differenced out throughout. "
+        r"within-benchmark standing on that indicator, always within release, "
+        r"differencing out the release's capability level. "
         f"Standard errors in parentheses cluster on provider and benchmark "
         f"jointly, {clusters} by {benchmarks} clusters; provider-only errors "
         r"are uniformly smaller and sit in Appendix~\ref{sec:supporting}. "
@@ -567,9 +567,7 @@ def table_two(numbers, panel=None, path=None):
         removed = 1 - rows[2][1]["mean"] / base
         trim_note = (f"Trimming to two-sided windows removes only "
                      f"{removed * 100:.0f}\\% of the contamination while discarding "
-                     f"{100 - float(rows[2][2]):.0f}\\% of the cells. Shortening the window "
-                     r"reduces the gap in proportion to the asymmetry it removes, "
-                     r"to $+8.59$ at 91 days, and never to zero. ")
+                     f"{100 - float(rows[2][2]):.0f}\\% of the cells. ")
     lines += [
         r"\bottomrule",
         r"\end{tabular}",
@@ -583,15 +581,59 @@ def table_two(numbers, panel=None, path=None):
         r"contamination. " + trim_note +
         r"Raw scores are not comparable across benchmarks, "
         r"so they have no common unit in which to state the same contrast. The "
-        r"side-balanced measure is a partial repair: it cuts the eligible-only "
-        f"gradient on peer-window asymmetry from ${slopes['slope_windowed']:+.2f}$ "
-        f"to ${slopes['slope_balanced']:+.2f}$ percentile points per unit share, "
-        r"and it is undefined for cells with an empty side.}",
+        r"side-balanced measure is undefined for cells with an empty side.}",
         r"\label{tab:remedies}",
         r"\end{table}",
         "",
     ]
     path.write_text("\n".join(lines))
+    return path
+
+
+def table_three(numbers, path=None):
+    """The coded deficit beside the artifact that predicts it."""
+    path = path or FIGDIR / "table3_coding.tex"
+    if "coding" not in numbers:
+        return path
+    specs = numbers["coding"]["deficit_by_spec"]
+    rows = [
+        ("Windowed percentile, $\\pm$182d", "windowed_182"),
+        ("Side-balanced percentile, $\\pm$182d", "side_balanced_182"),
+        ("Rank against all models ever", "alltime"),
+        ("Windowed percentile, $\\pm$90d", "windowed_90"),
+        ("Windowed percentile, $\\pm$365d", "windowed_365"),
+    ]
+    lines = [
+        r"\begin{table}[H]",
+        r"\centering",
+        r"\small",
+        r"\setlength{\tabcolsep}{5pt}",
+        r"\begin{tabular}{lrrrr}",
+        r"\toprule",
+        r"Standing measure & Coded gap & 95\% CI & No labels & Difference \\",
+        r"\midrule",
+    ]
+    for label, key in rows:
+        s = specs[key]
+        lines.append(
+            f"{label} & ${s['deficit']:+.2f}$ & $[{s['low']:+.1f}, {s['high']:+.1f}]$"
+            f" & ${s['null']:+.2f}$ & ${s['deficit'] - s['null']:+.2f}$ \\\\"
+        )
+    w = specs["windowed_182"]
+    lines += [
+        r"\bottomrule",
+        r"\end{tabular}",
+        r"\caption{%",
+        "The coded omission deficit beside the label-free artifact. Coded gap is the release-level "
+        "mean standing of omitted-eligible minus postdating benchmarks over "
+        f"{w['n_releases']} releases and {w['n_providers']} providers "
+        f"({specs['side_balanced_182']['n_releases']} side-balanced), provider-clustered bootstrap "
+        "intervals; No labels is the same contrast with no disclosure coding. Four of five coded "
+        "gaps exclude zero; every one sits within 1.3 points of its label-free counterpart.}",
+        r"\label{tab:coding}",
+        r"\end{table}",
+    ]
+    path.write_text("\n".join(lines) + "\n")
     return path
 
 
@@ -601,6 +643,7 @@ def write_tables(numbers=None, panel=None, out_dir=FIGDIR):
     return [
         table_one(numbers, path=out_dir / "table1_decomposition.tex"),
         table_two(numbers, panel=panel, path=out_dir / "table2_remedies.tex"),
+        table_three(numbers, path=out_dir / "table3_coding.tex"),
     ]
 
 
