@@ -464,7 +464,7 @@ def table_one(numbers, path=None):
     benchmarks = ladder["release FE"]["n_benchmarks"]
 
     lines = [
-        r"\begin{table}[H]",
+        r"\begin{table}[!htb]",
         r"\centering",
         r"\small",
         r"\begin{tabular}{lrrr}",
@@ -547,7 +547,7 @@ def table_two(numbers, panel=None, path=None):
                      numbers["placebo_null"]["side_balanced"], coverage))
 
     lines = [
-        r"\begin{table}[H]",
+        r"\begin{table}[!htb]",
         r"\centering",
         r"\small",
         r"\setlength{\tabcolsep}{4pt}",
@@ -604,7 +604,7 @@ def table_three(numbers, path=None):
         ("Windowed percentile, $\\pm$365d", "windowed_365"),
     ]
     lines = [
-        r"\begin{table}[H]",
+        r"\begin{table}[!htb]",
         r"\centering",
         r"\small",
         r"\setlength{\tabcolsep}{5pt}",
