@@ -292,11 +292,14 @@ def coding_block(kappa_draws=2000):
         dated = scored.copy()
         dated["group"] = np.where(dated["eligible"], "eligible",
                                   np.where(dated["placebo"], "placebo", "unknown"))
-        null = eligible_vs_placebo(dated, value)["gap"].mean()
+        nulls = eligible_vs_placebo(dated, value)
+        matched = nulls[nulls[RELEASE_COL].isin(set(deficit[RELEASE_COL]))]
         return {"deficit": round(mean, 2), "low": round(lo, 2), "high": round(hi, 2),
                 "n_releases": int(len(deficit)),
                 "n_providers": int(deficit["organization"].nunique()),
-                "sign_flip_p": round(test["p_value"], 4), "null": round(null, 2)}
+                "sign_flip_p": round(test["p_value"], 4),
+                "null": round(matched["gap"].mean(), 2),
+                "null_full_panel": round(nulls["gap"].mean(), 2)}
 
     specs = {
         "windowed_182": contrast_pair(182, "percentile"),
@@ -320,6 +323,25 @@ def coding_block(kappa_draws=2000):
         gaps["gap"].values, cluster=gaps["organization"].values)
 
     observed, null_draws, perm_p = permutation_test(merged)
+
+    elig_cells = merged[merged["group"] == "eligible"].dropna(subset=["percentile"])
+    def fe_beta(df, benchmark_fe, extra=()):
+        y = df["percentile"].to_numpy(float)
+        cols = [np.ones(len(df)), df["reported"].to_numpy(float)]
+        for c in extra:
+            cols.append(df[c].to_numpy(float))
+        cols.append(pd.get_dummies(df[RELEASE_COL], drop_first=True).to_numpy(float))
+        if benchmark_fe:
+            cols.append(pd.get_dummies(df["slug"], drop_first=True).to_numpy(float))
+        beta = np.linalg.lstsq(np.column_stack(cols), y, rcond=None)[0]
+        return round(float(beta[1]), 2)
+    with_share = elig_cells.dropna(subset=["share_newer"])
+    composition_fe = {
+        "release_fe": fe_beta(elig_cells, False),
+        "release_and_benchmark_fe": fe_beta(elig_cells, True),
+        "release_fe_share": fe_beta(with_share, False, ("share_newer",)),
+        "both_fe_share": fe_beta(with_share, True, ("share_newer",)),
+    }
     drops = drop_estimator(eligible)
     drop_test = randomization_test_mean(drops["drop_gap"].values,
                                         cluster=drops["organization"].values)
@@ -386,7 +408,9 @@ def coding_block(kappa_draws=2000):
         "deficit_by_spec": specs,
         "permutation": {"observed": round(float(observed), 2),
                         "null_sd": round(float(np.nanstd(null_draws)), 2),
-                        "p": round(perm_p, 4)},
+                        "draws": int(len(null_draws)),
+                        "p": round(perm_p, 5)},
+        "composition_fe": composition_fe,
         "drop": {"n_releases": int(len(drops)),
                  "n_drops": int(drops["n_dropped"].sum()),
                  "mean": round(drop_test["mean"], 2),

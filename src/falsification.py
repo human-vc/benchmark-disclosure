@@ -56,7 +56,7 @@ def eligible_vs_placebo(panel, value="percentile", min_each=1):
     return out
 
 
-def permutation_test(merged, draws=2000, seed=0):
+def permutation_test(merged, draws=9999, seed=0):
     """Relabel which benchmarks were disclosed, at random within release."""
     eligible = merged[merged["group"] == "eligible"].copy()
     codes, releases = pd.factorize(eligible[RELEASE_COL])
@@ -91,7 +91,8 @@ def permutation_test(merged, draws=2000, seed=0):
         restored[order] = shuffled
         null[i] = mean_gap(restored)
 
-    p = float((np.abs(null) >= abs(observed)).mean())
+    k = int((np.abs(null) >= abs(observed)).sum())
+    p = (k + 1) / (draws + 1)
     return observed, null, p
 
 

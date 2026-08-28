@@ -2,17 +2,17 @@
 \centering
 \small
 \setlength{\tabcolsep}{4pt}
-\begin{tabular}{lrrrrr}
+\begin{tabular}{lrrrrrr}
 \toprule
-Standing measure & Mean & Median & Positive & Releases & Cells \\
+Standing measure & Mean & Median & Positive & Sign-flip $p$ & Releases & Cells \\
 \midrule
-Windowed percentile (under audit) & $+12.23$ & $+10.69$ & 78.1\% & 146 & 100.0\% \\
-Rank against all models ever & $+22.75$ & $+22.66$ & 89.0\% & 146 & 100.0\% \\
-Trim to two-sided windows & $+9.96$ & $+10.69$ & 72.2\% & 115 & 70.4\% \\
-Side-balanced percentile & $+9.14$ & $+9.62$ & 70.9\% & 141 & 92.8\% \\
+Windowed percentile, $\pm$182d & $+12.23$ & $+10.69$ & 78.1\% & 0.0001 & 146 & 100.0\% \\
+Rank against all models ever & $+22.75$ & $+22.66$ & 89.0\% & 0.0001 & 146 & 100.0\% \\
+Trim to two-sided windows & $+9.96$ & $+10.69$ & 72.2\% & 0.0001 & 115 & 70.4\% \\
+Side-balanced percentile & $+9.14$ & $+9.62$ & 70.9\% & 0.0001 & 141 & 92.8\% \\
 \bottomrule
 \end{tabular}
 \caption{%
-The placebo null under each candidate measure: the release-level mean standing of eligible benchmarks minus that of postdating ones, computed with no disclosure labels of any kind. Positive is the share of releases whose gap is above zero and Cells is the share of panel cells on which the measure is defined. Every entry should be zero and none is. Ranking against every model ever scored nearly doubles the contamination. Trimming to two-sided windows removes only 19\% of the contamination while discarding 30\% of the cells. Raw scores are not comparable across benchmarks, so they have no common unit in which to state the same contrast. The side-balanced measure is undefined for cells with an empty side.}
+The placebo null under each candidate measure, in percentile points: the release-level mean standing of eligible benchmarks minus that of postdating ones, computed with no disclosure labels of any kind. The windowed percentile is the measure under audit. Positive is the share of releases whose gap is above zero, Sign-flip $p$ is the provider-clustered randomization test of Section~\ref{sec:data-inference}, and Cells is the share of panel cells on which the measure is defined. Every entry should be zero and none is. Ranking against every model ever scored nearly doubles the contamination. Trimming to two-sided windows removes only 19\% of the contamination while discarding 30\% of the cells. Raw scores are not comparable across benchmarks, so they have no common unit in which to state the same contrast. The side-balanced measure is undefined for cells with an empty side.}
 \label{tab:remedies}
 \end{table}

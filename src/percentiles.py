@@ -157,7 +157,8 @@ def add_percentiles(panel, window_days=WINDOW_DAYS):
         within_benchmark_percentile(panel, window_days), window_days
     )
     panel["percentile_alltime"] = (
-        panel.groupby("slug")["score"].rank(pct=True) * 100
+        panel.groupby("slug")["score"].rank(method="average", pct=True) * 100
+        - 50.0 / panel.groupby("slug")["score"].transform("size")
     )
     return panel
 

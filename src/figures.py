@@ -447,9 +447,9 @@ def figure_four(panel, numbers, path=None):
 
 LADDER = [
     ("release FE", r"Release fixed effects only"),
-    ("+ benchmark FE", r"\quad + benchmark fixed effects (two-way absorbed)"),
-    ("+ peer-window asymmetry", r"\quad + peer-window asymmetry"),
-    ("+ peer count", r"\quad + peer count"),
+    ("+ benchmark FE", r"Release FE + benchmark fixed effects"),
+    ("+ peer-window asymmetry", r"Release FE + peer-window asymmetry"),
+    ("+ peer count", r"Release FE + peer count"),
     ("two-way FE + both", r"Two-way fixed effects + both window terms"),
 ]
 
@@ -483,10 +483,12 @@ def table_one(numbers, path=None):
         r"\end{tabular}",
         r"\caption{%",
         r"Each row is the coefficient on a placebo indicator in a regression of "
-        r"within-benchmark standing on that indicator, always within release, "
+        r"within-benchmark standing, in percentile points, on that indicator, "
+        r"always within release, "
         r"differencing out the release's capability level. "
         f"Standard errors in parentheses cluster on provider and benchmark "
-        f"jointly, {clusters} by {benchmarks} clusters; provider-only errors "
+        f"jointly, {clusters} by {benchmarks} clusters, the organisations and "
+        f"benchmarks among the comparable cells; provider-only errors "
         r"are consistently smaller and sit in Appendix~\ref{sec:supporting}. "
         f"$n = {cells}$ cells "
         f"({panel['eligible']} eligible, {panel['placebo']} placebo). "
@@ -514,6 +516,7 @@ def _midrank_alltime(panel):
 
 
 def _release_contrast(panel, column):
+    from .stats import randomization_test_mean
     cells = panel[panel["eligible"] | panel["placebo"]].dropna(subset=[column])
     wide = (
         cells.assign(side=np.where(cells["eligible"], "eligible", "placebo"))
@@ -521,16 +524,21 @@ def _release_contrast(panel, column):
         .dropna()
     )
     gap = wide["eligible"] - wide["placebo"]
+    orgs = cells.groupby(RELEASE_COL)["Organization"].first().reindex(gap.index)
+    test = randomization_test_mean(gap.to_numpy(float), cluster=orgs.to_numpy())
     return {"mean": float(gap.mean()), "median": float(gap.median()),
-            "share_positive": float((gap > 0).mean()), "n_releases": int(len(gap))}
+            "share_positive": float((gap > 0).mean()), "n_releases": int(len(gap)),
+            "p": float(test["p_value"])}
 
 
 def table_two(numbers, panel=None, path=None):
     """The remedy table, including the remedies that fail."""
     path = path or FIGDIR / "table2_remedies.tex"
+    coverage = f"{100 * numbers['balanced_coverage']['defined_share_eligible_or_placebo']:.1f}"
     rows = [
-        (r"Windowed percentile (under audit)",
-         numbers["placebo_null"]["windowed_percentile"], "100.0"),
+        (r"Windowed percentile, $\pm$182d",
+         _release_contrast(panel, "percentile") if panel is not None
+         else numbers["placebo_null"]["windowed_percentile"], "100.0"),
     ]
     if panel is not None:
         alltime = panel.assign(alltime=_midrank_alltime(panel))
@@ -540,24 +548,27 @@ def table_two(numbers, panel=None, path=None):
         trimmed = _release_contrast(panel[kept], "percentile")
         rows.append((r"Trim to two-sided windows",
                      trimmed, f"{100 * kept.mean():.1f}"))
-    rows.append((r"Side-balanced percentile",
-                 numbers["placebo_null"]["side_balanced"],
-                 f"{100 * numbers['balanced_coverage']['defined_share_eligible_or_placebo']:.1f}"))
+        rows.append((r"Side-balanced percentile",
+                     _release_contrast(panel, "pct_balanced"), coverage))
+    else:
+        rows.append((r"Side-balanced percentile",
+                     numbers["placebo_null"]["side_balanced"], coverage))
 
     lines = [
         r"\begin{table}[H]",
         r"\centering",
         r"\small",
         r"\setlength{\tabcolsep}{4pt}",
-        r"\begin{tabular}{lrrrrr}",
+        r"\begin{tabular}{lrrrrrr}",
         r"\toprule",
-        r"Standing measure & Mean & Median & Positive & Releases & Cells \\",
+        r"Standing measure & Mean & Median & Positive & Sign-flip $p$ & Releases & Cells \\",
         r"\midrule",
     ]
     for label, stat, kept in rows:
+        pcol = f"{stat['p']:.4f}" if "p" in stat else "--"
         lines.append(
             f"{label} & ${stat['mean']:+.2f}$ & ${stat['median']:+.2f}$ & "
-            f"{stat['share_positive'] * 100:.1f}\\% & {stat['n_releases']} & "
+            f"{stat['share_positive'] * 100:.1f}\\% & {pcol} & {stat['n_releases']} & "
             f"{kept}\\% \\\\"
         )
     slopes = numbers["asymmetry"]
@@ -572,13 +583,15 @@ def table_two(numbers, panel=None, path=None):
         r"\bottomrule",
         r"\end{tabular}",
         r"\caption{%",
-        r"The placebo null under each candidate measure: the release-level mean "
-        r"standing of eligible benchmarks minus that of postdating ones, computed "
-        r"with no disclosure labels of any kind. Positive is the share of releases "
-        r"whose gap is above zero and Cells is the share of panel cells on which "
-        r"the measure is defined. Every entry should be zero and "
-        r"none is. Ranking against every model ever scored nearly doubles the "
-        r"contamination. " + trim_note +
+        r"The placebo null under each candidate measure, in percentile points: the "
+        r"release-level mean standing of eligible benchmarks minus that of "
+        r"postdating ones, computed with no disclosure labels of any kind. The "
+        r"windowed percentile is the measure under audit. Positive is the share of "
+        r"releases whose gap is above zero, Sign-flip $p$ is the provider-clustered "
+        r"randomization test of Section~\ref{sec:data-inference}, and Cells is the "
+        r"share of panel cells on which the measure is defined. Every entry should "
+        r"be zero and none is. Ranking against every model ever scored nearly "
+        r"doubles the contamination. " + trim_note +
         r"Raw scores are not comparable across benchmarks, "
         r"so they have no common unit in which to state the same contrast. The "
         r"side-balanced measure is undefined for cells with an empty side.}",
@@ -624,12 +637,14 @@ def table_three(numbers, path=None):
         r"\bottomrule",
         r"\end{tabular}",
         r"\caption{%",
-        "The coded omission deficit beside the label-free artifact. Coded gap is the release-level "
-        "mean standing of omitted-eligible minus postdating benchmarks over "
-        f"{w['n_releases']} releases and {w['n_providers']} providers "
-        f"({specs['side_balanced_182']['n_releases']} side-balanced), provider-clustered bootstrap "
-        "intervals; No labels is the same contrast with no disclosure coding. Four of five coded "
-        "gaps exclude zero; every one sits within 1.3 points of its label-free counterpart.}",
+        "The coded omission deficit beside the label-free artifact, in percentile "
+        "points. Coded gap is the release-level mean standing of omitted-eligible "
+        f"minus postdating benchmarks over {w['n_releases']} releases and "
+        f"{w['n_providers']} providers ({specs['side_balanced_182']['n_releases']} "
+        "side-balanced), with provider-clustered bootstrap intervals; No labels is "
+        "the contrast between all eligible and all postdating cells, computed with "
+        "no disclosure coding on the same releases; Difference is Coded gap minus "
+        "No labels; four of five coded gaps exclude zero.}",
         r"\label{tab:coding}",
         r"\end{table}",
     ]

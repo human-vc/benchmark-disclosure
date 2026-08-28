@@ -70,7 +70,7 @@ def fig_one_curve(panel):
     mean_e = cells.loc[cells["eligible"], "share_newer"].mean()
     mean_p = cells.loc[cells["placebo"], "share_newer"].mean()
 
-    axis = ("causalre wide, height=4.2cm, xmin=0, xmax=1, xtick={0,0.5,1}, "
+    axis = ("causalre wide, height=3.9cm, xmin=0, xmax=1, xtick={0,0.5,1}, "
             "xlabel={share of window newer than the focal model}")
     return f"""\\begin{{tikzpicture}}
   \\begin{{axis}}[{axis}, ymin=20, ymax=80,
@@ -113,7 +113,7 @@ def fig_correction(panel):
             "xlabel={share of window newer than the focal model}")
     return f"""\\begin{{tikzpicture}}
   \\begin{{axis}}[{axis}, ymin=35, ymax=65,
-    ylabel={{within-release standing}},
+    ylabel={{release-demeaned standing}},
     legend to name=leg:correction, legend columns=2]
     \\addplot[cSF, smooth, mark=*, mark size=1.4pt]
       coordinates {{{_coords(series[0])}}};
@@ -244,7 +244,8 @@ def fig_geometry():
 {lane(focal_a, top, "older peers")}
 {lane(focal_b, bottom, "older peers")}
     \\draw[cGRN, line width=1.4pt] (0,{bottom - half - 0.22}) -- (0,{top + half + 0.34});
-    \\draw[black, line width=0.4pt, -stealth] ({span_lo},{bottom - half - 0.22}) -- ({span_hi},{bottom - half - 0.22});
+    \\draw[black, line width=0.4pt, -stealth] ({span_lo},{bottom - half - 0.22}) -- ({span_hi},{bottom - half - 0.22})
+      node[below left, font=\\scriptsize, black] {{calendar time}};
 \\end{{tikzpicture}}"""
 
 

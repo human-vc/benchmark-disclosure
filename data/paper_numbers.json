@@ -1,6 +1,6 @@
 {
   "_provenance": {
-    "generated": "2026-08-27",
+    "generated": "2026-08-28",
     "index_rows": 819,
     "snapshot": "snapshot: 2026-08-17 (819 model-versions)",
     "snapshot_status": "match"
@@ -16,6 +16,12 @@
     "defined_share_eligible_or_placebo": 0.9279
   },
   "coding": {
+    "composition_fe": {
+      "both_fe_share": 7.44,
+      "release_and_benchmark_fe": 9.33,
+      "release_fe": 7.35,
+      "release_fe_share": 5.7
+    },
     "coverage": {
       "categories": {
         "A": 222,
@@ -32,12 +38,13 @@
     },
     "deficit_by_spec": {
       "alltime": {
-        "deficit": 21.66,
-        "high": 27.61,
-        "low": 17.18,
+        "deficit": 22.33,
+        "high": 28.08,
+        "low": 18.0,
         "n_providers": 13,
         "n_releases": 71,
-        "null": 21.99,
+        "null": 24.5,
+        "null_full_panel": 22.75,
         "sign_flip_p": 0.0006
       },
       "side_balanced_182": {
@@ -46,7 +53,8 @@
         "low": -0.36,
         "n_providers": 13,
         "n_releases": 70,
-        "null": 9.14,
+        "null": 9.82,
+        "null_full_panel": 9.14,
         "sign_flip_p": 0.1207
       },
       "windowed_182": {
@@ -55,7 +63,8 @@
         "low": 5.56,
         "n_providers": 13,
         "n_releases": 71,
-        "null": 12.23,
+        "null": 14.13,
+        "null_full_panel": 12.23,
         "sign_flip_p": 0.0027
       },
       "windowed_365": {
@@ -64,7 +73,8 @@
         "low": 13.91,
         "n_providers": 13,
         "n_releases": 71,
-        "null": 18.45,
+        "null": 20.53,
+        "null_full_panel": 18.45,
         "sign_flip_p": 0.0006
       },
       "windowed_90": {
@@ -73,7 +83,8 @@
         "low": 1.31,
         "n_providers": 13,
         "n_releases": 71,
-        "null": 8.52,
+        "null": 10.36,
+        "null_full_panel": 8.52,
         "sign_flip_p": 0.0503
       }
     },
@@ -92,9 +103,10 @@
       "sign_flip_p": 0.25
     },
     "permutation": {
-      "null_sd": 1.89,
+      "draws": 9999,
+      "null_sd": 1.94,
       "observed": 8.67,
-      "p": 0.0
+      "p": 0.0001
     },
     "reliability": {
       "disagreements": 14,
