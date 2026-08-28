@@ -104,9 +104,26 @@ benchmark, so the older half of its window covers a stretch in which nothing was
 \paragraph{Drop-design ceiling and calibration.}
 The panel contains 144 adjacent same-family release pairs covering 711 shared eligible benchmarks and 15 organisations. Requiring both releases in a pair to carry at least eight scored benchmarks leaves 37 pairs, 482 shared benchmarks and 8 organisations, the effective cluster count, in the regime where Section~\ref{sec:data-inference} reports no analytic standard error. Under the null of no selective withholding, the sampling standard deviation of a drop gap, over 400 draws for each of 117 qualifying releases, is 19.4 percentile points when one benchmark is dropped, 14.4 when two are and 12.4 when three are, so at conventional two-sided size a single-drop event must move the gap by roughly 38 points before it separates from noise, three times the contamination itself, and no single drop can be read alone.
 
+\paragraph{Reliability detail.}
+The second coding covers 20 of the 100 readable releases, drawn stratified by provider.
+194 derived cells pair across 15 of them: one drawn release is a genuine zero-disclosure
+document whose blank evidence rows the pairing drops, a conservative exclusion since all
+eleven of its cells are trivial agreements, and four drawn releases sit outside the pinned
+worklist. The reported-versus-not cross-tab is one-directional, 47 jointly reported and 143
+jointly not: no cell the first coder called reported was coded otherwise by the second, and
+the four reversals all sit on one release whose second-coding note records retaining four
+contested scores despite the first coder's disagreement, an exposure that breaks blindness
+for that release. Excluding it, reported-versus-not agreement is exact and the
+full-category kappa is 0.88 on 182 cells. Of the fourteen disagreements overall, seven are
+the variant boundary between C and A, one a bare mention against a value, two the derived
+split between G and H on a single release, and four the exposed release above.
+High-suspicion marginals match exactly at 5.7\% for each coder, which is why the split
+kappa holds at 0.81 despite the category's rarity; its wide interval reflects eleven such
+cells concentrating in a few releases.
+
 \paragraph{Provider-only clustering, for comparison.}
 The manuscript's regressions cluster on provider and benchmark jointly. Provider-only errors are
-uniformly smaller: 1.271 against 2.038 on the release-effects row, a ratio of 1.60, and 1.652
+consistently smaller: 1.271 against 2.038 on the release-effects row, a ratio of 1.60, and 1.652
 against 1.748 on the fully saturated row, a ratio of 1.06. The benchmark dimension carries real
 dependence on the raw contrast and almost none once benchmark effects and the window terms are in,
 which is what the decomposition says it should. The headline sign-flip test at $p = 0.0001$

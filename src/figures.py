@@ -487,7 +487,7 @@ def table_one(numbers, path=None):
         r"differencing out the release's capability level. "
         f"Standard errors in parentheses cluster on provider and benchmark "
         f"jointly, {clusters} by {benchmarks} clusters; provider-only errors "
-        r"are uniformly smaller and sit in Appendix~\ref{sec:supporting}. "
+        r"are consistently smaller and sit in Appendix~\ref{sec:supporting}. "
         f"$n = {cells}$ cells "
         f"({panel['eligible']} eligible, {panel['placebo']} placebo). "
         r"Absorbed is the reduction in the absolute coefficient relative to the "
