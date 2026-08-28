@@ -578,7 +578,9 @@ def table_two(numbers, panel=None, path=None):
         removed = 1 - rows[2][1]["mean"] / base
         trim_note = (f"Trimming to two-sided windows removes only "
                      f"{removed * 100:.0f}\\% of the contamination while discarding "
-                     f"{100 - float(rows[2][2]):.0f}\\% of the cells. ")
+                     f"{100 - float(rows[2][2]):.0f}\\% of the cells; the trimmed row "
+                     r"is the uncorrected gap on its retained cells, so its "
+                     r"reduction is composition, not correction. ")
     lines += [
         r"\bottomrule",
         r"\end{tabular}",
@@ -589,7 +591,8 @@ def table_two(numbers, panel=None, path=None):
         r"windowed percentile is the measure under audit. Positive is the share of "
         r"releases whose gap is above zero, Sign-flip $p$ is the provider-clustered "
         r"randomization test of Section~\ref{sec:data-inference}, and Cells is the "
-        r"share of panel cells on which the measure is defined. Every entry should "
+        r"share of the comparable eligible-or-placebo cells on which the measure is "
+        r"defined. Sign-flip $p$ tests each row against zero only. Every entry should "
         r"be zero and none is. Ranking against every model ever scored nearly "
         r"doubles the contamination. " + trim_note +
         r"Raw scores are not comparable across benchmarks, "
