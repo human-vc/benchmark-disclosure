@@ -236,6 +236,7 @@ def main(draws=300):
     from .config import CODING_SHEET
     if CODING_SHEET.exists():
         numbers["coding"] = coding_block()
+        numbers["possession"] = possession_block()
 
     out = INTERIM.parent / "paper_numbers.json"
     out.write_text(json.dumps(numbers, indent=2, sort_keys=True) + "\n")
@@ -418,6 +419,35 @@ def coding_block(kappa_draws=2000):
                  "p_floor": round(drop_test["p_floor"], 3),
                  "n_providers": drop_test["n_clusters"]},
         "reliability": reliability,
+    }
+
+
+def possession_block():
+    """Every number the possession analyses quote.
+
+    Category D against the known-run denominator, the omission deficit one
+    evidence tier at a time, the change-based drop test in both metrics, and
+    the equal-table swap cases. The change-based sample is wider than the
+    drop estimator's because it conditions only on a scored predecessor
+    report, not on the estimator's within-release retention floor.
+    """
+    from .families import load_families
+    from .percentiles import add_percentiles
+    from .possession import (change_gap, direct_evidence, swap_cases,
+                             tier_deficits, transition_frame)
+    from .selectivity import load_coding, merge_coding
+
+    raw = pd.read_csv(INTERIM / "panel.csv", parse_dates=["Release date"])
+    coding = load_coding()
+    merged = merge_coding(add_percentiles(raw), coding)
+    families = load_families()
+    frame = transition_frame(merged, families)
+    return {
+        "direct": direct_evidence(coding),
+        "tiers": tier_deficits(merged),
+        "change_percentile": change_gap(frame, "d_percentile"),
+        "change_score": change_gap(frame, "d_score"),
+        "swaps": swap_cases(merged, families),
     }
 
 

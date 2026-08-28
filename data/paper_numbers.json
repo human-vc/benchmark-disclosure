@@ -378,6 +378,43 @@
       "share_positive": 0.7808
     }
   },
+  "possession": {
+    "change_percentile": {
+      "gap": -3.66,
+      "n_cells": 119,
+      "n_dropped": 33,
+      "n_retained": 86,
+      "n_transitions": 42,
+      "p": 0.159
+    },
+    "change_score": {
+      "gap": -0.72,
+      "n_cells": 108,
+      "n_dropped": 29,
+      "n_retained": 79,
+      "n_transitions": 42,
+      "p": 0.7074
+    },
+    "direct": {
+      "d_cells": 0,
+      "known_run_cells": 295
+    },
+    "swaps": [],
+    "tiers": {
+      "E": {
+        "gap": 18.91,
+        "n_releases": 21
+      },
+      "G": {
+        "gap": 11.32,
+        "n_releases": 51
+      },
+      "H": {
+        "gap": 11.29,
+        "n_releases": 69
+      }
+    }
+  },
   "self_inclusion_max_abs_gap": 31.25,
   "sensitivity": {
     "leave_one_out_max": 13.197,

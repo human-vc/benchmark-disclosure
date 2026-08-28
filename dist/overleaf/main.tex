@@ -1,0 +1,661 @@
+\documentclass{article}
+
+\usepackage[dblblindworkshop]{neurips_2026}
+\workshoptitle{Economics for Machine Learning}
+
+\usepackage{microtype}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepgfplotslibrary{fillbetween}
+\usetikzlibrary{shapes,arrows,positioning,calc,backgrounds,fit,patterns,decorations.pathreplacing}
+
+\definecolor{cNYC}{HTML}{0072B2}
+\definecolor{cSF}{HTML}{D55E00}
+\definecolor{cMUTE}{HTML}{BBBBBB}
+\definecolor{cGRN}{HTML}{009E73}
+\definecolor{cPNK}{HTML}{CC79A7}
+\definecolor{cSKY}{HTML}{56B4E9}
+\definecolor{cYEL}{HTML}{E69F00}
+
+\pgfplotsset{
+  causalre/.style={
+    axis lines*=left,
+    tick align=outside, tick pos=left,
+    title style={font=\small},
+    label style={font=\small},
+    tick label style={font=\scriptsize},
+    legend style={font=\scriptsize, draw=none, fill=none, row sep=1pt},
+    every axis plot/.append style={thick},
+  },
+  causalre body/.style={ causalre, width=0.42\textwidth, height=3.9cm },
+  causalre wide/.style={ causalre, width=0.70\textwidth, height=0.38\textwidth },
+}
+
+\hypersetup{colorlinks=true, linkcolor=black, citecolor=black, urlcolor=blue}
+\captionsetup{font=small, labelfont=bf}
+
+\renewcommand{\topfraction}{0.92}
+\renewcommand{\bottomfraction}{0.85}
+\renewcommand{\textfraction}{0.06}
+\renewcommand{\floatpagefraction}{0.75}
+\setlength{\textfloatsep}{12pt plus 2pt minus 2pt}
+\setlength{\intextsep}{10pt plus 2pt minus 2pt}
+
+\raggedbottom
+
+\title{\bf Absence Is Not Omission:\\
+Availability, Vintage, and the Measurement of\\
+Selective Benchmark Disclosure}
+
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+% ---- begin sections/abstract ----
+\begin{abstract}
+Model providers choose which benchmark results appear in a release document, while an
+independent evaluator scores the same models on many more. Whether the left-out results
+stand below the printed ones seems answerable with a bound on what could have been
+reported, and benchmark publication dates supply one: an instrument published after a
+model shipped was not publicly available to it. The comparison this sets up fails as a
+check on itself. Benchmarks that postdate a release already trail those that predate it
+by 12.23 percentile points before any disclosure label enters, because the date deciding
+whether a benchmark could have been reported also fixes where a model sits inside that
+benchmark's comparison pool, an age-period-cohort collinearity that reweighting softens
+but cannot remove. The same failure appears on a leaderboard we did not build: across
+fourteen HELM Lite releases, a fixed set of models keeps identical published scores while
+every win rate moves, and a companion leaderboard with a pool-invariant headline shows
+none of it. Hand-coding every locatable release document, checked by an independent
+second coding, makes the danger concrete: the coded omission gap is $+11.4$ points,
+significant against zero, yet it lands where the label-free gap and the share of reported
+benchmarks predict. What survives is composition rather than identified
+concealment: within release, reported benchmarks stand above the omitted eligible ones.
+\end{abstract}
+% ---- end sections/abstract ----
+% ---- begin sections/intro ----
+\section{Introduction}\label{sec:intro}
+
+When a frontier model ships, its provider publishes a model card carrying benchmark results, and independent evaluators run standardised suites over the same models \citep{liang2022helm,epoch2026hub}. This paper asks whether benchmark availability can identify whether the results a provider leaves out stand below the ones it prints, the older economic question. Disclosure unravels only when the sender's evidence is commonly known \citep{grossman1981,milgrom1981}. \citet{dye1985} shows what breaks that: a receiver who cannot tell a sender holding nothing from one holding something bad pools the two, and withholding survives. Any study of what was left out inherits that pooling, since the object it needs is the endowment, the results a sender held when it wrote, which the work below does not observe.
+
+Benchmark documentation is one of the few settings where that endowment can be bounded from outside: absent prepublication sharing, a benchmark published after a model shipped cannot have been in its endowment, whatever a provider ran privately, so dating the instruments separates absence that could have been a disclosure from absence that could not.
+
+Our first contribution is a panel built around that bound. From a pinned snapshot of an independent benchmarking hub covering 819 model-versions, we collapse scaffold variants to the release a provider ships, giving 353 releases across 46 organisations, 74 benchmarks and 3,082 scored pairs. Every benchmark carries a verified release date, splitting the panel into 2,355 eligible pairs and 476 that could not have been disclosed.
+
+Our second contribution is that bounding the endowment is not enough, since judging withholding needs a measure of how results stood against peers. The eventual comparison is reported versus omitted benchmarks among those available, and it needs the two sides of availability balanced in standing. They are not. Benchmarks that already existed when a model shipped outscore benchmarks built afterwards by 12.23 percentile points on average, positive in 78.1\% of the 146 releases holding both kinds of cell, and nothing in that calculation knows which benchmarks a provider reported. The most favourable measure of standing we can construct still leaves 9.14 points. The contamination is structural, because the date identifying the endowment also shifts the measure of standing used to price silence \citep{heckman1979}. Read as economics: instrument vintages are a free verification technology for the endowment that \citet{dye1985} shows a receiver cannot otherwise see; the verifying variable is not excludable from the receiver's valuation of silence, so what it verifies it contaminates.
+
+Our third contribution takes the question outside our own panel. Across 14 releases
+of HELM Lite, the pool grows from 30 models to 91 while 24 models keep bit-identical scores, and every one of their published headline values moves, five pairs reversing order. A companion leaderboard from the same team, behind an absolute headline, shows none of this.
+
+Our fourth contribution codes the record. Hand-coding the 100 releases with a locatable release-time document, blind-replicated on a fifth at $\kappa = 0.95$ on reported versus not, yields the estimator such a study would use: omitted benchmarks stand $+11.4$ points above those a provider could not have reported, excluding zero yet short of its matched counterpart by only what composition implies: it cannot separate concealment from the availability gap. What survives is composition: reported benchmarks stand 8.7 points above omitted eligible ones within release ($p = 0.0001$), a gap benchmark fixed effects do not remove.
+
+\subsection{Related literature}\label{sec:related}
+
+That reporting in model documentation is uneven, incomplete, and shaped by the sender is established \citep{staufer2025auditcards,kuehnert2026disclosure}, and two papers approach the omissions themselves. \citet{zhang2026positional} examines four flagship releases and finds a benchmark family absent from every main result table; \citet{ghosh2026evalcards} builds the reporting format in which such an absence would become visible. Both work without benchmark dates, so neither can tell a benchmark that was passed over from one the release predates. \citet{bean2025measuring} reviews 445 benchmarks for construct validity, a complement: it asks whether the instruments measure what they claim; we take them as given and ask which results a provider prints.
+
+On leaderboards the evidence is closer. \citet{singh2025leaderboard} documents selection inside a live arena, providers testing private variants and keeping the best, and \citet{xu2025capabilities} moved HELM's own headline off a win rate that depends on the models compared. Both show rankings moving for reasons other than the evidence; what neither separates, and we make separable at the cell level, is an omission from a result that could not have existed. None of these papers conditions on availability, the single thing we add: without a verified benchmark date, an omission and a nonexistence are the same observation.
+
+The economics supplies the frame and the warning. Silence unravels when the sender's endowment is commonly known \citep{grossman1981,milgrom1981}, and survives when the receiver cannot tell an empty endowment from a concealed one \citep{dye1985,jung1988} or when disclosure is costly \citep{verrecchia1983}, frictions this design does not separate. The warning holds empirically: unravelling fails in the field \citep{dranove2010,jin2003,hotz2013,bederson2018} and in the laboratory \citep{jinluca2021}. What none of this work observes is the endowment itself, the object our bound is built to recover. Concurrent theory models strategic evaluation and persuasion directly \citep{truong2026strategic,dai2026persuasion}; that work is theory, ours measurement.
+% ---- end sections/intro ----
+% ---- begin sections/data ----
+\section{Data and Setting}\label{sec:data}
+
+\subsection{The disclosure problem}\label{sec:data-model}
+
+A release $i$ ships at date $t_i$ carrying a single document. Let $\mathcal{B}$ index benchmarks, each with its own publication date $\tau_b$, let $E_i \subseteq \mathcal{B}$ be the endowment, the benchmarks whose result the provider holds when it writes, and let $D_i \subseteq E_i$ be the disclosed set, which reports a score $s_{ib}$ for each $b \in D_i$. The receiver observes $D_i$ and its scores and must split the complement into results held back and results never held.
+
+Under a commonly known endowment, silence is priced at the worst value it could conceal and disclosure unravels to $D_i = E_i$ \citep{grossman1981,milgrom1981}. Two distinct frictions break that. In \citet{verrecchia1983} the endowment is known and disclosure is costly, so withholding is a cutoff in $s_{ib}$. In Section 3 of \citet{dye1985} disclosure is free but the receiver cannot tell an empty endowment from a concealed one, because a sender can prove possession and cannot prove emptiness.
+
+Here an independent evaluator publishes $s_{ib}$ for cells the provider passed over, and each $\tau_b$ makes infeasibility verifiable. Writing $A_i = \{b : \tau_b < t_i\}$ for the available set and $O_i$ for the cells the evaluator scores,
+\[
+D_i \subseteq E_i \subseteq A_i, \qquad \theta = \Pr\!\left(b \notin D_i \;\middle|\; b \in O_i \cap A_i\right).
+\]
+A provider may hold results the evaluator never produced and a benchmark can exist and go unrun, so $\theta$ is defined against the evaluator's coverage rather than the true endowment, and the Dye friction survives inside $A_i$.
+
+Judging what was withheld then requires a measure of standing $P_{ib}$, since raw scores are not comparable across benchmarks. The design rests on an exclusion restriction: conditional on the innocent explanations, membership in $A_i$ does not enter the equation for $P_{ib}$ \citep{heckman1979}. A date rule cannot satisfy it: $t_i - \tau_b$, $t_i$ and $\tau_b$ are exactly collinear, so if any two of the three move $P_{ib}$ the third cannot be excluded from it. All three move it here, which Section~\ref{sec:core} shows and Appendix~\ref{sec:supporting} bounds. Two things follow, and they are not the same. The first is practical: estimating $\theta$ needs disclosure labels, which the coded record of Section~\ref{sec:reach} supplies. The second is structural: reading $\theta$ as evidence of withholding runs into $A_i$ itself: availability is a deterministic threshold in benchmark maturity, $\mathbf{1}[t_i - \tau_b > 0]$, so no cell of the same maturity sits on both sides of the boundary, and wherever standing depends on maturity, conditioning on maturity finely enough to make availability excludable destroys positivity. So availability alone cannot globally identify selective disclosure from any pool-relative standing measure, win rate or percentile alike, and a jointly estimated scale inherits the same selection through which cells exist. What survives, under continuity, is the discontinuity at the threshold.
+
+\subsection{The independent score set}\label{sec:data-scores}
+
+The evidence base is a pinned snapshot of Epoch's benchmarking hub taken on 17 August 2026, covering 819 model-versions. The unit of disclosure is a release, keyed on organisation, model name, and release date. Epoch's version field splits a release across scaffolds such as reasoning-effort and context-length variants, but a provider ships one document per release, so scaffold rows are collapsed to their release, keeping the best score across variants, with the spread kept as a diagnostic. The resulting panel holds 353 releases, 74 benchmarks and 3,082 release-benchmark pairs for which an independent score exists. Providers are the unit of dependence throughout.
+
+\subsection{Eligibility and benchmark dates}\label{sec:data-gate}
+
+A provider cannot omit a benchmark that did not yet exist. Every benchmark therefore carries its own release date, the earliest verifiable public release, taken from Epoch where it publishes one and hand-collected from the benchmark's primary source otherwise, resolving preprint, repository and versioned dates to the earliest public appearance, and a pair is eligible only when the benchmark strictly predates the release and its date is verified. The bound is an assumption about access: an instrument shared before publication defeats it, violations understate rather than manufacture the gap by moving available cells into the postdating group, and the coded record carries no trace of them, no document reporting a benchmark before its public release date. Eligibility yields 2,355 of the 3,082 pairs. Pairs whose benchmark postdates the release form a separate set of 476, the cells that could not have been disclosed. Pairs with no verified date are dropped rather than imputed, and error in the dates themselves attenuates the boundary estimate of Section~\ref{sec:core}. The release-level contrast imposes no minimum benchmark count, since requiring one would discard exactly the releases whose only cells are a single eligible and a single postdating one. Of the 146 releases carrying both kinds, 57 hold fewer than eight scored benchmarks. A second and simpler obstacle, that the number of benchmarks a release could have reported is itself set by when it shipped, is treated in Appendix~\ref{sec:opportunity}.
+
+Our disclosure-coding protocol uses ORBIT, the Outcome Reporting Bias In Trials instrument from clinical trials, where a protocol-specified outcome vanishing from the published report has a long measurement literature \citep{chan2004,kirkham2010,dwan2013}. Present cells are graded by whether the document gives a number, names the benchmark without one, or substitutes a variant; absent cells by whether a same-family predecessor reported it, contemporaries did, or no comparable provider did either. Of a queue of 108 releases, the 103 with eligible cells in the pinned panel plus five from a later vintage, the 100 with a locatable release-time document are coded under it, 1,280 cells in all; no result before Section~\ref{sec:reach} rests on a disclosure label, and that section reports what the labels return.
+
+\subsection{Measuring standing}\label{sec:data-standing}
+
+Raw scores are not comparable across benchmarks, so standing is measured as a within-benchmark percentile computed against contemporaneous models, meaning those whose release dates fall within 182 days on either side of the focal release, with midranks for ties. The peer count and the share of the window released after the focal model are retained alongside the percentile. This is the measure a windowed comparison naturally suggests, and the one the paper goes on to show is biased in a way that mimics selective disclosure.
+
+\subsection{Inference}\label{sec:data-inference}
+Inference is constrained by the same structure. The panel has 46 nominal provider clusters, but 24 contribute fewer than ten cells, 20 appear in a single release, and the five largest hold 68.1\% of the sample. Cluster-robust asymptotics are not credible below twelve clusters, and we report no analytic standard error there \citep{cameron2008}. Regression coefficients in that range use the restricted wild cluster bootstrap over 9{,}999 draws, which imposes the null before resampling Rademacher weights at the provider level. Release-level means use a cluster sign-flip randomization test over 9{,}999 draws, reversing an organisation's entire contribution at once; it preserves provider dependence but not benchmark dependence, which the two-way clustered regressions carry, and their intervals are percentile bootstraps over 10,000 provider resamples. Both report $(k+1)/(\text{draws}+1)$, with $k$ the draws at least as extreme as the observed statistic. Mirrored sign vectors leave $2^{G-1}$ distinct statistics over $G$ clusters, so a resolution of $0.0001$ needs fifteen clusters, and the 18 organisations behind the headline estimate clear it; in the regression range below twelve clusters the bootstrap switches to a six-point weight distribution whose finer support restores the resolution \citep{mackinnon2016wildly,mackinnon2018few}.
+% ---- end sections/data ----
+% ---- begin sections/core ----
+\section{The Availability Gap}\label{sec:core}
+
+\subsection{The placebo comparison}\label{sec:core-placebo}
+
+Separating results held back from results never held calls for a control group whose endowment is known to be empty \citep{dye1985}. The dates appear to supply one: a benchmark not yet published when the model shipped could not, absent prepublication access, have been reported, while an eligible one could have been. Whether it was reported is what a disclosure label would say, and none enters here. Whatever makes an eligible benchmark look bad for innocent reasons, difficulty drift, saturation, or a shift in what the field measures, presses on both sets alike, so under those explanations the difference should be zero. One innocent channel is asymmetric by construction: a benchmark published before a model shipped can sit in its training corpus and a later one cannot, so contamination raises eligible standing only, and no reweighting of the comparison can excise it.
+
+It is not zero. Across 146 releases with both kinds of cell, eligible benchmarks outscore postdating ones by 12.23 percentile points on average, with a median of 10.69, and the gap is positive in 78.1\% of releases. Nothing in that calculation knows which benchmarks were reported. A measure that balances the two sides of the window, described below, cuts the figure to 9.14 points, positive in 70.9\% of 141 releases, without removing it. A cluster sign-flip randomization test over the 18 organisations holding both kinds of cell puts that mean at $p = 0.0001$, the smallest value the draws can return. Cells that could not have been reported already stand lower than cells that could, so the group is not a control.
+
+\subsection{Decomposing the gap}\label{sec:core-boundary}
+
+\autoref{tab:decomposition} locates the failure, regressing standing on a placebo indicator, equal to one when the benchmark postdates the release, always within release. With release effects alone, the placebo coefficient is $-13.529$ (2.038). Adding benchmark fixed effects absorbs 63.4\% of it and leaves $-4.949$ (2.183). Benchmark composition therefore carries most of the gap, and structurally so: the panel is unbalanced, and placebo cells concentrate by construction in benchmarks that entered late. Those benchmarks are less saturated: split at median publication date, 8.3\% of scores on the later half of the 54 benchmarks with ten or more scores sit in the top decile of the benchmark's own range against 13.2\% on the earlier half ($p = 0.015$), so a late instrument leaves more room below the ceiling. Adding the peer-window asymmetry term, the share of a cell's comparison window released after the focal model, instead of benchmark effects absorbs 39.8\% and leaves $-8.151$ (1.865). Conditioning jointly on benchmark effects and both window terms absorbs all but 0.003 points and leaves $-0.003$ (1.748), an interval reaching $+3.4$, so the residual is bounded at under a third of the original gap rather than at zero.
+
+% ---- begin figures/table1_decomposition ----
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lrrr}
+\toprule
+Conditioning set & Placebo coefficient & $t$ & Absorbed \\
+\midrule
+Release fixed effects only & $-13.529$ (2.038) & $-6.637$ & 0.0\% \\
+Release FE + benchmark fixed effects & $-4.949$ (2.183) & $-2.267$ & 63.4\% \\
+Release FE + peer-window asymmetry & $-8.151$ (1.865) & $-4.370$ & 39.8\% \\
+Release FE + peer count & $-2.107$ (1.882) & $-1.120$ & 84.4\% \\
+Two-way fixed effects + both window terms & $-0.003$ (1.748) & $-0.002$ & 100.0\% \\
+\bottomrule
+\end{tabular}
+\caption{%
+Placebo coefficient by conditioning set, in percentile points, always within release. Two-way provider-by-benchmark standard errors in parentheses (45 by 61 clusters; provider-only in Appendix~\ref{sec:supporting}). $n = 2{,}831$ cells. Absorbed is the fall in the absolute coefficient from the first row; peer count alone is a suppressor, so the last row conditions on both window terms jointly.}
+\label{tab:decomposition}
+\end{table}
+% ---- end figures/table1_decomposition ----
+
+The mechanism behind the second dimension is geometric. The comparison window is symmetric in calendar time, 182 days on each side of the release, but a benchmark's model coverage is not symmetric in calendar time, because coverage begins when the benchmark is built. \autoref{fig:boundary} plots the two objects this creates against benchmark maturity at release: the share of the window that is newer falls with maturity and jumps at the availability boundary, while standing runs through the same boundary without a detectable break. The mechanism is discontinuous where the outcome is not, and peer-set composition is a property of timing alone.
+
+\begin{figure}[H]\centering
+% ---- begin figures/fig_boundary ----
+\begin{tikzpicture}
+  \begin{axis}[causalre wide, height=2.8cm, xmin=-360, xmax=720, xtick={-360,0,360,720}, xticklabels={,,,}, ylabel={newer share}, ymin=0.25, ymax=0.95, ytick={0.3,0.5,0.7,0.9}, name=mech]
+    \addplot[black, dashed, thin, forget plot] coordinates {(0,0.25) (0,0.95)};
+    \addplot[cSF, only marks, mark=square*, mark size=1.4pt,
+             error bars/.cd, y dir=both, y explicit]
+      coordinates {(-270.000,0.82) +- (0,0.08) (-210.000,0.79) +- (0,0.08) (-150.000,0.73) +- (0,0.11) (-90.000,0.71) +- (0,0.08) (-30.000,0.63) +- (0,0.10)};
+    \addplot[cNYC, only marks, mark=*, mark size=1.4pt,
+             error bars/.cd, y dir=both, y explicit]
+      coordinates {(30.000,0.60) +- (0,0.07) (90.000,0.53) +- (0,0.08) (150.000,0.50) +- (0,0.09) (210.000,0.42) +- (0,0.08) (270.000,0.41) +- (0,0.10) (330.000,0.43) +- (0,0.11) (390.000,0.41) +- (0,0.10) (450.000,0.48) +- (0,0.10) (510.000,0.44) +- (0,0.10) (570.000,0.31) +- (0,0.11) (630.000,0.40) +- (0,0.11) (690.000,0.37) +- (0,0.08)};
+  \end{axis}
+  \begin{axis}[causalre wide, height=2.8cm, xmin=-360, xmax=720, xtick={-360,0,360,720}, xlabel={benchmark maturity at release (days)}, ylabel={standing}, ymin=30, ymax=75, at={(mech.south west)}, anchor=north west, yshift=-12pt,
+    legend to name=leg:boundary, legend columns=2]
+    \addplot[black, dashed, thin, forget plot] coordinates {(0,30) (0,75)};
+    \addplot[cSF, only marks, mark=square*, mark size=1.4pt,
+             error bars/.cd, y dir=both, y explicit]
+      coordinates {(-270.000,40.78) +- (0,18.37) (-210.000,41.55) +- (0,14.24) (-150.000,45.00) +- (0,16.04) (-90.000,41.36) +- (0,14.81) (-30.000,44.91) +- (0,13.75)};
+    \addlegendentry{benchmark postdates the release}
+    \addplot[cNYC, only marks, mark=*, mark size=1.4pt,
+             error bars/.cd, y dir=both, y explicit]
+      coordinates {(30.000,45.04) +- (0,13.16) (90.000,46.87) +- (0,13.81) (150.000,54.42) +- (0,11.65) (210.000,51.49) +- (0,11.25) (270.000,53.77) +- (0,12.19) (330.000,50.14) +- (0,13.47) (390.000,58.21) +- (0,12.71) (450.000,46.04) +- (0,12.76) (510.000,55.12) +- (0,13.60) (570.000,57.18) +- (0,13.73) (630.000,51.43) +- (0,12.65) (690.000,53.95) +- (0,12.64)};
+    \addlegendentry{benchmark predates the release}
+  \end{axis}
+\end{tikzpicture}
+\\[2pt]
+{\footnotesize \ref{leg:boundary}}
+% ---- end figures/fig_boundary ----
+\caption{The mechanism and the outcome at the availability boundary. Top: the share of a
+cell's comparison window released after the focal model, against benchmark maturity at
+release; it falls with maturity and jumps at the boundary. Bottom: within-benchmark
+standing on the same axis, continuous through it. Sixty-day bins; intervals clustered on
+organisation.}
+\label{fig:boundary}
+\end{figure}
+
+The share of a cell's window released after the focal model is 0.4683 for eligible cells and 0.7065 for placebo cells, against 0.5 for a two-sided window. Within release, the slope of standing on that share is $-30.63$ percentile points per unit among eligible cells alone. \autoref{fig:one-curve} plots standing against that share for both groups at once. Eligible and placebo cells do not form two clouds at different heights; they trace a single declining curve, common only once benchmark composition is absorbed (\autoref{tab:decomposition}), and differ in where along it they fall. On the variable that assigns them, benchmark maturity at release, they cannot overlap at all, so the contrast is an extrapolation across that boundary rather than a comparison within common support. The check is at the boundary, the one place Section \ref{sec:data-model} leaves identified under continuity \citep{hahn2001identification}. Nothing detectable happens there. Local linear estimates are negative across four bandwidths and two polynomial orders, every interval covers zero though the widest reaches $+8.05$, and a window chosen on covariate balance puts the difference at $-2.52$ with a randomization $p$ of 0.447 \citep{cattaneo2015randomization}. The two groups' mean maturity differs by 793 days, and the gap lives in that distance rather than at the boundary (grid and balance tests in Appendix~\ref{sec:supporting}).
+
+Standing decomposes into a weighted average of position among older and newer peers, $\text{percentile} = (1 - w)\,P_{\text{old}} + w\,P_{\text{new}}$ with $w$ the newer share of window peers, exact cell by cell at double precision. Replacing the empirical weight with one half defines the side-balanced measure, available for 92.5\% of all cells and 92.8\% of eligible-or-placebo cells, and cuts the same slope to $-8.56$.
+
+\begin{figure}[H]\centering
+% ---- begin figures/fig_one_curve ----
+\begin{tikzpicture}
+  \begin{axis}[causalre wide, height=3.9cm, xmin=0, xmax=1, xtick={0,0.5,1}, xlabel={share of window newer than the focal model}, ymin=20, ymax=80,
+    ylabel={within-benchmark standing},
+    legend to name=leg:onecurve, legend columns=3]
+    \addplot[black, line width=1.0pt, smooth, forget plot]
+      coordinates {(0.050,62.60) (0.150,62.49) (0.250,58.77) (0.350,54.92) (0.450,51.84) (0.550,47.99) (0.650,43.51) (0.750,40.74) (0.850,42.82) (0.950,36.33)};
+    \addplot[black, dashed, thin, forget plot] coordinates {(0.5,20) (0.5,80)};
+    \addplot[cNYC, dashed, thin, forget plot]
+      coordinates {(0.468,20) (0.468,80)};
+    \addplot[cSF, dashed, thin, forget plot]
+      coordinates {(0.707,20) (0.707,80)};
+    \addplot[cNYC, only marks, mark=*, mark size=1.4pt,
+             error bars/.cd, y dir=both, y explicit]
+      coordinates {(0.050,62.91) +- (0,13.17) (0.150,62.75) +- (0,13.73) (0.250,58.84) +- (0,10.53) (0.350,54.87) +- (0,10.42) (0.450,52.09) +- (0,10.63) (0.550,47.98) +- (0,9.26) (0.650,44.05) +- (0,9.94) (0.750,39.90) +- (0,12.27) (0.850,45.95) +- (0,12.64)};
+    \addlegendentry{benchmark predates the release}
+    \addplot[cSF, only marks, mark=square*, mark size=1.4pt,
+             error bars/.cd, y dir=both, y explicit]
+      coordinates {(0.450,47.28) +- (0,18.44) (0.550,48.08) +- (0,14.83) (0.650,41.55) +- (0,15.63) (0.750,42.43) +- (0,12.52) (0.850,41.34) +- (0,15.18) (0.950,36.23) +- (0,15.97)};
+    \addlegendentry{benchmark postdates the release}
+    \addplot[black, line width=1.0pt] coordinates {(0,0)};
+    \addlegendentry{all cells pooled}
+  \end{axis}
+\end{tikzpicture}
+\\[2pt]
+{\footnotesize \ref{leg:onecurve}}
+% ---- end figures/fig_one_curve ----
+\caption{Standing against the share of a cell's comparison window released after the focal
+model; dashed verticals mark each group's mean share, and the black dashed line the symmetric 0.5. Eligible and placebo cells lie on one
+declining curve, so the contrast between them is a position on that curve rather than a fact
+about disclosure. Intervals are clustered on organisation.}
+\label{fig:one-curve}
+\end{figure}
+
+That the identity holds does not make the gradient an accounting tautology. Shuffling scores within benchmark destroys the capability trend while leaving dates, window membership, peer counts and newer shares bit-identical. Under that null, the slope has mean $-0.09$ and standard deviation 3.12. The observed $-30.63$ sits 9.8 standard deviations away, and none of 300 draws reaches it. Replacing scores instead with a within-benchmark linear fit on date plus permuted residuals, so that a capability trend exists and nothing else does, recovers 93\% of the observed slope, averaged over 200 draws. Comparison-set geometry is inert on its own and becomes a bias only when it multiplies a real trend in capability.
+
+\subsection{Trimming and reweighting}\label{sec:core-recentring}
+
+The phenomenon has a name in nonparametric estimation: local averages are biased near the edge of a support, and the standard remedies recentre rather than discard \citep{gasser1979,fan1992}. What is unusual is the boundary's coincidence with the endowment: a benchmark was available to a release exactly when the model did not sit at the left edge of that benchmark's coverage, so the indicator of what a provider could have held is the indicator of where the window is one-sided, and removing the edge removes the contrast. The coincidence has an older name, the age-period-cohort identity: release date, benchmark vintage and their difference are exactly collinear, and each has a measured signature here: $t_i$ in the capability trend, $\tau_b$ in saturation, $t_i - \tau_b$ in window composition. Only the linear components are unidentified in that structure \citep{fosse2019bounding,fosse2019review}, so what fails is a slope. Three sign restrictions bound it: capability rises with the calendar, later benchmarks are less saturated, and standing rises with maturity. All three are assumptions on unidentified components, each motivated by a measurement of an identified quantity. Under them the unidentified component accounts for at most 24 to 34\% of the placebo gap across specifications, roughly three percentile points, which is where the saturated regression also lands. The remainder is carried by the identified reduced-form slopes, and Appendix~\ref{sec:supporting} gives the derivation.
+
+% ---- begin figures/table2_remedies ----
+\begin{table}[H]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrrrrrr}
+\toprule
+Standing measure & Mean & Median & Positive & Sign-flip $p$ & Releases & Cells \\
+\midrule
+Windowed percentile, $\pm$182d & $+12.23$ & $+10.69$ & 78.1\% & 0.0001 & 146 & 100.0\% \\
+Rank against all models ever & $+22.75$ & $+22.66$ & 89.0\% & 0.0001 & 146 & 100.0\% \\
+Trim to two-sided windows & $+9.96$ & $+10.69$ & 72.2\% & 0.0001 & 115 & 70.4\% \\
+Side-balanced percentile & $+9.14$ & $+9.62$ & 70.9\% & 0.0001 & 141 & 92.8\% \\
+\bottomrule
+\end{tabular}
+\caption{%
+The label-free placebo null under each candidate measure: release-level mean standing of eligible minus postdating benchmarks, in percentile points. Every entry should be zero. Sign-flip $p$ is the provider-clustered test of Section~\ref{sec:data-inference}, against zero; Cells is the share of comparable cells where the measure is defined.}
+\label{tab:remedies}
+\end{table}
+% ---- end figures/table2_remedies ----
+
+\autoref{tab:remedies} shows what follows. Ranking against every model ever scored nearly doubles the contamination; trimming to two-sided windows discards 30\% of the cells to remove 19\%, and its row is just the uncorrected gap on the retained cells, composition rather than correction. Shortening the window does reduce the gap, to $+8.59$ at 91 days, but in proportion to the asymmetry it removes rather than by breaking the mechanism: across four widths and four benchmark-count minima the gap is positive in
+all 16 specifications, from $+8.59$ to $+21.66$, and tracks the eligible-minus-placebo gap in window composition at $r = 0.991$. Dropping any one of the 18 organisations leaves it between $+11.45$ and $+13.20$. The correction is a covariate, not a subsample.
+
+One reading of that number would be too generous to it. Window composition is a function of the same dates that define the placebo indicator, so conditioning on it does not adjust for a confounder sitting outside the comparison; it splits the gap into the channel carrying it. A study that holds disclosure labels and wants an estimate of $\theta$ must first argue that window composition is settled before a provider decides what to report, or it will condition away part of what it is measuring. Provider identity explains little of the variance in window composition, which is suggestive rather than conclusive; Appendix~\ref{sec:supporting} reports the decomposition and the coverage tilt it does not correct.
+
+The side-balanced percentile is the one change of measure that does substantial work, cutting the placebo mean to $+9.14$ and the eligible-cell gradient to $-8.56$. \autoref{fig:correction} in Appendix~\ref{sec:supporting} puts it against the uncorrected measure on the same cells, close to flat where cells are dense. Reweighting cannot reach what remains, since balancing repairs the weight placed on each side of a model but not which models an evaluator chose to score early, so evaluator attention stays a residual confound. It is undefined wherever a side is empty, so it accompanies the uncorrected measure rather than replacing it.
+% ---- end sections/core ----
+% ---- begin sections/external ----
+\section{Evidence from HELM}\label{sec:external}
+
+Everything so far concerns a percentile constructed here on a panel assembled here, so the effect may belong to the construction rather than to leaderboards in general. HELM Lite publishes its full accuracy table at every versioned release, archives the earlier ones, and reports a pool-relative headline \citep{liang2022helm}, so the same evidence can be read at 14 points in time while the pool grows underneath it.
+
+If a leaderboard moves, the first thing to rule out is a revised suite. Across releases v1.0.0 through v1.13.0, the ten scenario columns are identical, with nothing added, dropped or renamed beyond one relabelled column header. The same 24 models appear in all 14 releases with their 240 published scenario scores bit-identical throughout, while the evaluated pool grows from 30 models to 91.
+
+Against that frozen evidence, all 24 constant models see their published Mean win rate change, by 0.1232 on average in absolute value and by as much as 0.2178 for Mixtral 8x7B. Most of that movement is arithmetic: Mean win rate is the fraction of head-to-head comparisons a model wins, so a fixed model faces a larger, later field as the pool
+grows; the change correlates with initial standing at $-0.766$.
+
+The movement that matters is elsewhere. If the drift were a monotone transform of the frozen evidence, it would be harmless, since a monotone rescaling preserves every order. It is not. Of the 24, 22 fall and two rise, and five of the 276 pairs among them, 1.8\%, reverse between the first release and the last, each a published order inversion with bit-identical evidence beneath it. \autoref{fig:helm} plots each model's rank among the constant set at the first release against the last, so a reversed pair is a crossing, countable on the page while the evidence beneath is fixed. Unlike test-set reuse \citep{roelofs2019meta}, the evidence is fixed; the reference set is what moves. The published numbers are correct as defined at every release; what changed was the pool, and the published order followed it. \citet{singh2025leaderboard} reports a comparable pattern from a different mechanism, deprecation policy rather than a coverage boundary changing which models remain available, and in both the reference set rather than the evidence moves the ranking.
+
+\begin{figure}[H]\centering
+% ---- begin figures/fig_helm ----
+\begin{tikzpicture}
+  \begin{axis}[causalre wide, height=4.1cm, y dir=reverse,
+    xmin=0, xmax=1, ymin=2.8, ymax=19.2,
+    xtick={0.45,0.75}, xticklabels={v1.0.0,v1.13.0}, xlabel={release},
+    ytick={4,8,12,16}, ylabel={rank among the 24 constant models}]
+    \addplot[cPNK, line width=0.9pt, mark=*, mark size=1.2pt, forget plot] coordinates {(0.45,4) (0.75,5)};
+    \addplot[cPNK, line width=0.9pt, mark=*, mark size=1.2pt, forget plot] coordinates {(0.45,5) (0.75,4)};
+    \addplot[cGRN, line width=0.9pt, mark=*, mark size=1.2pt, forget plot] coordinates {(0.45,7) (0.75,8)};
+    \addplot[cGRN, line width=0.9pt, mark=*, mark size=1.2pt, forget plot] coordinates {(0.45,8) (0.75,7)};
+    \addplot[cNYC, line width=0.9pt, mark=*, mark size=1.2pt, forget plot] coordinates {(0.45,11) (0.75,13)};
+    \addplot[cNYC, line width=0.9pt, mark=*, mark size=1.2pt, forget plot] coordinates {(0.45,12) (0.75,11)};
+    \addplot[cNYC, line width=0.9pt, mark=*, mark size=1.2pt, forget plot] coordinates {(0.45,13) (0.75,12)};
+    \addplot[cSF, line width=0.9pt, mark=*, mark size=1.2pt, forget plot] coordinates {(0.45,17) (0.75,18)};
+    \addplot[cSF, line width=0.9pt, mark=*, mark size=1.2pt, forget plot] coordinates {(0.45,18) (0.75,17)};
+    \node[anchor=east, font=\tiny, text=black] at (axis cs:0.43,4) {Palmyra X V2 33B};
+    \node[anchor=east, font=\tiny, text=black] at (axis cs:0.43,5) {PaLM-2 Unicorn};
+    \node[anchor=east, font=\tiny, text=black] at (axis cs:0.43,7) {Mixtral 8x7B};
+    \node[anchor=east, font=\tiny, text=black] at (axis cs:0.43,8) {PaLM-2 Bison};
+    \node[anchor=east, font=\tiny, text=black] at (axis cs:0.43,11) {GPT-3.5 davinci-002};
+    \node[anchor=east, font=\tiny, text=black] at (axis cs:0.43,12) {GPT-3.5 Turbo 0613};
+    \node[anchor=east, font=\tiny, text=black] at (axis cs:0.43,13) {LLaMA 65B};
+    \node[anchor=east, font=\tiny, text=black] at (axis cs:0.43,17) {Jurassic-2 Jumbo 178B};
+    \node[anchor=east, font=\tiny, text=black] at (axis cs:0.43,18) {Falcon 40B};
+  \end{axis}
+\end{tikzpicture}
+% ---- end figures/fig_helm ----
+\caption{The nine HELM Lite models whose published order changed between the first release
+and the last, ranked among the 24 whose 240 scenario scores are bit-identical throughout;
+coloured by group of mutually reversing models, four groups and five reversed pairs in all. The control: across 16 HELM Capabilities releases behind an
+absolute headline, with the pool growing from 22 to 68, none of the 22 constant models'
+headline values moved and no pair reversed.}
+\label{fig:helm}
+\end{figure}
+
+The control, HELM Capabilities, comes from the same organisation, whose maintainers had diagnosed the win rate as pool-dependent \citep{xu2025capabilities}; it runs on the same infrastructure and cadence, its pool growing comparably, from 22 models to 68 over 16 releases. Its headline is an absolute mean over scenarios rather than a fraction of comparisons won. The same 22 models appear in every release with 110 scenario scores bit-identical, none of the 22 headline values moves, and no pair reorders, at the endpoints or ever. An absolute mean over bit-identical scores on a fixed suite cannot move with the pool, so zero drift is arithmetic, a scope condition rather than a test that could have failed.
+
+
+This need not be read as an error on HELM's part: the absolute headline on its own Capabilities leaderboard is the point. A pool-relative headline is a joint statement about a model and about the population evaluated beside it; read later as statements about the models alone, two such numbers move standing between providers for reasons belonging to neither. Restoring comparability across moments is the classical equating problem \citep{kolen2014}, avoided entirely by a scale estimated jointly across benchmarks \citep{epoch2026rosetta}. The panel and the leaderboard fail
+in the same way: the reference set rather than the evidence moves the number.
+% ---- end sections/external ----
+% ---- begin sections/reach ----
+\section{Coding the Record}\label{sec:reach}
+
+A benchmark can be missing from a model card because it was irrelevant, never run, or run and withheld. Only the third is disclosure in the sense of \citet{grossman1981}, \citet{milgrom1981} and \citet{dye1985}, and only it is a reader's to price. The within-family drop narrows it: a provider that reports $b$ at $t$ and omits it at $t+1$, an independent score present, has established relevance and possession of the harness by its own earlier behaviour, with the independent score as the registry-style counterfactual \citep{chan2004,dwan2013,kirkham2010}. It does not establish that $b$ was run for $t+1$, so the \citet{dye1985} uncertainty narrows rather than closes. Its ceiling, 37 pairs, and detection threshold, roughly 38 points at one drop, sit in Appendix~\ref{sec:supporting}.
+
+A single coder read the release-time document of each of the 100 releases for which one is locatable; eight of the queued 108 have none. The record notes every benchmark a document reports, with variants, bare mentions, and stated benign absences; the ORBIT categories are derived mechanically from these records and the family history. This yields 1,280 coded cells, of which 31 belong to five later-vintage releases outside the pinned panel and are excluded. An independent second coder then recoded a provider-stratified fifth of the releases, blind to the first coding and without calibration contact; Appendix~\ref{sec:supporting} records the one release where that blindness broke. Agreement is Cohen's $\kappa$ over the derived cells \citep{cohen1960}, with intervals from resampling releases. The two codings agree at $0.95$ $[0.80, 1.00]$ on the primitive judgment of whether a benchmark was reported, at $0.85$ $[0.72, 0.95]$ over the full category set, and at $0.81$ $[0.48, 1.00]$ on the high-versus-low-suspicion split. The single E cell each coding derives is the same cell, encouraging but no reliability estimate for so rare a category, and Appendix~\ref{sec:supporting} reports the confusion structure. Among the 1,249 eligible coded cells that resolve in the panel, 76.9\% report no number, and the release-level mean is 73.1\% $[65.9, 79.2]$. The rate is descriptive and is not, by itself, evidence of selection.
+
+% ---- begin figures/table3_coding ----
+\begin{table}[H]
+\centering
+\small
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{lrrrr}
+\toprule
+Standing measure & Coded gap & 95\% CI & No labels & Difference \\
+\midrule
+Windowed percentile, $\pm$182d & $+11.40$ & $[+5.6, +17.0]$ & $+14.13$ & $-2.73$ \\
+Side-balanced percentile, $\pm$182d & $+7.90$ & $[-0.4, +15.2]$ & $+9.82$ & $-1.92$ \\
+Rank against all models ever & $+22.33$ & $[+18.0, +28.1]$ & $+24.50$ & $-2.17$ \\
+Windowed percentile, $\pm$90d & $+8.15$ & $[+1.3, +14.7]$ & $+10.36$ & $-2.21$ \\
+Windowed percentile, $\pm$365d & $+18.03$ & $[+13.9, +23.1]$ & $+20.53$ & $-2.50$ \\
+\bottomrule
+\end{tabular}
+\caption{%
+The coded omission deficit beside the label-free gap, in percentile points, over 71 releases and 13 providers (70 side-balanced). No labels is the same contrast with no disclosure coding, on the same releases; Difference is Coded gap minus No labels. Intervals are provider-clustered bootstraps; four of five coded gaps exclude zero.}
+\label{tab:coding}
+\end{table}
+% ---- end figures/table3_coding ----
+
+\autoref{tab:coding} is the section's result: the disclosed-versus-omitted comparison returns $+8.7$ points $[4.1, 13.9]$ over 63 releases; the intended availability contrast, omitted-eligible against postdating cells over the 71 releases holding both, returns $+11.4$ $[5.6, 17.0]$ and would reject a zero null at $p = 0.003$. Read against Section~\ref{sec:core}, it is the availability gap: computed on the same releases with no labels, the contrast sits at $+14.1$, and under every measure and window the coded gap falls 1.9 to 2.7 points short of its matched counterpart. The shortfall is an exact accounting identity, the average over the same releases of the reported share times the within-release reported-omitted gap, $+2.7$, so the labels change this contrast only through composition; intervals spanning eleven points leave a strategic component of several points undetected rather than excluded. The naive reading is robust to two-way provider-and-benchmark errors, to reclassifying every variant cell as an omission, and to any leave-one-out, because the availability gap is. What survives instead is composition. Reported benchmarks stand 8.7 points above omitted eligible ones within release, a composition gap larger than all 9,999 count-preserving random assignments ($p = 0.0001$, the floor the draws allow; null standard deviation 1.9) and one the availability gap cannot produce. Benchmark identity does not carry it: with benchmark fixed effects beside the release effects the coefficient rises from $+7.4$ to $+9.3$, and conditioning on the window share leaves $+7.4$. It does not identify whether standing drove the reporting: relevance, salience, and within-eligible contamination can move disclosure and performance together. The drop estimator realises 16 drops across 15 releases and returns $+2.9$, a sign opposite the withholding prediction, sign-flip $p = 0.25$ over five providers, the underpowered null its calibration priced. Appendix~\ref{sec:supporting} adds three unrepaired limits: unlocatable documents, coverage that may follow provider emphasis, and the best-across-scaffolds rule.
+% ---- end sections/reach ----
+% ---- begin sections/conclusion ----
+\section{Conclusion}\label{sec:conclusion}
+
+We set out to measure how much of what providers could report they choose not to. The coded record returns the number and the reason to distrust it: $+11.4$ points, rejecting a null of zero, yet short of its matched label-free counterpart by only what composition implies, and too imprecise to exclude a strategic component of a few points. Dating the instruments bounds the endowment, though the bound is an assumption about access, and the same dates fix where a model sits inside a benchmark's coverage: what identifies the endowment moves the measure used to price silence, and reweighting is a partial defence. Growing the drop record, 16 drops against 37 qualifying pairs, is a reporting-standard question, answerable in two ways: a jointly estimated scale \citep{epoch2026rosetta}, which shrinks the placebo gap without closing it, and carrying a benchmark set across a family's releases, narrowing the empty-endowment excuse and the \citet{dye1985} pooling at no disclosure cost.
+% ---- end sections/conclusion ----
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+\newpage
+\appendix
+% ---- begin sections/opportunity ----
+\section{What a Provider Could Report}\label{sec:opportunity}
+
+The set of results a provider could publish is not fixed, and it grows. When we count the benchmarks in our panel by the year each was published, the dated stock rises
+from 11 at the end of 2019 to 62 by 2026. A benchmark that enters that stock stays
+available to every release after it, so the denominator of any omission rate is
+weakly increasing by construction.
+
+What a single release could report grows more slowly and less evenly. Averaged by half-year, the number of eligible benchmarks per release runs 6.8 in
+the first half of 2023, falls to 3.9 in the first half of 2024, a period in which releases outpaced the instruments now used to score them, and reaches 10.1 by the first
+half of 2026. The two series move together over the sample and apart within it,
+which is consistent with the opportunity set being shaped partly by release timing rather than by provider choice.
+
+A count of omissions therefore measures the calendar. Unless reported tables
+expand one for one with the stock, omission rates drift upward for arithmetic
+reasons alone, and comparing early releases with late ones on that measure
+compares eras rather than providers. The question that survives is composition:
+which benchmarks are dropped, conditional on availability, against what an
+indifferent selection over the same set would have produced. Answering it requires
+knowing not only what was available but how the release stood on each available
+benchmark, and it is that second requirement, not the first, that the rest of the
+paper shows to be the hard one \citep{dranove2010}.
+% ---- end sections/opportunity ----
+
+% ---- begin sections/supporting ----
+\section{Additional Checks}\label{sec:supporting}
+
+\paragraph{Is window composition a provider's choice?}
+Section~\ref{sec:core-recentring} conditions on window composition and notes that doing so is
+defensible only if composition is settled before a provider decides what to report. Regressing the
+share of a cell's window released after the focal model on provider dummies gives an $R^2$ of
+0.071 across 45 organisations, against 0.002 for benchmark dummies over 61 benchmarks and 0.104
+for the release date alone. Window composition is close to idiosyncratic at the cell level, which
+is consistent with its being set by the evaluator's scoring schedule rather than by the provider,
+and is not enough to establish it.
+
+\paragraph{Is the evaluator's coverage selective?}
+The estimand conditions on the cells the evaluator scores, so coverage is upstream of everything
+else. Coverage averages 8.7 benchmarks per release with a standard deviation of 8.0 and a range of
+1 to 38. It correlates with a provider's release count at 0.203 and with the release date at 0.265,
+and releases from the densest quartile of providers carry 9.6 scored benchmarks against 8.4 for the
+rest. Coverage is therefore mildly tilted toward larger and later providers, and nothing in this
+paper corrects for that.
+
+\paragraph{Bounding the unidentified component.}
+Write $t$ for a release date, $\tau$ for a benchmark's vintage and $a = t - \tau$ for the benchmark's
+maturity when the model met it. A regression of standing on all three is singular by construction,
+which is the age-period-cohort problem, and the data identify only
+$\Pi_p = \beta_a + \beta_t$ and $\Pi_c = \beta_\tau - \beta_a$, leaving a one-parameter family indexed
+by $\lambda = \beta_a$. Fitting the reduced form on the 2,831 comparable cells gives
+$\Pi_p = +4.12$ and $\Pi_c = -1.36$ percentile points per year.
+
+Three restrictions come from the paper rather than from outside it. Capability rises over calendar
+time, so $\beta_t \geq 0$. Later benchmarks are less saturated, which
+Section~\ref{sec:core-boundary} measures directly, so $\beta_\tau \leq 0$. Standing rises with
+maturity, since a model on a young benchmark is ranked against newer peers, so $\beta_a \geq 0$.
+Together these give $0 \leq \lambda \leq \min(\Pi_p, -\Pi_c) = 1.36$, and saturation rather than
+capability is the binding restriction. The mean maturity gap between eligible and placebo cells is
+2.17 years, so the unidentified component can account for at most $1.36 \times 2.17 = 2.94$
+percentile points, 24\% of the observed gap. Adding centred quadratic and cubic terms in $t$ and
+$\tau$, which are not collinear with $a$, moves the ceiling to 34\% and 31\%.
+
+Shuffling scores within benchmark leaves every date and the rank deficiency untouched while
+destroying the capability trend. Under that null the same quantity falls to 0.02 percentile points
+on average over 30 draws, with a maximum of 0.24, so the bound reflects the trend the geometry
+multiplies rather than the geometry alone.
+
+\paragraph{The boundary as a discontinuity.}
+Eligibility is $\mathbf{1}[t_i > \tau_b]$, a deterministic function of the two dates, and that is what
+the global repairs run into. Equating across groups that took different instruments assumes a
+conditional relationship common to both, which two groups defined by the boundary cannot have
+\citep{sinharay2010missing}, and reweighting by the probability a cell is observed needs that
+probability bounded away from zero, which a deterministic rule denies \citep{ma2019missing}. The
+same determinism makes the boundary a sharp discontinuity, where standing at the threshold is
+identified under continuity whatever happens globally \citep{hahn2001identification}. Local linear estimates with a triangular kernel
+and provider-clustered errors give $-8.82$ (4.76) at $\pm 60$ days, $-6.85$ (4.09) at $\pm 90$,
+$-4.08$ (3.11) at $\pm 180$ and $-2.85$ (2.35) at $\pm 250$, and a quadratic fit at each width moves
+none of them across zero. All eight are negative, all eight intervals cover zero, and the largest
+upper bound is $+8.05$, below the $+12.23$ the global comparison reports.
+
+The local randomization framework agrees \citep{cattaneo2015randomization}. Widening symmetric
+windows and testing the release's benchmark count, scaffold count and scaffold spread for
+balance, we find the smallest of the three $p$-values to be 0.335 at $\pm 20$ days and 0.571 at $\pm 40$ before
+falling to 0.058 at $\pm 60$, which selects $\pm 40$, a rule applied after seeing the balance results, so the randomization $p$ below does not adjust for the selection. The same difference is $-5.96$ ($p = 0.23$) at $\pm 20$ days and $+0.43$ ($p = 0.88$) at $\pm 60$. That window holds 113 postdating and 114
+eligible cells, and the difference in mean standing is $-2.52$ with a randomization $p$ of 0.447.
+Cell counts in the 30 days either side of the cutoff stand at 80 against 84, a ratio of 0.95, so the
+running variable is not bunching against the threshold \citep{mccrary2008manipulation}.
+
+The mechanism is discontinuous where standing is not. The share of a cell's window released after
+the focal model jumps $+0.083$ at the cutoff, which at the eligible-cell gradient of $-30.63$ implies
+about $-2.5$ percentile points, inside every interval above, so at the cutoff the design separates concealment from the availability gap only above that effect, and the narrowest windows cannot reject the full $-12.23$ either. Peer count and raw score are continuous.
+The global gap therefore lives in the 793 days that separate the two groups' mean maturity rather
+than in anything happening at the boundary itself.
+
+\paragraph{A standing measure with no comparison window.}
+The conclusion points at a scale estimated jointly across benchmarks rather than against
+contemporaries, which removes the comparison window from the measure entirely. Fitting one does not
+remove the gap. Ability and difficulty are estimated together over the 63 benchmarks reported on a
+common zero-to-one scale, on a logit link, with the loading ridged toward one because a free loading
+is unidentified at this density and takes slopes past $65{,}000$. Restricting to benchmarks carrying
+at least twenty releases and releases carrying at least three benchmarks leaves 1,669 eligible cells
+over 31 benchmarks. The model is fit on eligible cells alone, so the 226 postdating cells it can
+score are out of sample.
+
+The eligible-minus-placebo gap in the residuals is $+0.336$ residual standard deviations, against
+$+0.449$ for the windowed percentile on the same contrast, positive in 64.0\% of the 89 releases
+holding both kinds, at $p = 0.005$. Removing the window shrinks the gap by about a quarter and
+leaves it positive, which puts a jointly estimated scale beside trimming at 19\% and side-balancing at 25\%, each on its own scale,
+rather than ahead of them. Its difficulty parameters are estimated from the maturity-selected cells that exist, so part of the surviving gap may be the same selection re-expressed, and its placebo cells are scored out of sample while every eligible cell is in sample, an asymmetry the contrast inherits. Shuffling scores within benchmark, which leaves every date and the rank
+deficiency untouched, drops the same quantity to 0.02 on average over 30 draws.
+
+\begin{figure}[H]\centering
+% ---- begin figures/fig_correction ----
+\begin{tikzpicture}
+  \begin{axis}[causalre body, xmin=0, xmax=1, xtick={0,0.5,1}, xlabel={share of window newer than the focal model}, ymin=35, ymax=65,
+    ylabel={release-demeaned standing},
+    legend to name=leg:correction, legend columns=2]
+    \addplot[cSF, smooth, mark=*, mark size=1.4pt]
+      coordinates {(0.050,53.27) (0.150,56.70) (0.250,54.39) (0.350,53.09) (0.450,52.98) (0.550,49.26) (0.650,50.38) (0.750,45.42) (0.850,41.06)};
+    \addlegendentry{windowed percentile}
+    \addplot[cNYC, smooth, mark=square*, mark size=1.4pt]
+      coordinates {(0.050,48.37) (0.150,54.10) (0.250,50.00) (0.350,49.69) (0.450,51.49) (0.550,48.90) (0.650,51.74) (0.750,47.26) (0.850,43.81)};
+    \addlegendentry{side-balanced}
+  \end{axis}
+\end{tikzpicture}
+\\[2pt]
+{\footnotesize \ref{leg:correction}}
+% ---- end figures/fig_correction ----
+\caption{The side-balanced percentile against the windowed one, on eligible cells within release.
+The windowed measure slopes across the range while the side-balanced one is close to flat where cells are dense; the quoted gradients, $-30.63$ to $-8.56$ per unit share, are the within-release regression slopes on these cells, and the release-demeaned binned means shown are correspondingly flatter.}
+\label{fig:correction}
+\end{figure}
+
+A backward-only standing, position among older peers alone, removes the window's forward half entirely and leaves the label-free contrast at $+12.11$ across 142 releases, so the gap does not come from look-ahead.
+
+\paragraph{Drop-design ceiling and calibration.}
+The panel contains 144 adjacent same-family release pairs covering 711 shared eligible benchmarks and 15 organisations. Requiring both releases in a pair to carry at least eight scored benchmarks leaves 37 pairs, 482 shared benchmarks, and 8 organisations, the effective cluster count, in the regime where Section~\ref{sec:data-inference} reports no analytic standard error. Under the null of no selective withholding, the sampling standard deviation of a drop gap, over 400 draws for each of 117 qualifying releases, is 19.4 percentile points when one benchmark is dropped, 14.4 when two are and 12.4 when three are, so at conventional two-sided size a single-drop event must move the gap by roughly 38 points before it separates from noise, three times the contamination itself, and no single drop can be read alone.
+
+\paragraph{Reliability detail.}
+The second coding covers 20 of the 100 readable releases, drawn stratified by provider.
+Derived categories import contemporaries' evidence across releases, a dependence the release resampling does not model. Across 15 of them, 194 derived cells pair: one drawn release is a zero-disclosure document whose blank evidence rows the pairing drops, a conservative exclusion since all
+eleven of its cells are trivial agreements, and four drawn releases sit outside the pinned
+panel. The reported-versus-not cross-tabulation is one-directional, 47 jointly reported and 143
+jointly not: no cell the first coder called reported was coded otherwise by the second, and
+the four reversals all sit on one release whose second-coding note records retaining four
+contested scores despite the first coder's disagreement, an exposure that breaks blindness
+for that release. Excluding it, reported-versus-not agreement is exact and the
+full-category $\kappa$ is 0.88 on 182 cells. Of the 14 disagreements overall, seven are
+the variant boundary between C and A, one a bare mention against a value, two the derived
+split between G and H on a single release, and four the exposed release above.
+Three limits of the record are candidly unrepaired: the eight releases without a locatable
+document are unlikely to be missing at random and plausibly document less; the evaluator's
+coverage may itself respond to what providers emphasise, which would tilt the reported set
+upward by sampling; and the best-across-scaffolds score rule is not probed for asymmetry
+across the boundary. High-suspicion marginals match exactly at 5.7\% for each coder, which is why the split
+$\kappa$ holds at 0.81 despite the category's rarity; its wide interval reflects eleven such
+cells concentrating in a few releases.
+
+\paragraph{Provider-only clustering, for comparison.}
+The manuscript's regressions cluster on provider and benchmark jointly. Provider-only errors are
+consistently smaller: 1.271 against 2.038 on the release-effects row, a ratio of 1.60, and 1.652
+against 1.748 on the fully saturated row, a ratio of 1.06. The benchmark dimension carries real
+dependence on the raw contrast and almost none once benchmark effects and the window terms are in,
+which is what the decomposition says it should. The headline sign-flip test at $p = 0.0001$
+preserves provider dependence only; the two-way regression row above is the statement that the
+contamination survives both dimensions, at $t = -6.6$.
+% ---- end sections/supporting ----
+
+\newpage
+% ---- begin sections/checklist ----
+\section*{NeurIPS Paper Checklist}
+
+\begin{enumerate}
+
+\item {\bf Claims}
+    \item[] Question: Do the main claims made in the abstract and introduction accurately reflect the paper's contributions and scope?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: The abstract and introduction state both findings within their identified scope: the coded omission gap is indistinguishable from the label-free gap, and within-release composition tracks standing. Section~\ref{sec:reach} reports the reliability of the coding behind them.
+
+
+\item {\bf Limitations}
+    \item[] Question: Does the paper discuss the limitations of the work performed by the authors?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: Limitations appear where they bear on the argument rather than only at the end. Section~\ref{sec:data-model} bounds the estimand and states that the reported omission rate is descriptive and identifies no withholding; Section~\ref{sec:core-boundary} states that the conditioning is a decomposition rather than a control strategy, and what a study holding disclosure labels would additionally have to argue; Section~\ref{sec:core-recentring} reports the corrections that fail and the coverage the balanced measure loses; Section~\ref{sec:reach} reports the ceiling on the design that narrows endowment uncertainty furthest, its 16 realised drops, and the underpowered null they return.
+
+
+\item {\bf Theory assumptions and proofs}
+    \item[] Question: For each theoretical result, does the paper provide the full set of assumptions and a complete (and correct) proof?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: Section~\ref{sec:data-model} states one identification result, that a temporal eligibility gate cannot satisfy the exclusion restriction the design needs, and gives its argument in full: the three date variables are exactly collinear, so excluding one requires that at least two of them not move standing. Section~\ref{sec:core} shows all three move it. Appendix~\ref{sec:supporting} states the three sign restrictions used to bound the unidentified component and derives the bound from them. Everything else in Section~\ref{sec:data-model} restates published results with citation.
+
+
+    \item {\bf Experimental result reproducibility}
+    \item[] Question: Does the paper fully disclose all the information needed to reproduce the main experimental results of the paper to the extent that it affects the main claims and/or conclusions of the paper (regardless of whether the code and data are provided or not)?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: Every number in the paper is written by one command into a single machine-readable file, and the data snapshot it was computed against is pinned by a per-file SHA-256 manifest in the released code. Section~\ref{sec:data} states the release key, the eligibility rule, the window width, and which estimates impose a minimum benchmark count and which do not.
+
+
+
+\item {\bf Open access to data and code}
+    \item[] Question: Does the paper provide open access to the data and code, with sufficient instructions to faithfully reproduce the main experimental results, as described in supplemental material?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: Code and derived data are released with instructions. The independent scores are redistributed by their publisher under CC-BY and are fetched rather than copied, then verified against the pinned manifest, so an upstream change is reported rather than silently absorbed. The external leaderboard evidence is frozen with a SHA-256 per source file, because a public leaderboard moves and the argument depends on the exact values.
+
+
+
+\item {\bf Experimental setting/details}
+    \item[] Question: Does the paper specify all the training and test details (e.g., data splits, hyperparameters, how they were chosen, type of optimizer) necessary to understand the results?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: There is no model training. The choices that affect the estimates are stated in Section~\ref{sec:data}: the release key, the rule for collapsing scaffold variants, the 182-day comparison window, which estimates impose a minimum benchmark count and which do not, and the treatment of pairs whose benchmark vintage is unverified.
+
+
+\item {\bf Experiment statistical significance}
+    \item[] Question: Does the paper report error bars suitably and correctly defined or other appropriate information about the statistical significance of the experiments?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: Section~\ref{sec:data-inference} states the inference protocol. The cluster count is small and unevenly distributed, so below twelve clusters no analytic standard error is reported, coefficients in that range use a restricted wild cluster bootstrap, release-level means use a cluster sign-flip randomization test, and no result is called significant on a cluster-t alone. Table~1 reports a standard error with every coefficient, the headline contrast carries a randomization p-value, and the permutation null is reported with its mean, its spread and the number of draws reaching the observed value.
+
+
+\item {\bf Experiments compute resources}
+    \item[] Question: For each experiment, does the paper provide sufficient information on the computer resources (type of compute workers, memory, time of execution) needed to reproduce the experiments?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: All analysis runs in seconds on a laptop. There is no training, no accelerator use, and no discarded run.
+
+
+\item {\bf Code of ethics}
+    \item[] Question: Does the research conducted in the paper conform, in every respect, with the NeurIPS Code of Ethics \url{https://neurips.cc/public/EthicsGuidelines}?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: The work uses published benchmark scores and public release documents, involves no human subjects and no personal data, and makes no claim about any individual.
+
+
+
+\item {\bf Broader impacts}
+    \item[] Question: Does the paper discuss both potential positive societal impacts and negative societal impacts of the work performed?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: Section~\ref{sec:external} states the consequence for a reader of a pool-relative leaderboard, namely that such a number describes standing within one vintage of the evaluated pool rather than a property of the model. The conclusion states that whether the record needed to measure withholding should grow is a reporting-standard question. The paper does not attribute concealment to any named provider, because the design does not support that.
+
+
+\item {\bf Safeguards}
+    \item[] Question: Does the paper describe safeguards that have been put in place for responsible release of data or models that have a high risk for misuse (e.g., pre-trained language models, image generators, or scraped datasets)?
+    \item[] Answer: \answerNA{}
+    \item[] Justification: No model, dataset or other asset with misuse potential is released. The release is analysis code and derived tables built from already public sources.
+
+
+\item {\bf Licenses for existing assets}
+    \item[] Question: Are the creators or original owners of assets (e.g., code, data, models), used in the paper, properly credited and are the license and terms of use explicitly mentioned and properly respected?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: The independent scores are credited to their publisher and used under CC-BY, and the external leaderboard is cited to its published description. Both are named in the text and in the released code.
+
+
+\item {\bf New assets}
+    \item[] Question: Are new assets introduced in the paper well documented and is the documentation provided alongside the assets?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: The released code documents how each number is produced, the snapshot manifest records the exact data build, and the frozen external evidence records a source URL, a retrieval date and a SHA-256 for every file.
+
+
+\item {\bf Crowdsourcing and research with human subjects}
+    \item[] Question: For crowdsourcing experiments and research with human subjects, does the paper include the full text of instructions given to participants and screenshots, if applicable, as well as details about compensation (if any)?
+    \item[] Answer: \answerNA{}
+    \item[] Justification: The work involves no crowdsourcing and no human subjects.
+
+
+\item {\bf Institutional review board (IRB) approvals or equivalent for research with human subjects}
+    \item[] Question: Does the paper describe potential risks incurred by study participants, whether such risks were disclosed to the subjects, and whether Institutional Review Board (IRB) approvals (or an equivalent approval/review based on the requirements of your country or institution) were obtained?
+    \item[] Answer: \answerNA{}
+    \item[] Justification: The work involves no human subjects, so no review board approval was required.
+
+
+\item {\bf Declaration of LLM usage}
+    \item[] Question: Does the paper describe the usage of LLMs if it is an important, original, or non-standard component of the core methods in this research? Note that if the LLM is used only for writing, editing, or formatting purposes and does \emph{not} impact the core methodology, scientific rigor, or originality of the research, declaration is not required.
+    %this research?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: An earlier pass used a large language model to assign the disclosure-coding categories; those labels were cleared and none enters. The categories now standing were hand-assigned by a human coder from archived release-time documents under the frozen protocol, with an independent second coder blind-coding a provider-stratified 20\% sample (Section~\ref{sec:reach}), so no number reported here depends on a model's judgment. Every number is produced by the released code from the pinned snapshot. Language models were otherwise used only for writing and code assistance.
+
+
+\end{enumerate}
+% ---- end sections/checklist ----
+
+\end{document}
