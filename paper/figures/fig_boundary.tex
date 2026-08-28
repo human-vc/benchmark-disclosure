@@ -1,0 +1,25 @@
+\begin{tikzpicture}
+  \begin{axis}[causalre wide, height=2.8cm, xmin=-360, xmax=720, xtick={-360,0,360,720}, xticklabels={,,,}, ylabel={newer share}, ymin=0.25, ymax=0.95, ytick={0.3,0.5,0.7,0.9}, name=mech]
+    \addplot[black, dashed, thin, forget plot] coordinates {(0,0.25) (0,0.95)};
+    \addplot[cSF, only marks, mark=square*, mark size=1.4pt,
+             error bars/.cd, y dir=both, y explicit]
+      coordinates {(-270.000,0.82) +- (0,0.08) (-210.000,0.79) +- (0,0.08) (-150.000,0.73) +- (0,0.11) (-90.000,0.71) +- (0,0.08) (-30.000,0.63) +- (0,0.10)};
+    \addplot[cNYC, only marks, mark=*, mark size=1.4pt,
+             error bars/.cd, y dir=both, y explicit]
+      coordinates {(30.000,0.60) +- (0,0.07) (90.000,0.53) +- (0,0.08) (150.000,0.50) +- (0,0.09) (210.000,0.42) +- (0,0.08) (270.000,0.41) +- (0,0.10) (330.000,0.43) +- (0,0.11) (390.000,0.41) +- (0,0.10) (450.000,0.48) +- (0,0.10) (510.000,0.44) +- (0,0.10) (570.000,0.31) +- (0,0.11) (630.000,0.40) +- (0,0.11) (690.000,0.37) +- (0,0.08)};
+  \end{axis}
+  \begin{axis}[causalre wide, height=2.8cm, xmin=-360, xmax=720, xtick={-360,0,360,720}, xlabel={benchmark maturity at release (days)}, ylabel={standing}, ymin=30, ymax=75, at={(mech.south west)}, anchor=north west, yshift=-12pt,
+    legend to name=leg:boundary, legend columns=2]
+    \addplot[black, dashed, thin, forget plot] coordinates {(0,30) (0,75)};
+    \addplot[cSF, only marks, mark=square*, mark size=1.4pt,
+             error bars/.cd, y dir=both, y explicit]
+      coordinates {(-270.000,40.78) +- (0,18.37) (-210.000,41.55) +- (0,14.24) (-150.000,45.00) +- (0,16.04) (-90.000,41.36) +- (0,14.81) (-30.000,44.91) +- (0,13.75)};
+    \addlegendentry{benchmark postdates the release}
+    \addplot[cNYC, only marks, mark=*, mark size=1.4pt,
+             error bars/.cd, y dir=both, y explicit]
+      coordinates {(30.000,45.04) +- (0,13.16) (90.000,46.87) +- (0,13.81) (150.000,54.42) +- (0,11.65) (210.000,51.49) +- (0,11.25) (270.000,53.77) +- (0,12.19) (330.000,50.14) +- (0,13.47) (390.000,58.21) +- (0,12.71) (450.000,46.04) +- (0,12.76) (510.000,55.12) +- (0,13.60) (570.000,57.18) +- (0,13.73) (630.000,51.43) +- (0,12.65) (690.000,53.95) +- (0,12.64)};
+    \addlegendentry{benchmark predates the release}
+  \end{axis}
+\end{tikzpicture}
+\\[2pt]
+{\footnotesize \ref{leg:boundary}}

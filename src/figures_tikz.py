@@ -99,6 +99,64 @@ def fig_one_curve(panel):
 {{\\footnotesize \\ref{{leg:onecurve}}}}"""
 
 
+def fig_boundary(panel):
+    """The fuzzy-RD pair: the mechanism jumps at the boundary, the outcome does not."""
+    cells = panel[panel["eligible"] | panel["placebo"]].dropna(
+        subset=["percentile", "share_newer"]).copy()
+    cells["maturity"] = (cells["Release date"]
+                         - cells["benchmark_release_date"]).dt.days
+    cells = cells[(cells["maturity"] >= -360) & (cells["maturity"] <= 720)]
+
+    def day_binned(frame, ycol, lo=-360, hi=720, width=60, min_cells=15):
+        rows = []
+        for left in range(lo, hi, width):
+            cell = frame[(frame["maturity"] >= left) & (frame["maturity"] < left + width)]
+            if len(cell) < min_cells:
+                continue
+            spread = cell[ycol].std() / np.sqrt(max(cell["primary_org"].nunique(), 1))
+            rows.append((left + width / 2, cell[ycol].mean(), 1.96 * spread))
+        return rows
+
+    parts = {}
+    for side, mask in (("plac", cells["maturity"] <= 0), ("elig", cells["maturity"] > 0)):
+        sub = cells[mask]
+        parts[side + "_share"] = day_binned(sub, "share_newer")
+        parts[side + "_pct"] = day_binned(sub, "percentile")
+
+    top = ("causalre wide, height=2.8cm, xmin=-360, xmax=720, "
+           "xtick={-360,0,360,720}, xticklabels={,,,}, "
+           "ylabel={newer share}, ymin=0.25, ymax=0.95, ytick={0.3,0.5,0.7,0.9}")
+    bot = ("causalre wide, height=2.8cm, xmin=-360, xmax=720, "
+           "xtick={-360,0,360,720}, "
+           "xlabel={benchmark maturity at release (days)}, "
+           "ylabel={standing}, ymin=30, ymax=75")
+    return rf"""\begin{{tikzpicture}}
+  \begin{{axis}}[{top}, name=mech]
+    \addplot[black, dashed, thin, forget plot] coordinates {{(0,0.25) (0,0.95)}};
+    \addplot[cSF, only marks, mark=square*, mark size=1.4pt,
+             error bars/.cd, y dir=both, y explicit]
+      coordinates {{{_coords(parts["plac_share"], errors=True)}}};
+    \addplot[cNYC, only marks, mark=*, mark size=1.4pt,
+             error bars/.cd, y dir=both, y explicit]
+      coordinates {{{_coords(parts["elig_share"], errors=True)}}};
+  \end{{axis}}
+  \begin{{axis}}[{bot}, at={{(mech.south west)}}, anchor=north west, yshift=-12pt,
+    legend to name=leg:boundary, legend columns=2]
+    \addplot[black, dashed, thin, forget plot] coordinates {{(0,30) (0,75)}};
+    \addplot[cSF, only marks, mark=square*, mark size=1.4pt,
+             error bars/.cd, y dir=both, y explicit]
+      coordinates {{{_coords(parts["plac_pct"], errors=True)}}};
+    \addlegendentry{{benchmark postdates the release}}
+    \addplot[cNYC, only marks, mark=*, mark size=1.4pt,
+             error bars/.cd, y dir=both, y explicit]
+      coordinates {{{_coords(parts["elig_pct"], errors=True)}}};
+    \addlegendentry{{benchmark predates the release}}
+  \end{{axis}}
+\end{{tikzpicture}}
+\\[2pt]
+{{\footnotesize \ref{{leg:boundary}}}}"""
+
+
 def fig_correction(panel):
     """The side-balanced repair against the uncorrected measure, for the appendix."""
     only = panel[panel["eligible"]]
@@ -257,6 +315,7 @@ def main():
         "fig_correction.tex": fig_correction(panel),
         "fig_helm.tex": fig_helm(),
         "fig_geometry.tex": fig_geometry(),
+        "fig_boundary.tex": fig_boundary(panel),
     }
     for name, body in written.items():
         (OUT / name).write_text(body + "\n")

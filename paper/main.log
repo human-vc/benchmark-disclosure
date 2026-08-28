@@ -902,7 +902,7 @@ Package microtype Info: Loading generic protrusion settings for font family
 
 
 ]) (sections/data [2] [3])
-(sections/core [4] (figures/table1_decomposition) (figures/fig_geometry)
+(sections/core [4] (figures/table1_decomposition) (figures/fig_boundary)
 [5] (figures/fig_one_curve) [6] (figures/table2_remedies)) (sections/external
 [7] (figures/fig_helm) [8]) (sections/reach (figures/table3_coding))
 (sections/conclusion [9]) (main.bbl
@@ -925,4 +925,4 @@ LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 Package rerunfilecheck Info: File `main.out' has not changed.
 (rerunfilecheck)             Checksum: A81E2AA2F676465EBB7033238833756D;2826.
  )
-Output written on main.xdv (19 pages, 829708 bytes).
+Output written on main.xdv (19 pages, 907688 bytes).
