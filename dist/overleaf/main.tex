@@ -151,9 +151,81 @@ It is not zero. Across 146 releases with both kinds of cell, eligible benchmarks
 \autoref{tab:decomposition}, in Appendix~\ref{sec:supporting}, locates the failure, regressing standing on a placebo indicator, equal to one when the benchmark postdates the release, always within release. With release effects alone, the placebo coefficient is $-13.529$ (2.038). Adding benchmark fixed effects absorbs 63.4\% of it and leaves $-4.949$ (2.183). Benchmark composition therefore carries most of the gap, and structurally so: the panel is unbalanced, and placebo cells concentrate by construction in benchmarks that entered late. Those benchmarks are less saturated: split at median publication date, 8.3\% of scores on the later half of the 54 benchmarks with ten or more scores sit in the top decile of the benchmark's own range against 13.2\% on the earlier half ($p = 0.015$). A late instrument therefore leaves more room below the ceiling. Adding the peer-window asymmetry term, the share of a cell's comparison window released after the focal model, instead of benchmark effects absorbs 39.8\% and leaves $-8.151$ (1.865). Conditioning jointly on benchmark effects and both window terms absorbs all but 0.003 points and leaves $-0.003$ (1.748), an interval reaching $+3.4$, so the residual is bounded at under a third of the original gap rather than at zero.
 
 
-The mechanism behind the second dimension is geometric. The comparison window is symmetric in calendar time, 182 days on each side of the release, but a benchmark's model coverage is not symmetric in calendar time, because coverage begins when the benchmark is built. \autoref{fig:boundary}, in Appendix~\ref{sec:supporting}, plots the two objects this creates against benchmark maturity at release: the share of the window that is newer falls with maturity and jumps at the availability boundary, while standing runs through it without a detectable break. The mechanism is discontinuous where the outcome is not; peer-set composition is a property of timing alone.
+The mechanism behind the second dimension is geometric. The comparison window is symmetric in calendar time, 182 days on each side of the release, but a benchmark's model coverage is not symmetric in calendar time, because coverage begins when the benchmark is built. \autoref{fig:boundary} plots the two objects this creates against benchmark maturity at release: the share of the window that is newer falls with maturity and jumps at the availability boundary, while standing runs through it without a detectable break. The mechanism is discontinuous where the outcome is not; peer-set composition is a property of timing alone.
 
-The share of a cell's window released after the focal model is 0.4683 for eligible cells and 0.7065 for placebo cells, against 0.5 for a two-sided window. Within release, the slope of standing on that share is $-30.63$ percentile points per unit among eligible cells alone. \autoref{fig:one-curve}, in Appendix~\ref{sec:supporting}, plots standing against that share for both groups at once. Eligible and placebo cells do not form two clouds at different heights; they trace a single declining curve, common only once benchmark composition is absorbed (\autoref{tab:decomposition}), and differ in where along it they fall. On the variable that assigns them, benchmark maturity at release, they cannot overlap at all, so the contrast is an extrapolation across that boundary rather than a comparison within common support. The check is at the boundary, the one place Section \ref{sec:data-model} leaves identified under continuity \citep{hahn2001identification}. Nothing detectable happens there. Local linear estimates are negative across four bandwidths and two polynomial orders, every interval covers zero though the widest reaches $+8.05$, and a window chosen on covariate balance puts the difference at $-2.52$ with a randomization $p$ of 0.447 \citep{cattaneo2015randomization}. The two groups' mean maturity differs by 793 days, and the gap lives in that distance rather than at the boundary (grid and balance tests in Appendix~\ref{sec:supporting}).
+\begin{figure}[H]\centering
+% ---- begin figures/fig_boundary ----
+\begin{tikzpicture}
+  \begin{axis}[causalre wide, height=2.5cm, xmin=-360, xmax=720, xtick={-360,0,360,720}, xticklabels={,,,}, ylabel={newer share}, ymin=0.25, ymax=0.95, ytick={0.3,0.5,0.7,0.9}, name=mech]
+    \addplot[black, dashed, thin, forget plot] coordinates {(0,0.25) (0,0.95)};
+    \addplot[cSF, only marks, mark=square*, mark size=1.4pt,
+             error bars/.cd, y dir=both, y explicit]
+      coordinates {(-270.000,0.82) +- (0,0.08) (-210.000,0.79) +- (0,0.08) (-150.000,0.73) +- (0,0.11) (-90.000,0.71) +- (0,0.08) (-30.000,0.63) +- (0,0.10)};
+    \addplot[cNYC, only marks, mark=*, mark size=1.4pt,
+             error bars/.cd, y dir=both, y explicit]
+      coordinates {(30.000,0.60) +- (0,0.07) (90.000,0.53) +- (0,0.08) (150.000,0.50) +- (0,0.09) (210.000,0.42) +- (0,0.08) (270.000,0.41) +- (0,0.10) (330.000,0.43) +- (0,0.11) (390.000,0.41) +- (0,0.10) (450.000,0.48) +- (0,0.10) (510.000,0.44) +- (0,0.10) (570.000,0.31) +- (0,0.11) (630.000,0.40) +- (0,0.11) (690.000,0.37) +- (0,0.08)};
+  \end{axis}
+  \begin{axis}[causalre wide, height=2.5cm, xmin=-360, xmax=720, xtick={-360,0,360,720}, xlabel={benchmark maturity at release (days)}, ylabel={standing}, ymin=30, ymax=75, at={(mech.south west)}, anchor=north west, yshift=-12pt,
+    legend to name=leg:boundary, legend columns=2]
+    \addplot[black, dashed, thin, forget plot] coordinates {(0,30) (0,75)};
+    \addplot[cSF, only marks, mark=square*, mark size=1.4pt,
+             error bars/.cd, y dir=both, y explicit]
+      coordinates {(-270.000,40.78) +- (0,18.37) (-210.000,41.55) +- (0,14.24) (-150.000,45.00) +- (0,16.04) (-90.000,41.36) +- (0,14.81) (-30.000,44.91) +- (0,13.75)};
+    \addlegendentry{benchmark postdates the release}
+    \addplot[cNYC, only marks, mark=*, mark size=1.4pt,
+             error bars/.cd, y dir=both, y explicit]
+      coordinates {(30.000,45.04) +- (0,13.16) (90.000,46.87) +- (0,13.81) (150.000,54.42) +- (0,11.65) (210.000,51.49) +- (0,11.25) (270.000,53.77) +- (0,12.19) (330.000,50.14) +- (0,13.47) (390.000,58.21) +- (0,12.71) (450.000,46.04) +- (0,12.76) (510.000,55.12) +- (0,13.60) (570.000,57.18) +- (0,13.73) (630.000,51.43) +- (0,12.65) (690.000,53.95) +- (0,12.64)};
+    \addlegendentry{benchmark predates the release}
+  \end{axis}
+\end{tikzpicture}
+\\[2pt]
+{\footnotesize \ref{leg:boundary}}
+% ---- end figures/fig_boundary ----
+\caption{The mechanism and the outcome at the availability boundary. Top: the share of a
+cell's comparison window released after the focal model, against benchmark maturity at
+release; it falls with maturity and jumps at the boundary. Bottom: within-benchmark
+standing on the same axis, continuous through it. Sixty-day bins; intervals clustered on
+organisation.}
+\label{fig:boundary}
+\end{figure}
+
+
+\begin{figure}[H]\centering
+% ---- begin figures/fig_one_curve ----
+\begin{tikzpicture}
+  \begin{axis}[causalre wide, height=3.4cm, xmin=0, xmax=1, xtick={0,0.5,1}, xlabel={share of window newer than the focal model}, ymin=20, ymax=80,
+    ylabel={within-benchmark standing},
+    legend to name=leg:onecurve, legend columns=3]
+    \addplot[black, line width=1.0pt, smooth, forget plot]
+      coordinates {(0.050,62.60) (0.150,62.49) (0.250,58.77) (0.350,54.92) (0.450,51.84) (0.550,47.99) (0.650,43.51) (0.750,40.74) (0.850,42.82) (0.950,36.33)};
+    \addplot[black, dashed, thin, forget plot] coordinates {(0.5,20) (0.5,80)};
+    \addplot[cNYC, dashed, thin, forget plot]
+      coordinates {(0.468,20) (0.468,80)};
+    \addplot[cSF, dashed, thin, forget plot]
+      coordinates {(0.707,20) (0.707,80)};
+    \addplot[cNYC, only marks, mark=*, mark size=1.4pt,
+             error bars/.cd, y dir=both, y explicit]
+      coordinates {(0.050,62.91) +- (0,13.17) (0.150,62.75) +- (0,13.73) (0.250,58.84) +- (0,10.53) (0.350,54.87) +- (0,10.42) (0.450,52.09) +- (0,10.63) (0.550,47.98) +- (0,9.26) (0.650,44.05) +- (0,9.94) (0.750,39.90) +- (0,12.27) (0.850,45.95) +- (0,12.64)};
+    \addlegendentry{benchmark predates the release}
+    \addplot[cSF, only marks, mark=square*, mark size=1.4pt,
+             error bars/.cd, y dir=both, y explicit]
+      coordinates {(0.450,47.28) +- (0,18.44) (0.550,48.08) +- (0,14.83) (0.650,41.55) +- (0,15.63) (0.750,42.43) +- (0,12.52) (0.850,41.34) +- (0,15.18) (0.950,36.23) +- (0,15.97)};
+    \addlegendentry{benchmark postdates the release}
+    \addplot[black, line width=1.0pt] coordinates {(0,0)};
+    \addlegendentry{all cells pooled}
+  \end{axis}
+\end{tikzpicture}
+\\[2pt]
+{\footnotesize \ref{leg:onecurve}}
+% ---- end figures/fig_one_curve ----
+\caption{Standing against the share of a cell's comparison window released after the focal
+model; dashed verticals mark each group's mean share, and the black dashed line the symmetric 0.5. Eligible and placebo cells lie on one
+declining curve, so the contrast between them is a position on that curve rather than a fact
+about disclosure. Intervals are clustered on organisation.}
+\label{fig:one-curve}
+\end{figure}
+
+The share of a cell's window released after the focal model is 0.4683 for eligible cells and 0.7065 for placebo cells, against 0.5 for a two-sided window. Within release, the slope of standing on that share is $-30.63$ percentile points per unit among eligible cells alone. \autoref{fig:one-curve} plots standing against that share for both groups at once. Eligible and placebo cells do not form two clouds at different heights; they trace a single declining curve, common only once benchmark composition is absorbed (\autoref{tab:decomposition}), and differ in where along it they fall. On the variable that assigns them, benchmark maturity at release, they cannot overlap at all, so the contrast is an extrapolation across that boundary rather than a comparison within common support. The check is at the boundary, the one place Section \ref{sec:data-model} leaves identified under continuity \citep{hahn2001identification}. Nothing detectable happens there. Local linear estimates are negative across four bandwidths and two polynomial orders, every interval covers zero though the widest reaches $+8.05$, and a window chosen on covariate balance puts the difference at $-2.52$ with a randomization $p$ of 0.447 \citep{cattaneo2015randomization}. The two groups' mean maturity differs by 793 days, and the gap lives in that distance rather than at the boundary (grid and balance tests in Appendix~\ref{sec:supporting}).
 
 Standing decomposes into a weighted average of position among older and newer peers, $\text{percentile} = (1 - w)\,P_{\text{old}} + w\,P_{\text{new}}$ with $w$ the newer share of window peers, exact cell by cell. Replacing the empirical weight with one half defines the side-balanced measure, available for 92.5\% of all cells and 92.8\% of eligible-or-placebo cells, and cuts the same slope to $-8.56$.
 
@@ -201,43 +273,7 @@ If a leaderboard moves, the first thing to rule out is a revised suite. Across r
 Against that frozen evidence, all 24 constant models see their published Mean win rate change, by 0.1232 on average in absolute value and by as much as 0.2178 for Mixtral 8x7B. Most of that movement is arithmetic: Mean win rate is the fraction of head-to-head comparisons a model wins, so a fixed model faces a larger, later field as the pool
 grows; the change correlates with initial standing at $-0.766$.
 
-The movement that matters is elsewhere. If the drift were a monotone transform of the frozen evidence, it would be harmless, since a monotone rescaling preserves every order. It is not. Of the 24, 22 fall and two rise, and five of the 276 pairs among them, 1.8\%, reverse between the first release and the last, each a published order inversion with bit-identical evidence beneath it. \autoref{fig:helm} plots each model's rank among the constant set at the first release against the last, so a reversed pair is a crossing, countable on the page while the evidence beneath is fixed. Unlike test-set reuse \citep{roelofs2019meta}, the evidence is fixed; the reference set is what moves. The published numbers are correct as defined at every release; what changed was the pool, and the published order followed it. \citet{singh2025leaderboard} reports a comparable pattern from a different mechanism, deprecation policy rather than a coverage boundary changing which models remain available, and in both the reference set rather than the evidence moves the ranking.
-
-\begin{figure}[H]\centering
-% ---- begin figures/fig_helm ----
-\begin{tikzpicture}
-  \begin{axis}[causalre wide, height=3.65cm, y dir=reverse,
-    xmin=0, xmax=1, ymin=2.8, ymax=19.2,
-    xtick={0.45,0.75}, xticklabels={v1.0.0,v1.13.0}, xlabel={release},
-    ytick={4,8,12,16}, ylabel={rank among the 24 constant models}]
-    \addplot[cPNK, line width=0.9pt, mark=*, mark size=1.2pt, forget plot] coordinates {(0.45,4) (0.75,5)};
-    \addplot[cPNK, line width=0.9pt, mark=*, mark size=1.2pt, forget plot] coordinates {(0.45,5) (0.75,4)};
-    \addplot[cGRN, line width=0.9pt, mark=*, mark size=1.2pt, forget plot] coordinates {(0.45,7) (0.75,8)};
-    \addplot[cGRN, line width=0.9pt, mark=*, mark size=1.2pt, forget plot] coordinates {(0.45,8) (0.75,7)};
-    \addplot[cNYC, line width=0.9pt, mark=*, mark size=1.2pt, forget plot] coordinates {(0.45,11) (0.75,13)};
-    \addplot[cNYC, line width=0.9pt, mark=*, mark size=1.2pt, forget plot] coordinates {(0.45,12) (0.75,11)};
-    \addplot[cNYC, line width=0.9pt, mark=*, mark size=1.2pt, forget plot] coordinates {(0.45,13) (0.75,12)};
-    \addplot[cSF, line width=0.9pt, mark=*, mark size=1.2pt, forget plot] coordinates {(0.45,17) (0.75,18)};
-    \addplot[cSF, line width=0.9pt, mark=*, mark size=1.2pt, forget plot] coordinates {(0.45,18) (0.75,17)};
-    \node[anchor=east, font=\tiny, text=black] at (axis cs:0.43,3.65) {Palmyra X V2 33B};
-    \node[anchor=east, font=\tiny, text=black] at (axis cs:0.43,5.35) {PaLM-2 Unicorn};
-    \node[anchor=east, font=\tiny, text=black] at (axis cs:0.43,6.65) {Mixtral 8x7B};
-    \node[anchor=east, font=\tiny, text=black] at (axis cs:0.43,8.35) {PaLM-2 Bison};
-    \node[anchor=east, font=\tiny, text=black] at (axis cs:0.43,10.30) {GPT-3.5 davinci-002};
-    \node[anchor=east, font=\tiny, text=black] at (axis cs:0.43,12.00) {GPT-3.5 Turbo 0613};
-    \node[anchor=east, font=\tiny, text=black] at (axis cs:0.43,13.70) {LLaMA 65B};
-    \node[anchor=east, font=\tiny, text=black] at (axis cs:0.43,16.65) {Jurassic-2 Jumbo 178B};
-    \node[anchor=east, font=\tiny, text=black] at (axis cs:0.43,18.35) {Falcon 40B};
-  \end{axis}
-\end{tikzpicture}
-% ---- end figures/fig_helm ----
-\caption{The nine HELM Lite models whose published order changed between the first release
-and the last, ranked among the 24 whose 240 scenario scores are bit-identical throughout;
-coloured by group of mutually reversing models, four groups and five reversed pairs in all. The control: across 16 HELM Capabilities releases behind an
-absolute headline, with the pool growing from 22 to 68, none of the 22 constant models'
-headline values moved and no pair reversed.}
-\label{fig:helm}
-\end{figure}
+The movement that matters is elsewhere. If the drift were a monotone transform of the frozen evidence, it would be harmless, since a monotone rescaling preserves every order. It is not. Of the 24, 22 fall and two rise, and five of the 276 pairs among them, 1.8\%, reverse between the first release and the last, each a published order inversion with bit-identical evidence beneath it. \autoref{fig:helm}, in Appendix~\ref{sec:supporting}, plots each model's rank among the constant set at the first release against the last, so a reversed pair is a crossing, countable on the page while the evidence beneath is fixed. Unlike test-set reuse \citep{roelofs2019meta}, the evidence is fixed; the reference set is what moves. The published numbers are correct as defined at every release; what changed was the pool, and the published order followed it. \citet{singh2025leaderboard} reports a comparable pattern from a different mechanism, deprecation policy rather than a coverage boundary changing which models remain available, and in both the reference set rather than the evidence moves the ranking.
 
 The control, HELM Capabilities, comes from the same organisation, whose maintainers had diagnosed the win rate as pool-dependent \citep{xu2025capabilities}; it runs on the same infrastructure and cadence, its pool growing comparably, from 22 models to 68 over 16 releases. Its headline is an absolute mean over scenarios rather than a fraction of comparisons won. The same 22 models appear in every release with 110 scenario scores bit-identical, none of the 22 headline values moves, and no pair reorders, at the endpoints or ever. An absolute mean over bit-identical scores on a fixed suite cannot move with the pool, so zero drift is arithmetic, a scope condition rather than a test that could have failed.
 
@@ -357,74 +393,39 @@ on average over 30 draws, with a maximum of 0.24, so the bound reflects the tren
 multiplies rather than the geometry alone.
 
 \begin{figure}[H]\centering
-% ---- begin figures/fig_one_curve ----
+% ---- begin figures/fig_helm ----
 \begin{tikzpicture}
-  \begin{axis}[causalre wide, height=3.4cm, xmin=0, xmax=1, xtick={0,0.5,1}, xlabel={share of window newer than the focal model}, ymin=20, ymax=80,
-    ylabel={within-benchmark standing},
-    legend to name=leg:onecurve, legend columns=3]
-    \addplot[black, line width=1.0pt, smooth, forget plot]
-      coordinates {(0.050,62.60) (0.150,62.49) (0.250,58.77) (0.350,54.92) (0.450,51.84) (0.550,47.99) (0.650,43.51) (0.750,40.74) (0.850,42.82) (0.950,36.33)};
-    \addplot[black, dashed, thin, forget plot] coordinates {(0.5,20) (0.5,80)};
-    \addplot[cNYC, dashed, thin, forget plot]
-      coordinates {(0.468,20) (0.468,80)};
-    \addplot[cSF, dashed, thin, forget plot]
-      coordinates {(0.707,20) (0.707,80)};
-    \addplot[cNYC, only marks, mark=*, mark size=1.4pt,
-             error bars/.cd, y dir=both, y explicit]
-      coordinates {(0.050,62.91) +- (0,13.17) (0.150,62.75) +- (0,13.73) (0.250,58.84) +- (0,10.53) (0.350,54.87) +- (0,10.42) (0.450,52.09) +- (0,10.63) (0.550,47.98) +- (0,9.26) (0.650,44.05) +- (0,9.94) (0.750,39.90) +- (0,12.27) (0.850,45.95) +- (0,12.64)};
-    \addlegendentry{benchmark predates the release}
-    \addplot[cSF, only marks, mark=square*, mark size=1.4pt,
-             error bars/.cd, y dir=both, y explicit]
-      coordinates {(0.450,47.28) +- (0,18.44) (0.550,48.08) +- (0,14.83) (0.650,41.55) +- (0,15.63) (0.750,42.43) +- (0,12.52) (0.850,41.34) +- (0,15.18) (0.950,36.23) +- (0,15.97)};
-    \addlegendentry{benchmark postdates the release}
-    \addplot[black, line width=1.0pt] coordinates {(0,0)};
-    \addlegendentry{all cells pooled}
+  \begin{axis}[causalre wide, height=5.6cm, y dir=reverse,
+    xmin=0, xmax=1, ymin=2.8, ymax=19.2,
+    xtick={0.45,0.75}, xticklabels={v1.0.0,v1.13.0}, xlabel={release},
+    ytick={4,8,12,16}, ylabel={rank among the 24 constant models}]
+    \addplot[cPNK, line width=0.9pt, mark=*, mark size=1.2pt, forget plot] coordinates {(0.45,4) (0.75,5)};
+    \addplot[cPNK, line width=0.9pt, mark=*, mark size=1.2pt, forget plot] coordinates {(0.45,5) (0.75,4)};
+    \addplot[cGRN, line width=0.9pt, mark=*, mark size=1.2pt, forget plot] coordinates {(0.45,7) (0.75,8)};
+    \addplot[cGRN, line width=0.9pt, mark=*, mark size=1.2pt, forget plot] coordinates {(0.45,8) (0.75,7)};
+    \addplot[cNYC, line width=0.9pt, mark=*, mark size=1.2pt, forget plot] coordinates {(0.45,11) (0.75,13)};
+    \addplot[cNYC, line width=0.9pt, mark=*, mark size=1.2pt, forget plot] coordinates {(0.45,12) (0.75,11)};
+    \addplot[cNYC, line width=0.9pt, mark=*, mark size=1.2pt, forget plot] coordinates {(0.45,13) (0.75,12)};
+    \addplot[cSF, line width=0.9pt, mark=*, mark size=1.2pt, forget plot] coordinates {(0.45,17) (0.75,18)};
+    \addplot[cSF, line width=0.9pt, mark=*, mark size=1.2pt, forget plot] coordinates {(0.45,18) (0.75,17)};
+    \node[anchor=east, font=\tiny, text=black] at (axis cs:0.43,3.65) {Palmyra X V2 33B};
+    \node[anchor=east, font=\tiny, text=black] at (axis cs:0.43,5.35) {PaLM-2 Unicorn};
+    \node[anchor=east, font=\tiny, text=black] at (axis cs:0.43,6.65) {Mixtral 8x7B};
+    \node[anchor=east, font=\tiny, text=black] at (axis cs:0.43,8.35) {PaLM-2 Bison};
+    \node[anchor=east, font=\tiny, text=black] at (axis cs:0.43,10.30) {GPT-3.5 davinci-002};
+    \node[anchor=east, font=\tiny, text=black] at (axis cs:0.43,12.00) {GPT-3.5 Turbo 0613};
+    \node[anchor=east, font=\tiny, text=black] at (axis cs:0.43,13.70) {LLaMA 65B};
+    \node[anchor=east, font=\tiny, text=black] at (axis cs:0.43,16.65) {Jurassic-2 Jumbo 178B};
+    \node[anchor=east, font=\tiny, text=black] at (axis cs:0.43,18.35) {Falcon 40B};
   \end{axis}
 \end{tikzpicture}
-\\[2pt]
-{\footnotesize \ref{leg:onecurve}}
-% ---- end figures/fig_one_curve ----
-\caption{Standing against the share of a cell's comparison window released after the focal
-model; dashed verticals mark each group's mean share, and the black dashed line the symmetric 0.5. Eligible and placebo cells lie on one
-declining curve, so the contrast between them is a position on that curve rather than a fact
-about disclosure. Intervals are clustered on organisation.}
-\label{fig:one-curve}
-\end{figure}
-
-\begin{figure}[H]\centering
-% ---- begin figures/fig_boundary ----
-\begin{tikzpicture}
-  \begin{axis}[causalre wide, height=2.5cm, xmin=-360, xmax=720, xtick={-360,0,360,720}, xticklabels={,,,}, ylabel={newer share}, ymin=0.25, ymax=0.95, ytick={0.3,0.5,0.7,0.9}, name=mech]
-    \addplot[black, dashed, thin, forget plot] coordinates {(0,0.25) (0,0.95)};
-    \addplot[cSF, only marks, mark=square*, mark size=1.4pt,
-             error bars/.cd, y dir=both, y explicit]
-      coordinates {(-270.000,0.82) +- (0,0.08) (-210.000,0.79) +- (0,0.08) (-150.000,0.73) +- (0,0.11) (-90.000,0.71) +- (0,0.08) (-30.000,0.63) +- (0,0.10)};
-    \addplot[cNYC, only marks, mark=*, mark size=1.4pt,
-             error bars/.cd, y dir=both, y explicit]
-      coordinates {(30.000,0.60) +- (0,0.07) (90.000,0.53) +- (0,0.08) (150.000,0.50) +- (0,0.09) (210.000,0.42) +- (0,0.08) (270.000,0.41) +- (0,0.10) (330.000,0.43) +- (0,0.11) (390.000,0.41) +- (0,0.10) (450.000,0.48) +- (0,0.10) (510.000,0.44) +- (0,0.10) (570.000,0.31) +- (0,0.11) (630.000,0.40) +- (0,0.11) (690.000,0.37) +- (0,0.08)};
-  \end{axis}
-  \begin{axis}[causalre wide, height=2.5cm, xmin=-360, xmax=720, xtick={-360,0,360,720}, xlabel={benchmark maturity at release (days)}, ylabel={standing}, ymin=30, ymax=75, at={(mech.south west)}, anchor=north west, yshift=-12pt,
-    legend to name=leg:boundary, legend columns=2]
-    \addplot[black, dashed, thin, forget plot] coordinates {(0,30) (0,75)};
-    \addplot[cSF, only marks, mark=square*, mark size=1.4pt,
-             error bars/.cd, y dir=both, y explicit]
-      coordinates {(-270.000,40.78) +- (0,18.37) (-210.000,41.55) +- (0,14.24) (-150.000,45.00) +- (0,16.04) (-90.000,41.36) +- (0,14.81) (-30.000,44.91) +- (0,13.75)};
-    \addlegendentry{benchmark postdates the release}
-    \addplot[cNYC, only marks, mark=*, mark size=1.4pt,
-             error bars/.cd, y dir=both, y explicit]
-      coordinates {(30.000,45.04) +- (0,13.16) (90.000,46.87) +- (0,13.81) (150.000,54.42) +- (0,11.65) (210.000,51.49) +- (0,11.25) (270.000,53.77) +- (0,12.19) (330.000,50.14) +- (0,13.47) (390.000,58.21) +- (0,12.71) (450.000,46.04) +- (0,12.76) (510.000,55.12) +- (0,13.60) (570.000,57.18) +- (0,13.73) (630.000,51.43) +- (0,12.65) (690.000,53.95) +- (0,12.64)};
-    \addlegendentry{benchmark predates the release}
-  \end{axis}
-\end{tikzpicture}
-\\[2pt]
-{\footnotesize \ref{leg:boundary}}
-% ---- end figures/fig_boundary ----
-\caption{The mechanism and the outcome at the availability boundary. Top: the share of a
-cell's comparison window released after the focal model, against benchmark maturity at
-release; it falls with maturity and jumps at the boundary. Bottom: within-benchmark
-standing on the same axis, continuous through it. Sixty-day bins; intervals clustered on
-organisation.}
-\label{fig:boundary}
+% ---- end figures/fig_helm ----
+\caption{The nine HELM Lite models whose published order changed between the first release
+and the last, ranked among the 24 whose 240 scenario scores are bit-identical throughout;
+coloured by group of mutually reversing models, four groups and five reversed pairs in all. The control: across 16 HELM Capabilities releases behind an
+absolute headline, with the pool growing from 22 to 68, none of the 22 constant models'
+headline values moved and no pair reversed.}
+\label{fig:helm}
 \end{figure}
 
 \paragraph{The boundary as a discontinuity.}

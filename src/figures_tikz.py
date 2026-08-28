@@ -270,7 +270,7 @@ def fig_helm():
     lo = min(first[m] for m in movers) - 1
     hi = max(first[m] for m in movers) + 1
     return f"""\\begin{{tikzpicture}}
-  \\begin{{axis}}[causalre wide, height=3.65cm, y dir=reverse,
+  \\begin{{axis}}[causalre wide, height=5.6cm, y dir=reverse,
     xmin=0, xmax=1, ymin={lo - 0.2}, ymax={hi + 0.2},
     xtick={{0.45,0.75}}, xticklabels={{{v0},{v1}}}, xlabel={{release}},
     ytick={{4,8,12,16}}, ylabel={{rank among the {total} constant models}}]
