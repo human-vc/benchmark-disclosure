@@ -85,14 +85,6 @@ rather than ahead of them. Its difficulty parameters are estimated from the matu
 deficiency untouched, drops the same quantity to 0.02 on average over 30 draws.
 
 \begin{figure}[H]\centering
-\input{figures/fig_geometry}
-\caption{Why the window is one-sided at the boundary. One benchmark, born at the green rule,
-and two releases (blue) with 182-day windows (shaded): the upper ships just after the
-benchmark, so the older half of its window covers a stretch that is only sparsely scored.}
-\label{fig:geometry}
-\end{figure}
-
-\begin{figure}[H]\centering
 \input{figures/fig_correction}
 \caption{The side-balanced percentile against the windowed one, on eligible cells within release.
 The windowed measure slopes across the range while the side-balanced one is close to flat where cells are dense; the quoted gradients, $-30.63$ to $-8.56$ per unit share, are the within-release regression slopes on these cells, and the release-demeaned binned means shown are correspondingly flatter.}
@@ -124,16 +116,6 @@ upward by sampling; and the best-across-scaffolds score rule is not probed for a
 across the boundary. High-suspicion marginals match exactly at 5.7\% for each coder, which is why the split
 $\kappa$ holds at 0.81 despite the category's rarity; its wide interval reflects eleven such
 cells concentrating in a few releases.
-
-\begin{figure}[H]\centering
-\input{figures/fig_helm}
-\caption{The nine HELM Lite models whose published order changed between the first release
-and the last, ranked among the 24 whose 240 scenario scores are bit-identical throughout;
-coloured by group of mutually reversing models, four groups and five reversed pairs in all. The control: across 16 HELM Capabilities releases behind an
-absolute headline, with the pool growing from 22 to 68, none of the 22 constant models'
-headline values moved and no pair reversed.}
-\label{fig:helm}
-\end{figure}
 
 \paragraph{Provider-only clustering, for comparison.}
 The manuscript's regressions cluster on provider and benchmark jointly. Provider-only errors are

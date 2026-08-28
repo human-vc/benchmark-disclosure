@@ -12,7 +12,15 @@ It is not zero. Across 146 releases with both kinds of cell, eligible benchmarks
 
 \input{figures/table1_decomposition}
 
-The mechanism behind the second dimension is geometric. The comparison window is symmetric in calendar time, 182 days on each side of the release, but a benchmark's model coverage is not symmetric in calendar time, because coverage begins when the benchmark is built. \autoref{fig:geometry} in Appendix~\ref{sec:supporting} draws both cases on one benchmark's coverage: a release at its start reaches back into a sparsely scored stretch, one in the interior fills both sides, and the lanes differ only in when the release shipped, making peer-set composition a property of timing alone.
+The mechanism behind the second dimension is geometric. The comparison window is symmetric in calendar time, 182 days on each side of the release, but a benchmark's model coverage is not symmetric in calendar time, because coverage begins when the benchmark is built. \autoref{fig:geometry} draws both cases on one benchmark's coverage: a release at its start reaches back into a sparsely scored stretch, one in the interior fills both sides, and the lanes differ only in when the release shipped, making peer-set composition a property of timing alone.
+
+\begin{figure}[H]\centering
+\input{figures/fig_geometry}
+\caption{Why the window is one-sided at the boundary. One benchmark, born at the green rule,
+and two releases (blue) with 182-day windows (shaded): the upper ships just after the
+benchmark, so the older half of its window covers a stretch that is only sparsely scored.}
+\label{fig:geometry}
+\end{figure}
 
 The share of a cell's window released after the focal model is 0.4683 for eligible cells and 0.7065 for placebo cells, against 0.5 for a two-sided window. Within release, the slope of standing on that share is $-30.63$ percentile points per unit among eligible cells alone. \autoref{fig:one-curve} plots standing against that share for both groups at once. Eligible and placebo cells do not form two clouds at different heights; they trace a single declining curve, common only once benchmark composition is absorbed (\autoref{tab:decomposition}), and differ in where along it they fall. On the variable that assigns them, benchmark maturity at release, they cannot overlap at all, so the contrast is an extrapolation across that boundary rather than a comparison within common support. The check is at the boundary, the one place Section \ref{sec:data-model} leaves identified under continuity \citep{hahn2001identification}. Nothing detectable happens there. Local linear estimates are negative across four bandwidths and two polynomial orders, every interval covers zero though the widest reaches $+8.05$, and a window chosen on covariate balance puts the difference at $-2.52$ with a randomization $p$ of 0.447 \citep{cattaneo2015randomization}. The two groups' mean maturity differs by 793 days, and the gap lives in that distance rather than at the boundary (grid and balance tests in Appendix~\ref{sec:supporting}).
 
