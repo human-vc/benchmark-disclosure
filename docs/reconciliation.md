@@ -135,3 +135,37 @@ tool's default, not who exercised judgment. Restamped to `kevin`, the coder, on
 2026-08-27, and the default now matches. What still has to move with the merge
 is the paper's "no ORBIT category is now assigned to any cell" sentences,
 which become a statement of the hand-coded counts.
+
+## 6. Second coding recorded, reliability computed
+
+A second coder (Jacob) independently coded the 20 drawn releases from the
+pinned sources on 2026-08-27, blind to the first coding, using the evidence
+syntax plus a `+slug` prefix for reverse gaps (a benchmark the artifact
+reports that Epoch does not score for the release). `parse_reported` never
+matches a `+`-prefixed key against a worklist slug, so reverse-gap entries are
+recorded in the evidence but inert in the derivation, including the
+contemporary sets; this was verified before recording.
+
+`python -m src.reliability` on the pre-adjudication labels:
+
+| comparison | agreement | kappa |
+|---|---|---|
+| reported vs not | 97.9% | 0.945 |
+| high (D/E/G) vs low suspicion | 97.9% | 0.807 |
+| full nine-category | 92.8% | 0.848 |
+
+194 paired cells across 15 releases. Falcon-40B was coded empty by both
+coders (a genuine zero-disclosure release) and falls out of the pairing
+because the module drops blank `reported_slugs` rows; every one of its 11
+cells is a trivial agreement, so its exclusion is conservative. Four drawn
+releases sit outside the pinned worklist and pair no cells. E vs not-E agrees
+exactly (one E cell each, the same cell).
+
+Of the 14 disagreements, seven are the variant boundary (first coder `~`,
+second coder plain slug: Phi-2 x4, Terminal-Bench x2, METR x1), two are the
+G/H cascade on Gemini 3.1 frontiermath (a derived split, not a primitive
+judgment), and four sit on GPT-5.4 Pro, where the second coder's own note
+says the four academic scores were retained "despite first-coder
+disagreement", an admission of exposure. Excluding that release: reported
+kappa 1.000, full 0.884, high/low 0.883 on 182 cells. All headline figures
+are reported with GPT-5.4 Pro in.
