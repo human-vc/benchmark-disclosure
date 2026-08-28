@@ -18,6 +18,16 @@ just come from different builds depending on which file produced them.
 | `data/artifacts.csv` | later | 108 releases coded |
 | `data/disclosures.csv` | later | 1,685 rows, 5 releases absent from the worklist |
 
+Resolved 2026-08-27 in favour of the pinned vintage: on the machine holding
+the pinned `data/raw`, `python -m src.snapshot` verifies every SHA-256 against
+the 2026-08-17 capture (819 model-versions), `build_matrix` regenerates the
+panel (353 releases, 3,082 pairs, 2,355 eligible / 476 placebo), the tree's
+worklist decomposes to exactly the paper's 1,298 eligible cells over 103
+releases, and `placebo_calibration` returns the +12.23 headline and the 93%
+trend recovery unchanged. Everything the paper quotes regenerates from the
+pinned build; the 839-version fetch remains a later vintage used only for
+coding, which is why five coded releases sit outside the worklist.
+
 Concretely: five coded releases are not in the current worklist —
 
     Alibaba | Qwen 3.8 Max | 2026-08-02
@@ -169,3 +179,18 @@ says the four academic scores were retained "despite first-coder
 disagreement", an admission of exposure. Excluding that release: reported
 kappa 1.000, full 0.884, high/low 0.883 on 182 cells. All headline figures
 are reported with GPT-5.4 Pro in.
+
+Kappa is sensitive to the marginals, so each figure travels with its raw
+agreement, its cross-tab, and a 95% confidence interval from a bootstrap that
+resamples the 15 releases, not the 194 cells, since cells within a release
+share a coder decision. Reported vs not: kappa 0.945 [0.797, 1.000], marginals
+24.2% (first coder) vs 26.3% (second) reported, and the cross-tab is
+one-directional: 47 joint reported, 143 joint not, 0 cells the first coder
+called reported that the second did not, 4 the other way (all four on GPT-5.4
+Pro). High vs low suspicion: kappa 0.807 [0.477, 1.000], the wide interval
+reflecting that the rare category is 5.7% on both sides and concentrated in a
+few releases; the marginals match exactly (11 and 11). Full nine-category:
+kappa 0.848 [0.725, 0.952]. There were no calibration or training rounds:
+the second coder worked from the written protocol alone, blind to the first
+coding, which is what makes these figures a test of the codebook rather than
+of the coders' conversation.
