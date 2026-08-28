@@ -581,7 +581,7 @@ def table_two(numbers, panel=None, path=None):
         r"mean standing of eligible minus postdating benchmarks, in percentile "
         r"points. Every entry should be zero. Sign-flip $p$ is the "
         r"provider-clustered test of Section~\ref{sec:data-inference}, against "
-        r"zero; Cells is the share of comparable cells where the measure is defined.}",
+        r"zero; Cells, the share of cells carrying the measure.}",
         r"\label{tab:remedies}",
         r"\end{table}",
         "",
