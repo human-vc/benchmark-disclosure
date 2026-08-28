@@ -624,7 +624,7 @@ def table_three(numbers, path=None):
         r"\bottomrule",
         r"\end{tabular}",
         r"\caption{%",
-                "The coded omission deficit beside the label-free artifact, in percentile "
+                "The coded omission deficit beside the label-free gap, in percentile "
         f"points, over {w['n_releases']} releases and {w['n_providers']} providers "
         f"({specs['side_balanced_182']['n_releases']} side-balanced). No labels is "
         "the same contrast with no disclosure coding, on the same releases; "
