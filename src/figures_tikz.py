@@ -247,8 +247,25 @@ def fig_helm():
         lines.append(f"    \\addplot[{hue_of[m]}, line width=0.9pt, mark=*, "
                      f"mark size=1.2pt, forget plot] "
                      f"coordinates {{(0.45,{first[m]}) (0.75,{last[m]})}};")
+
+    # ranks one apart sit closer than a \tiny line, so runs of consecutive
+    # labels expand around their centre; order is kept, so each label stays
+    # nearest its own endpoint
+    spacing = 1.7
+    label_y, run = {}, [movers[0]]
+    def flush(run):
+        centre = sum(first[m] for m in run) / len(run)
+        for i, m in enumerate(run):
+            label_y[m] = centre + (i - (len(run) - 1) / 2) * spacing
+    for m in movers[1:]:
+        if first[m] - first[run[-1]] < 1.5:
+            run.append(m)
+        else:
+            flush(run); run = [m]
+    flush(run)
+    for m in movers:
         names.append(f"    \\node[anchor=east, font=\\tiny, text=black] "
-                     f"at (axis cs:0.43,{first[m]}) {{{display(m)}}};")
+                     f"at (axis cs:0.43,{label_y[m]:.2f}) {{{display(m)}}};")
 
     lo = min(first[m] for m in movers) - 1
     hi = max(first[m] for m in movers) + 1
