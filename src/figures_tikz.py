@@ -70,7 +70,7 @@ def fig_one_curve(panel):
     mean_e = cells.loc[cells["eligible"], "share_newer"].mean()
     mean_p = cells.loc[cells["placebo"], "share_newer"].mean()
 
-    axis = ("causalre wide, height=3.55cm, xmin=0, xmax=1, xtick={0,0.5,1}, "
+    axis = ("causalre wide, height=3.4cm, xmin=0, xmax=1, xtick={0,0.5,1}, "
             "xlabel={share of window newer than the focal model}")
     return f"""\\begin{{tikzpicture}}
   \\begin{{axis}}[{axis}, ymin=20, ymax=80,
@@ -123,10 +123,10 @@ def fig_boundary(panel):
         parts[side + "_share"] = day_binned(sub, "share_newer")
         parts[side + "_pct"] = day_binned(sub, "percentile")
 
-    top = ("causalre wide, height=2.6cm, xmin=-360, xmax=720, "
+    top = ("causalre wide, height=2.5cm, xmin=-360, xmax=720, "
            "xtick={-360,0,360,720}, xticklabels={,,,}, "
            "ylabel={newer share}, ymin=0.25, ymax=0.95, ytick={0.3,0.5,0.7,0.9}")
-    bot = ("causalre wide, height=2.6cm, xmin=-360, xmax=720, "
+    bot = ("causalre wide, height=2.5cm, xmin=-360, xmax=720, "
            "xtick={-360,0,360,720}, "
            "xlabel={benchmark maturity at release (days)}, "
            "ylabel={standing}, ymin=30, ymax=75")
@@ -253,7 +253,7 @@ def fig_helm():
     lo = min(first[m] for m in movers) - 1
     hi = max(first[m] for m in movers) + 1
     return f"""\\begin{{tikzpicture}}
-  \\begin{{axis}}[causalre wide, height=3.8cm, y dir=reverse,
+  \\begin{{axis}}[causalre wide, height=3.65cm, y dir=reverse,
     xmin=0, xmax=1, ymin={lo - 0.2}, ymax={hi + 0.2},
     xtick={{0.45,0.75}}, xticklabels={{{v0},{v1}}}, xlabel={{release}},
     ytick={{4,8,12,16}}, ylabel={{rank among the {total} constant models}}]
