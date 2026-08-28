@@ -482,11 +482,11 @@ def table_one(numbers, path=None):
         r"\bottomrule",
         r"\end{tabular}",
         r"\caption{%",
-                r"Placebo coefficient by conditioning set, in percentile points, always "
-        r"within release. Two-way provider-by-benchmark standard errors in "
-        f"parentheses ({clusters} by {benchmarks} clusters; provider-only in "
-        r"Appendix~\ref{sec:supporting}). $n = 2{,}831$ cells. Absorbed is the fall in the "
-        r"absolute coefficient from the first row; peer count alone is a "
+                r"Placebo coefficient by conditioning set, percentile points, within "
+        r"release. Two-way provider-by-benchmark standard errors "
+        f"({clusters} by {benchmarks} clusters; provider-only in "
+        r"Appendix~\ref{sec:supporting}), $n = 2{,}831$ cells. Absorbed is the fall in "
+        r"absolute value from the first row; peer count alone is a "
         r"suppressor, so the last row conditions on both window terms jointly.}",
         r"\label{tab:decomposition}",
         r"\end{table}",
@@ -580,8 +580,8 @@ def table_two(numbers, panel=None, path=None):
                 r"The label-free placebo null under each candidate measure: release-level "
         r"mean standing of eligible minus postdating benchmarks, in percentile "
         r"points. Every entry should be zero. Sign-flip $p$ is the "
-        r"provider-clustered test of Section~\ref{sec:data-inference}, against "
-        r"zero; Cells, the share of cells carrying the measure.}",
+        r"provider-clustered test of Section~\ref{sec:data-inference}; Cells, "
+        r"the share of cells carrying the measure.}",
         r"\label{tab:remedies}",
         r"\end{table}",
         "",

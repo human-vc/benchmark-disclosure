@@ -70,7 +70,7 @@ def fig_one_curve(panel):
     mean_e = cells.loc[cells["eligible"], "share_newer"].mean()
     mean_p = cells.loc[cells["placebo"], "share_newer"].mean()
 
-    axis = ("causalre wide, height=3.4cm, xmin=0, xmax=1, xtick={0,0.5,1}, "
+    axis = ("causalre wide, height=3.1cm, xmin=0, xmax=1, xtick={0,0.5,1}, "
             "xlabel={share of window newer than the focal model}")
     return f"""\\begin{{tikzpicture}}
   \\begin{{axis}}[{axis}, ymin=20, ymax=80,
@@ -123,13 +123,13 @@ def fig_boundary(panel):
         parts[side + "_share"] = day_binned(sub, "share_newer")
         parts[side + "_pct"] = day_binned(sub, "percentile")
 
-    top = ("causalre wide, height=2.5cm, xmin=-360, xmax=720, "
+    top = ("causalre wide, height=2.35cm, xmin=-360, xmax=720, "
            "xtick={-360,0,360,720}, xticklabels={,,,}, "
-           "ylabel={newer share}, ymin=0.25, ymax=0.95, ytick={0.3,0.5,0.7,0.9}")
-    bot = ("causalre wide, height=2.5cm, xmin=-360, xmax=720, "
+           "ylabel={share}, ylabel style={font=\\scriptsize}, ymin=0.25, ymax=0.95, ytick={0.3,0.5,0.7,0.9}")
+    bot = ("causalre wide, height=2.35cm, xmin=-360, xmax=720, "
            "xtick={-360,0,360,720}, "
            "xlabel={benchmark maturity at release (days)}, "
-           "ylabel={standing}, ymin=30, ymax=75")
+           "ylabel={standing}, ylabel style={font=\\scriptsize}, ymin=30, ymax=75")
     return rf"""\begin{{tikzpicture}}
   \begin{{axis}}[{top}, name=mech]
     \addplot[black, dashed, thin, forget plot] coordinates {{(0,0.25) (0,0.95)}};

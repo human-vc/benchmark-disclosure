@@ -47,8 +47,8 @@
 \renewcommand{\textfraction}{0.06}
 \renewcommand{\floatpagefraction}{0.75}
 \setlength{\textfloatsep}{12pt plus 2pt minus 2pt}
-\setlength{\intextsep}{6pt plus 1pt minus 2pt}
-\setlength{\abovecaptionskip}{5pt}
+\setlength{\intextsep}{4pt plus 1pt minus 1pt}
+\setlength{\abovecaptionskip}{3pt}
 
 \raggedbottom
 
@@ -148,15 +148,36 @@ It is not zero. Across 146 releases with both kinds of cell, eligible benchmarks
 
 \subsection{Decomposing the gap}\label{sec:core-boundary}
 
-\autoref{tab:decomposition}, in Appendix~\ref{sec:supporting}, locates the failure, regressing standing on a placebo indicator, equal to one when the benchmark postdates the release, always within release. With release effects alone, the placebo coefficient is $-13.529$ (2.038). Adding benchmark fixed effects absorbs 63.4\% of it and leaves $-4.949$ (2.183). Benchmark composition therefore carries most of the gap, and structurally so: the panel is unbalanced, and placebo cells concentrate by construction in benchmarks that entered late. Those benchmarks are less saturated: split at median publication date, 8.3\% of scores on the later half of the 54 benchmarks with ten or more scores sit in the top decile of the benchmark's own range against 13.2\% on the earlier half ($p = 0.015$). A late instrument therefore leaves more room below the ceiling. Adding the peer-window asymmetry term, the share of a cell's comparison window released after the focal model, instead of benchmark effects absorbs 39.8\% and leaves $-8.151$ (1.865). Conditioning jointly on benchmark effects and both window terms absorbs all but 0.003 points and leaves $-0.003$ (1.748), an interval reaching $+3.4$, so the residual is bounded at under a third of the original gap rather than at zero.
+\autoref{tab:decomposition} locates the failure, regressing standing on a placebo indicator, equal to one when the benchmark postdates the release, always within release. Release effects alone leave $-13.5$ points. Benchmark fixed effects absorb 63.4\% of that, and structurally so: placebo cells concentrate by construction in benchmarks that entered late, and late benchmarks are less saturated, with 8.3\% of scores on the later half of the 54 benchmarks with ten or more scores in the top decile of the benchmark's own range against 13.2\% on the earlier half ($p = 0.015$), more room left below the ceiling. The peer-window asymmetry term, the share of a cell's comparison window released after the focal model, absorbs 39.8\% on its own; conditioning jointly on benchmark effects and both window terms absorbs all but 0.003 points, an interval reaching $+3.4$, a residual bounded under a third of the original gap rather than at zero.
+
+% ---- begin figures/table1_decomposition ----
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lrrr}
+\toprule
+Conditioning set & Placebo coefficient & $t$ & Absorbed \\
+\midrule
+Release fixed effects only & $-13.529$ (2.038) & $-6.637$ & 0.0\% \\
+Release FE + benchmark fixed effects & $-4.949$ (2.183) & $-2.267$ & 63.4\% \\
+Release FE + peer-window asymmetry & $-8.151$ (1.865) & $-4.370$ & 39.8\% \\
+Release FE + peer count & $-2.107$ (1.882) & $-1.120$ & 84.4\% \\
+Two-way fixed effects + both window terms & $-0.003$ (1.748) & $-0.002$ & 100.0\% \\
+\bottomrule
+\end{tabular}
+\caption{%
+Placebo coefficient by conditioning set, percentile points, within release. Two-way provider-by-benchmark standard errors (45 by 61 clusters; provider-only in Appendix~\ref{sec:supporting}), $n = 2{,}831$ cells. Absorbed is the fall in absolute value from the first row; peer count alone is a suppressor, so the last row conditions on both window terms jointly.}
+\label{tab:decomposition}
+\end{table}
+% ---- end figures/table1_decomposition ----
 
 
 The mechanism behind the second dimension is geometric. The comparison window is symmetric in calendar time, 182 days on each side of the release, but a benchmark's model coverage is not symmetric in calendar time, because coverage begins when the benchmark is built. \autoref{fig:boundary} plots the two objects this creates against benchmark maturity at release: the share of the window that is newer falls with maturity and jumps at the availability boundary, while standing runs through it without a detectable break. The mechanism is discontinuous where the outcome is not; peer-set composition is a property of timing alone.
 
-\begin{figure}[H]\centering
+\begin{figure}[!htb]\centering
 % ---- begin figures/fig_boundary ----
 \begin{tikzpicture}
-  \begin{axis}[causalre wide, height=2.5cm, xmin=-360, xmax=720, xtick={-360,0,360,720}, xticklabels={,,,}, ylabel={newer share}, ymin=0.25, ymax=0.95, ytick={0.3,0.5,0.7,0.9}, name=mech]
+  \begin{axis}[causalre wide, height=2.35cm, xmin=-360, xmax=720, xtick={-360,0,360,720}, xticklabels={,,,}, ylabel={share}, ylabel style={font=\scriptsize}, ymin=0.25, ymax=0.95, ytick={0.3,0.5,0.7,0.9}, name=mech]
     \addplot[black, dashed, thin, forget plot] coordinates {(0,0.25) (0,0.95)};
     \addplot[cSF, only marks, mark=square*, mark size=1.4pt,
              error bars/.cd, y dir=both, y explicit]
@@ -165,7 +186,7 @@ The mechanism behind the second dimension is geometric. The comparison window is
              error bars/.cd, y dir=both, y explicit]
       coordinates {(30.000,0.60) +- (0,0.07) (90.000,0.53) +- (0,0.08) (150.000,0.50) +- (0,0.09) (210.000,0.42) +- (0,0.08) (270.000,0.41) +- (0,0.10) (330.000,0.43) +- (0,0.11) (390.000,0.41) +- (0,0.10) (450.000,0.48) +- (0,0.10) (510.000,0.44) +- (0,0.10) (570.000,0.31) +- (0,0.11) (630.000,0.40) +- (0,0.11) (690.000,0.37) +- (0,0.08)};
   \end{axis}
-  \begin{axis}[causalre wide, height=2.5cm, xmin=-360, xmax=720, xtick={-360,0,360,720}, xlabel={benchmark maturity at release (days)}, ylabel={standing}, ymin=30, ymax=75, at={(mech.south west)}, anchor=north west, yshift=-12pt,
+  \begin{axis}[causalre wide, height=2.35cm, xmin=-360, xmax=720, xtick={-360,0,360,720}, xlabel={benchmark maturity at release (days)}, ylabel={standing}, ylabel style={font=\scriptsize}, ymin=30, ymax=75, at={(mech.south west)}, anchor=north west, yshift=-12pt,
     legend to name=leg:boundary, legend columns=2]
     \addplot[black, dashed, thin, forget plot] coordinates {(0,30) (0,75)};
     \addplot[cSF, only marks, mark=square*, mark size=1.4pt,
@@ -190,10 +211,12 @@ organisation.}
 \end{figure}
 
 
-\begin{figure}[H]\centering
+The share of a cell's window released after the focal model is 0.4683 for eligible cells and 0.7065 for placebo cells, against 0.5 for a two-sided window. Within release, the slope of standing on that share is $-30.63$ percentile points per unit among eligible cells alone. \autoref{fig:one-curve} plots standing against that share for both groups at once. Eligible and placebo cells do not form two clouds at different heights; they trace a single declining curve, common only once benchmark composition is absorbed (\autoref{tab:decomposition}), and differ in where along it they fall. On the variable that assigns them, benchmark maturity at release, they cannot overlap at all, so the contrast is an extrapolation across that boundary rather than a comparison within common support. The check is at the boundary, the one place Section \ref{sec:data-model} leaves identified under continuity \citep{hahn2001identification}. Nothing detectable happens there. Local linear estimates are negative at every bandwidth and order, every interval covers zero though the widest reaches $+8.05$, and a window chosen on covariate balance puts the difference at $-2.52$, randomization $p$ 0.447 \citep{cattaneo2015randomization}. The two groups' mean maturity differs by 793 days; the gap lives in that distance, not at the boundary (grid and balance tests in Appendix~\ref{sec:supporting}).
+
+\begin{figure}[!htb]\centering
 % ---- begin figures/fig_one_curve ----
 \begin{tikzpicture}
-  \begin{axis}[causalre wide, height=3.4cm, xmin=0, xmax=1, xtick={0,0.5,1}, xlabel={share of window newer than the focal model}, ymin=20, ymax=80,
+  \begin{axis}[causalre wide, height=3.1cm, xmin=0, xmax=1, xtick={0,0.5,1}, xlabel={share of window newer than the focal model}, ymin=20, ymax=80,
     ylabel={within-benchmark standing},
     legend to name=leg:onecurve, legend columns=3]
     \addplot[black, line width=1.0pt, smooth, forget plot]
@@ -225,7 +248,6 @@ about disclosure. Intervals are clustered on organisation.}
 \label{fig:one-curve}
 \end{figure}
 
-The share of a cell's window released after the focal model is 0.4683 for eligible cells and 0.7065 for placebo cells, against 0.5 for a two-sided window. Within release, the slope of standing on that share is $-30.63$ percentile points per unit among eligible cells alone. \autoref{fig:one-curve} plots standing against that share for both groups at once. Eligible and placebo cells do not form two clouds at different heights; they trace a single declining curve, common only once benchmark composition is absorbed (\autoref{tab:decomposition}), and differ in where along it they fall. On the variable that assigns them, benchmark maturity at release, they cannot overlap at all, so the contrast is an extrapolation across that boundary rather than a comparison within common support. The check is at the boundary, the one place Section \ref{sec:data-model} leaves identified under continuity \citep{hahn2001identification}. Nothing detectable happens there. Local linear estimates are negative across four bandwidths and two polynomial orders, every interval covers zero though the widest reaches $+8.05$, and a window chosen on covariate balance puts the difference at $-2.52$ with a randomization $p$ of 0.447 \citep{cattaneo2015randomization}. The two groups' mean maturity differs by 793 days, and the gap lives in that distance rather than at the boundary (grid and balance tests in Appendix~\ref{sec:supporting}).
 
 Standing decomposes into a weighted average of position among older and newer peers, $\text{percentile} = (1 - w)\,P_{\text{old}} + w\,P_{\text{new}}$ with $w$ the newer share of window peers, exact cell by cell. Replacing the empirical weight with one half defines the side-balanced measure, available for 92.5\% of all cells and 92.8\% of eligible-or-placebo cells, and cuts the same slope to $-8.56$.
 
@@ -251,17 +273,17 @@ Side-balanced percentile & $+9.14$ & $+9.62$ & 70.9\% & 0.0001 & 141 & 92.8\% \\
 \bottomrule
 \end{tabular}
 \caption{%
-The label-free placebo null under each candidate measure: release-level mean standing of eligible minus postdating benchmarks, in percentile points. Every entry should be zero. Sign-flip $p$ is the provider-clustered test of Section~\ref{sec:data-inference}, against zero; Cells, the share of cells carrying the measure.}
+The label-free placebo null under each candidate measure: release-level mean standing of eligible minus postdating benchmarks, in percentile points. Every entry should be zero. Sign-flip $p$ is the provider-clustered test of Section~\ref{sec:data-inference}; Cells, the share of cells carrying the measure.}
 \label{tab:remedies}
 \end{table}
 % ---- end figures/table2_remedies ----
 
-\autoref{tab:remedies} shows what follows. Ranking against every model ever scored nearly doubles the contamination; trimming to two-sided windows discards 30\% of the cells to remove 19\%, and its row is just the uncorrected gap on the retained cells, composition rather than correction. Shortening the window does reduce the gap, to $+8.59$ at 91 days, but in proportion to the asymmetry it removes rather than by breaking the mechanism. Across four widths and four benchmark-count minima the gap is positive in
+\autoref{tab:remedies} shows what follows. Ranking against every model ever scored nearly doubles the contamination; trimming to two-sided windows discards 30\% of the cells to remove 19\%, its row the uncorrected gap on the retained cells, composition rather than correction. Shortening the window does reduce the gap, to $+8.59$ at 91 days, but in proportion to the asymmetry it removes rather than by breaking the mechanism. Across four widths and four benchmark-count minima the gap is positive in
 all 16 specifications, from $+8.59$ to $+21.66$, and tracks the eligible-minus-placebo gap in window composition at $r = 0.991$. Dropping any one of the 18 organisations leaves it between $+11.45$ and $+13.20$. The correction is a covariate, not a subsample.
 
 One reading of that number would be too generous to it. Window composition is a function of the same dates that define the placebo indicator, so conditioning on it does not adjust for a confounder sitting outside the comparison; it splits the gap into the channel carrying it. A study that holds disclosure labels and wants an estimate of $\theta$ must first argue that window composition is settled before a provider decides what to report, or it will condition away part of what it is measuring. Provider identity explains little of the variance in window composition, which is suggestive rather than conclusive; Appendix~\ref{sec:supporting} reports the decomposition and the coverage tilt it does not correct.
 
-The side-balanced percentile is the one change of measure that does substantial work, cutting the placebo mean to $+9.14$ and the eligible-cell gradient to $-8.56$. \autoref{fig:correction} in Appendix~\ref{sec:supporting} puts it against the uncorrected measure on the same cells, near flat where cells are dense. Reweighting cannot reach what remains: balancing repairs the weight on each side of a model but not which models an evaluator chose to score early, so evaluator attention stays a residual confound. Undefined wherever a side is empty, it accompanies the uncorrected measure rather than replacing it.
+The side-balanced percentile is the one change of measure doing substantial work, cutting the placebo mean to $+9.14$ and the eligible-cell gradient to $-8.56$. \autoref{fig:correction} in Appendix~\ref{sec:supporting} puts it against the uncorrected measure, near flat where cells are dense. Reweighting cannot reach what remains: balancing repairs the weight on each side of a model but not which models an evaluator chose to score early, so evaluator attention stays a residual confound. Undefined wherever a side is empty, it accompanies rather than replaces the uncorrected measure.
 % ---- end sections/core ----
 % ---- begin sections/external ----
 \section{Evidence from HELM}\label{sec:external}
@@ -278,14 +300,14 @@ The movement that matters is elsewhere. If the drift were a monotone transform o
 The control, HELM Capabilities, comes from the same organisation, whose maintainers had diagnosed the win rate as pool-dependent \citep{xu2025capabilities}; it runs on the same infrastructure and cadence, its pool growing comparably, from 22 models to 68 over 16 releases. Its headline is an absolute mean over scenarios rather than a fraction of comparisons won. The same 22 models appear in every release with 110 scenario scores bit-identical, none of the 22 headline values moves, and no pair reorders, at the endpoints or ever. An absolute mean over bit-identical scores on a fixed suite cannot move with the pool, so zero drift is arithmetic, a scope condition rather than a test that could have failed.
 
 
-This need not be read as an error on HELM's part: the absolute headline on its own Capabilities leaderboard is the point. A pool-relative headline is a joint statement about a model and about the population evaluated beside it; read later as statements about the models alone, two such numbers move standing between providers for reasons belonging to neither. Restoring comparability across moments is the classical equating problem \citep{kolen2014}, avoided by a scale estimated jointly across benchmarks \citep{epoch2026rosetta}. The panel and the leaderboard fail the same way: the reference set, not the evidence, moves the number.
+This need not be read as an error on HELM's part: the absolute headline on its own Capabilities leaderboard is the point. A pool-relative headline is a joint statement about a model and about the population evaluated beside it; read later as statements about the models alone, two such numbers move standing between providers for reasons belonging to neither. Restoring comparability across moments is the classical equating problem \citep{kolen2014}, avoided by a scale estimated jointly across benchmarks \citep{epoch2026rosetta}. Panel and leaderboard fail identically: the reference set, not the evidence, moves the number.
 % ---- end sections/external ----
 % ---- begin sections/reach ----
 \section{Coding the Record}\label{sec:reach}
 
-A benchmark can be missing from a model card because it was irrelevant, never run, or run and withheld. Only the third is disclosure in the sense of \citet{grossman1981}, \citet{milgrom1981} and \citet{dye1985}, and only it is a reader's to price. The within-family drop narrows it: a provider that reports $b$ at $t$ and omits it at $t+1$, an independent score present, has established relevance and possession of the harness by its own earlier behaviour, with the independent score as the registry-style counterfactual \citep{chan2004,dwan2013,kirkham2010}. It does not establish that $b$ was run for $t+1$, so the \citet{dye1985} uncertainty narrows rather than closes. Its ceiling, 37 pairs, and detection threshold, roughly 38 points at one drop, sit in Appendix~\ref{sec:supporting}.
+A benchmark can be missing from a model card because it was irrelevant, never run, or run and withheld. Only the third is disclosure in the sense of \citet{grossman1981}, \citet{milgrom1981} and \citet{dye1985}, and only it is a reader's to price. The within-family drop narrows it: a provider that reports $b$ at $t$ and omits it at $t+1$, an independent score present, has established relevance and possession of the harness, with the independent score as the registry-style counterfactual \citep{chan2004,dwan2013,kirkham2010}. It does not establish that $b$ was run for $t+1$, so the \citet{dye1985} uncertainty narrows rather than closes; its ceiling, 37 pairs, and detection threshold, roughly 38 points at one drop, sit in Appendix~\ref{sec:supporting}.
 
-A single coder read the release-time document of each of the 100 releases for which one is locatable; eight of the queued 108 have none. The record notes every benchmark a document reports, with variants, bare mentions, and stated benign absences; the ORBIT categories are derived mechanically from these records and the family history. This yields 1,280 coded cells; 31 from five later-vintage releases sit outside the pinned panel and are excluded. A second coder then recoded a provider-stratified fifth of the releases, blind to the first coding and without calibration contact; Appendix~\ref{sec:supporting} records the one release where that blindness broke. Agreement is Cohen's $\kappa$ over the derived cells \citep{cohen1960}, with intervals from resampling releases. The two codings agree at $0.95$ $[0.80, 1.00]$ on the primitive judgment of whether a benchmark was reported, at $0.85$ $[0.72, 0.95]$ over the full category set, and at $0.81$ $[0.48, 1.00]$ on the high-versus-low-suspicion split. The single E cell each coding derives is the same cell, encouraging but no reliability estimate for so rare a category, and Appendix~\ref{sec:supporting} reports the confusion structure. Among the 1,249 eligible coded cells that resolve in the panel, 76.9\% report no number, and the release-level mean is 73.1\% $[65.9, 79.2]$. The rate is descriptive and is not, by itself, evidence of selection.
+A single coder read the release-time document of each of the 100 releases for which one is locatable; eight of the queued 108 have none. The record notes every benchmark a document reports, with variants, bare mentions, and stated benign absences; the ORBIT categories are derived mechanically from these records and family history. This yields 1,280 coded cells; 31 from five later-vintage releases sit outside the pinned panel and are excluded. A second coder then recoded a provider-stratified fifth of the releases, blind to the first coding and without calibration contact; Appendix~\ref{sec:supporting} records the one release where that blindness broke. Agreement is Cohen's $\kappa$ over the derived cells \citep{cohen1960}, with intervals from resampling releases. The two codings agree at $0.95$ $[0.80, 1.00]$ on the primitive judgment of whether a benchmark was reported, at $0.85$ $[0.72, 0.95]$ over the full category set, and at $0.81$ $[0.48, 1.00]$ on the high-versus-low-suspicion split. The single E cell each coding derives is the same cell, encouraging but no reliability estimate for so rare a category, and Appendix~\ref{sec:supporting} reports the confusion structure. Among the 1,249 eligible coded cells that resolve in the panel, 76.9\% report no number, and the release-level mean is 73.1\% $[65.9, 79.2]$. The rate is descriptive and is not, by itself, evidence of selection.
 
 % ---- begin figures/table3_coding ----
 \begin{table}[H]
@@ -313,12 +335,12 @@ The coded omission deficit beside the label-free gap, in percentile points, over
 
 What survives is composition. Reported benchmarks stand 8.7 points above omitted eligible ones within release, a gap larger than all 9,999 count-preserving random assignments ($p = 0.0001$, the draws' floor; null standard deviation 1.9) and one the availability gap cannot produce. It survives coding-error, variant-reclassification, and leave-one-out exercises because the availability gap does; benchmark identity does not carry it, since benchmark fixed effects beside the release effects raise the coefficient from $+7.4$ to $+9.3$ and the window-share control leaves $+7.4$. It does not identify whether standing drove the reporting: relevance, salience, and within-eligible contamination can move disclosure and performance together.
 
-Possession is the remaining distance; four cuts return one verdict. The drop estimator realises 16 drops across 15 releases and returns $+2.9$, opposite the withholding prediction, sign-flip $p = 0.25$ over five providers, the null its calibration priced. No document states that a benchmark was evaluated while reporting neither a score nor an outcome, across the 295 cells documenting a run. A change-based test, each dropped benchmark against its standing under the previous release, gives $-3.7$, the predicted sign, at permutation $p = 0.16$ over 42 transitions; possession tiers and equal-sized substitutions detect nothing further. Appendix~\ref{sec:supporting} details these and three unrepaired limits: unlocatable documents, coverage that may follow provider emphasis, and the best-across-scaffolds rule.
+Possession is the remaining distance; four cuts return one verdict. The drop estimator realises 16 drops across 15 releases and returns $+2.9$, opposite the withholding prediction, sign-flip $p = 0.25$ over five providers, the null its calibration priced. No document states that a benchmark was evaluated while reporting neither a score nor an outcome, across the 295 cells documenting a run. A change-based test, each drop against its standing under the previous release, gives $-3.7$, the predicted sign, at permutation $p = 0.16$ over 42 transitions; possession tiers and equal-sized substitutions detect nothing further. Appendix~\ref{sec:supporting} details these and three unrepaired limits: unlocatable documents, coverage that may follow provider emphasis, and the best-across-scaffolds rule.
 % ---- end sections/reach ----
 % ---- begin sections/conclusion ----
 \section{Conclusion}\label{sec:conclusion}
 
-We set out to measure how much of what providers could report they choose not to. The coded record returns the number and the reason to distrust it. The contrast is $+11.4$ points, rejecting zero yet short of its matched label-free counterpart by what composition implies, and too imprecise to exclude a strategic component of a few points. The record separates three claims: non-reporting is extensive, composition is performance-related, and withholding is not established, every possession-grounded test returning null, absent, or opposite-signed evidence. Dating the instruments bounds the endowment; the bound is an assumption about access. The same dates fix where a model sits inside a benchmark's coverage: what identifies the endowment moves the measure pricing silence; reweighting is a partial defence. Growing the 16-drop record is a reporting-standard question: a jointly estimated scale \citep{epoch2026rosetta} shrinks the placebo gap without closing it, and carrying a benchmark set across releases narrows both the empty-endowment excuse and the \citet{dye1985} pooling.
+We set out to measure how much of what providers could report they choose not to. The coded record returns the number and the reason to distrust it. The contrast is $+11.4$ points, rejecting zero yet short of its matched label-free counterpart by what composition implies, and too imprecise to exclude a strategic component of a few points. Three claims separate: non-reporting is extensive, composition is performance-related, and withholding is not established, every possession-grounded test returning null, absent, or opposite-signed evidence. Dating the instruments bounds the endowment; the bound is an assumption about access. The same dates fix where a model sits inside a benchmark's coverage: what identifies the endowment moves the measure pricing silence; reweighting is a partial defence. Growing the 16-drop record is a reporting-standard question: a jointly estimated scale \citep{epoch2026rosetta} shrinks the placebo gap without closing it, and carrying a benchmark set across releases narrows the empty-endowment excuse and the \citet{dye1985} pooling.
 % ---- end sections/conclusion ----
 
 \bibliographystyle{plainnat}
@@ -454,27 +476,6 @@ the focal model jumps $+0.083$ at the cutoff, which at the eligible-cell gradien
 about $-2.5$ percentile points, inside every interval above, so at the cutoff the design separates concealment from the availability gap only above that effect, and the narrowest windows cannot reject the full $-12.23$ either. Peer count and raw score are continuous.
 The global gap therefore lives in the 793 days that separate the two groups' mean maturity rather
 than in anything happening at the boundary itself.
-
-% ---- begin figures/table1_decomposition ----
-\begin{table}[H]
-\centering
-\small
-\begin{tabular}{lrrr}
-\toprule
-Conditioning set & Placebo coefficient & $t$ & Absorbed \\
-\midrule
-Release fixed effects only & $-13.529$ (2.038) & $-6.637$ & 0.0\% \\
-Release FE + benchmark fixed effects & $-4.949$ (2.183) & $-2.267$ & 63.4\% \\
-Release FE + peer-window asymmetry & $-8.151$ (1.865) & $-4.370$ & 39.8\% \\
-Release FE + peer count & $-2.107$ (1.882) & $-1.120$ & 84.4\% \\
-Two-way fixed effects + both window terms & $-0.003$ (1.748) & $-0.002$ & 100.0\% \\
-\bottomrule
-\end{tabular}
-\caption{%
-Placebo coefficient by conditioning set, in percentile points, always within release. Two-way provider-by-benchmark standard errors in parentheses (45 by 61 clusters; provider-only in Appendix~\ref{sec:supporting}). $n = 2{,}831$ cells. Absorbed is the fall in the absolute coefficient from the first row; peer count alone is a suppressor, so the last row conditions on both window terms jointly.}
-\label{tab:decomposition}
-\end{table}
-% ---- end figures/table1_decomposition ----
 
 \paragraph{A standing measure with no comparison window.}
 The conclusion points at a scale estimated jointly across benchmarks rather than against
