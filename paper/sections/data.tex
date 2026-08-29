@@ -6,7 +6,10 @@ To begin, we assume release $i$ occurs at time $t_i$ and contains a single docum
 
 When endowment $E_i$ is common knowledge, selective disclosure is dominated, as non-disclosure reveals the worst-case scenario and disclosure unravels with $D_i = E_i$ \citep{grossman1981,milgrom1981}. This breaks down in at least two ways: (i) when $E_i$ is common knowledge but disclosing results can be costly, leading to a cutoff strategy in $s_{ib}$ \citep{verrecchia1983}; and (ii) when the receiver is unable to distinguish between non-existence and withholding, in that the sender can show evidence of having a result but not evidence of non-existence \citep[Section 3]{dye1985}.
 
-In our setting an independent evaluator reports scores for cells that have been passed over by the provider, and each $\tau_b$ makes non-existence verifiable. Denote the available set and scored cells by $A_i = \{b : \tau_b < t_i\}$ and $O_i$; then $D_i \subseteq E_i \subseteq A_i$ and $\theta = \Pr\!\left(b \notin D_i \mid b \in O_i \cap A_i\right)$.
+In our setting an independent evaluator reports scores for cells that have been passed over by the provider, and each $\tau_b$ makes non-existence verifiable. Denote the available set and scored cells by $A_i = \{b : \tau_b < t_i\}$ and $O_i$; then
+\[
+D_i \subseteq E_i \subseteq A_i, \qquad \theta = \Pr\!\left(b \notin D_i \;\middle|\; b \in O_i \cap A_i\right).
+\]
 In general providers may have results which are not produced by the evaluator, and benchmarks may exist but not be run, so $\theta$ is calculated with reference to the set of cells covered by the evaluator, and not the actual endowment, leaving the \citet{dye1985} friction in place within $A_i$.
 
 In practice, assessment of whether results have been withheld requires a notion of standing $P_{ib}$, since scores are not commensurable across benchmarks. The design requires that, conditional on innocent concerns, availability not be an argument in the determination of $P_{ib}$ \citep{heckman1979}. A date rule cannot satisfy this, as $t_i - \tau_b$, $t_i$ and $\tau_b$ are perfectly collinear. If any two of these arguments determine $P_{ib}$, then the remaining argument cannot be excluded from $P_{ib}$ as a determining argument, which is the case here (Section~\ref{sec:core}; Appendix~\ref{sec:supporting} bounds it).
