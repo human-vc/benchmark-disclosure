@@ -1,6 +1,6 @@
-# Absence Is Not Omission
+# Supplementary code and data
 
-Code and data for "Absence Is Not Omission: Availability, Vintage, and the Measurement of Selective Benchmark Disclosure."
+Code and data for the submission. The first-pass coder is coder1; the independent second coder is coder2.
 
 ## Setup
 
