@@ -1,4 +1,3 @@
-"""Group releases into model families so that drops (ORBIT E) are computable."""
 
 import re
 
@@ -12,9 +11,7 @@ COLUMNS = ["family_id", "release_id", "organization", "model_name",
 SIZE = re.compile(r"^\d+(\.\d+)?\s*[bmBM]$")
 VERSION = re.compile(r"^v?\d+(\.\d+)*[a-z]?$")
 
-
 def derive_family(organization, model_name):
-    """Strip version markers from a release name, keep tier and size markers."""
     sizes = []
     for chunk in re.findall(r"\(([^)]*)\)", model_name):
         sizes += re.findall(r"\d+(?:\.\d+)?\s*[BbMm]\b", chunk)
@@ -34,7 +31,6 @@ def derive_family(organization, model_name):
             tokens.append(stripped)
     family = " ".join(tokens).strip() or model_name
     return f"{organization} / {family}"
-
 
 def build_families(panel):
     if "primary_org" not in panel.columns:
@@ -57,9 +53,7 @@ def build_families(panel):
     releases["status"] = "auto"
     return releases[COLUMNS]
 
-
 def load_families(path=FAMILIES):
-    """Load and validate. Raises rather than silently returning a bad linkage."""
     if not path.exists():
         raise FileNotFoundError(
             f"{path} does not exist. Run `python -m src.families` to seed it."
@@ -73,9 +67,7 @@ def load_families(path=FAMILIES):
         raise ValueError("family_rank must be dense and 1-based within each family")
     return fam
 
-
 def predecessors(fam, release_id):
-    """Every earlier release in the same family, newest first."""
     row = fam.loc[fam["release_id"] == release_id]
     if row.empty:
         return fam.iloc[0:0]
@@ -85,7 +77,6 @@ def predecessors(fam, release_id):
         & (fam["family_rank"] < row["family_rank"])
     ]
     return earlier.sort_values("family_rank", ascending=False)
-
 
 def main():
     panel = pd.read_csv(INTERIM / "panel.csv", parse_dates=["Release date"])
@@ -116,7 +107,6 @@ def main():
         members = seeded[seeded["family_id"] == family].sort_values("family_rank")
         chain = " -> ".join(members["model_name"])
         print(f"  [{n}] {family}\n        {chain}")
-
 
 if __name__ == "__main__":
     main()

@@ -1,4 +1,3 @@
-"""Fetch and unpack Epoch AI's benchmark data (CC-BY)."""
 
 import argparse
 import hashlib
@@ -10,7 +9,6 @@ import requests
 
 from .config import EPOCH_ZIP_URL, RAW
 from .snapshot import capture, stamp
-
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -44,7 +42,6 @@ def main():
         print("every number in the repo should now be regenerated against this build")
     else:
         print(stamp())
-
 
 if __name__ == "__main__":
     main()

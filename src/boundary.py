@@ -1,22 +1,3 @@
-"""What is identified at the availability boundary, when nothing is globally.
-
-Eligibility is $\\mathbf{1}[t_i - \\tau_b > 0]$, a deterministic function of the
-two dates. That is what breaks every global repair: equating needs the two
-groups comparable, inverse-propensity weighting needs the probability of
-observing a cell bounded away from zero, and a deterministic rule gives neither.
-
-It is also, exactly, a sharp regression discontinuity. Identification survives
-deterministic assignment locally, at the cutoff, under continuity, so the
-question the panel can answer is whether standing jumps where availability
-turns on.
-
-Two estimators, following the two frameworks in the RD literature. The
-continuity-based one fits local linear regressions either side of zero and
-reads off the gap. The local-randomization one picks a window where
-pre-determined covariates are balanced and treats assignment inside it as
-as-if random, which suits a setting with few provider clusters and few cells
-close to the cutoff.
-"""
 
 import numpy as np
 import pandas as pd
@@ -28,9 +9,7 @@ BANDWIDTHS = (60, 90, 180, 250)
 BALANCE_ALPHA = 0.15
 MIN_PER_SIDE = 10
 
-
 def cells(panel):
-    """Comparable cells, with maturity in days as the running variable."""
     from .percentiles import within_benchmark_percentile
     scored = within_benchmark_percentile(panel)
     frame = scored[scored["eligible"] | scored["placebo"]].dropna(
@@ -41,16 +20,8 @@ def cells(panel):
     frame["n_benchmarks_scored"] = frame.groupby("release_id")["slug"].transform("nunique")
     return frame
 
-
 def local_linear(frame, bandwidth, order=1, outcome="percentile"):
-    """Continuity-based estimate: the gap at zero, triangular kernel.
-
-    Standard errors cluster on provider, since a provider's releases are not
-    independent draws.
-    """
     band = frame[np.abs(frame["maturity"]) <= bandwidth].dropna(subset=[outcome])
-    # scale the running variable to [-1, 1]: x squared in days overflows the
-    # normal equations, and the jump at the cutoff is invariant to the rescaling
     x = band["maturity"].to_numpy(float) / bandwidth
     y = band[outcome].to_numpy(float)
     t = band["treat"].to_numpy(float)
@@ -60,8 +31,6 @@ def local_linear(frame, bandwidth, order=1, outcome="percentile"):
     if order >= 2:
         columns += [x ** 2, t * x ** 2]
     design = np.column_stack(columns)
-    # weight by broadcasting rather than an n by n diagonal: same fit, and it
-    # avoids building a 1266 square matrix to hold 1266 numbers
     root = np.sqrt(weight)[:, None]
     beta = np.linalg.lstsq(root * design, root[:, 0] * y, rcond=None)[0]
     resid = y - design @ beta
@@ -83,9 +52,7 @@ def local_linear(frame, bandwidth, order=1, outcome="percentile"):
         "n": int(len(band)), "n_clusters": int(groups),
     }
 
-
 def randomization_p(frame, column, draws=4999, seed=0):
-    """Two-sided p for a difference in means, permuting treatment within the window."""
     sub = frame.dropna(subset=[column])
     y = sub[column].to_numpy(float)
     t = sub["treat"].to_numpy(bool)
@@ -100,17 +67,8 @@ def randomization_p(frame, column, draws=4999, seed=0):
             count += 1
     return (count + 1) / (draws + 1)
 
-
 def select_window(frame, covariates=COVARIATES, alpha=BALANCE_ALPHA,
                   widths=range(20, 400, 20), draws=999):
-    """The largest window whose covariates, and every window inside it, balance.
-
-    Follows the data-driven procedure of Cattaneo, Frandsen and Titiunik: test
-    each pre-determined covariate inside a candidate window, take the smallest
-    p-value, and keep widening while that minimum stays above `alpha`. The
-    threshold is deliberately looser than a conventional level, because here
-    failing to reject is what licenses the window.
-    """
     chosen, table = None, []
     for width in widths:
         band = frame[np.abs(frame["maturity"]) <= width]
@@ -129,13 +87,10 @@ def select_window(frame, covariates=COVARIATES, alpha=BALANCE_ALPHA,
             break
     return chosen, pd.DataFrame(table)
 
-
 def density_ratio(frame, width=30):
-    """Cells just above the cutoff over cells just below, a manipulation check."""
     below = int(((frame["maturity"] >= -width) & (frame["maturity"] < 0)).sum())
     above = int(((frame["maturity"] >= 0) & (frame["maturity"] < width)).sum())
     return above / below if below else np.nan
-
 
 def main():
     panel = pd.read_csv(
@@ -184,7 +139,6 @@ def main():
     for row in balance.itertuples():
         print(f"     +/-{row.width:>3}d  left {row.left:>4}  right {row.right:>4}  "
               f"min p {row.min_p:.3f}")
-
 
 if __name__ == "__main__":
     main()

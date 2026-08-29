@@ -1,12 +1,3 @@
-"""Native TikZ/pgfplots figures, generated from the panel.
-
-One figure, one claim. The one-curve panel carries the empirical result alone,
-with its correction moved to the appendix. The geometry figure is a schematic,
-since its purpose is the mechanism rather than the data. The HELM figure shows
-only the models whose published order changed, named, with the control stated
-in the caption as a number, because twenty-two flat lines spent half a figure
-saying zero.
-"""
 
 import numpy as np
 import pandas as pd
@@ -31,16 +22,13 @@ SHORTEN = {
     "(0613)": "0613",
 }
 
-
 def _panel():
     frame = pd.read_csv(
         INTERIM / "panel.csv", parse_dates=["Release date", "benchmark_release_date"]
     )
     return side_balanced_percentile(within_benchmark_percentile(frame))
 
-
 def _binned(frame, xcol, ycol, min_cells=15):
-    """Bin means with an interval clustered on organisation."""
     rows = []
     for lo, hi in zip(EDGES, EDGES[1:]):
         cell = frame[(frame[xcol] >= lo) & (frame[xcol] < hi)]
@@ -50,15 +38,12 @@ def _binned(frame, xcol, ycol, min_cells=15):
         rows.append(((lo + hi) / 2, cell[ycol].mean(), 1.96 * spread))
     return rows
 
-
 def _coords(rows, errors=False):
     if errors:
         return " ".join(f"({x:.3f},{y:.2f}) +- (0,{e:.2f})" for x, y, e in rows)
     return " ".join(f"({x:.3f},{y:.2f})" for x, y, *_ in rows)
 
-
 def fig_one_curve(panel):
-    """The single-panel empirical figure: one declining curve, two groups on it."""
     cells = panel[panel["eligible"] | panel["placebo"]].dropna(
         subset=["percentile", "share_newer"]
     )
@@ -98,9 +83,7 @@ def fig_one_curve(panel):
 \\\\[2pt]
 {{\\footnotesize \\ref{{leg:onecurve}}}}"""
 
-
 def fig_boundary(panel):
-    """The fuzzy-RD pair: the mechanism jumps at the boundary, the outcome does not."""
     cells = panel[panel["eligible"] | panel["placebo"]].dropna(
         subset=["percentile", "share_newer"]).copy()
     cells["maturity"] = (cells["Release date"]
@@ -156,9 +139,7 @@ def fig_boundary(panel):
 \\[2pt]
 {{\footnotesize \ref{{leg:boundary}}}}"""
 
-
 def fig_correction(panel):
-    """The side-balanced repair against the uncorrected measure, for the appendix."""
     only = panel[panel["eligible"]]
     series = []
     for column in ("percentile", "pct_balanced"):
@@ -184,14 +165,7 @@ def fig_correction(panel):
 \\\\[2pt]
 {{\\footnotesize \\ref{{leg:correction}}}}"""
 
-
 def fig_helm():
-    """A labeled slopegraph of the models whose published order changed.
-
-    A reversed pair is a crossing, one to one, so the statistic counts itself.
-    The absolute-headline control moved nothing, and a number in the caption
-    says so better than twenty-two flat lines.
-    """
     def endpoints(path, headline=None):
         payload, order = load(path)
         models = frozen_models(payload, order)
@@ -248,9 +222,6 @@ def fig_helm():
                      f"mark size=1.2pt, forget plot] "
                      f"coordinates {{(0.45,{first[m]}) (0.75,{last[m]})}};")
 
-    # ranks one apart sit closer than a \tiny line, so runs of consecutive
-    # labels expand around their centre; order is kept, so each label stays
-    # nearest its own endpoint
     spacing = 1.7
     label_y, run = {}, [movers[0]]
     def flush(run):
@@ -279,9 +250,7 @@ def fig_helm():
   \\end{{axis}}
 \\end{{tikzpicture}}"""
 
-
 def fig_geometry():
-    """The mechanism as a schematic: one benchmark, two releases, one window."""
     unit = 0.00062
     window = 182
     focal_a, focal_b = 30, 370
@@ -323,7 +292,6 @@ def fig_geometry():
       node[below left, font=\\scriptsize, black] {{calendar time}};
 \\end{{tikzpicture}}"""
 
-
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     panel = _panel()
@@ -337,7 +305,6 @@ def main():
     for name, body in written.items():
         (OUT / name).write_text(body + "\n")
         print(f"wrote {OUT / name}  ({len(body.splitlines())} lines)")
-
 
 if __name__ == "__main__":
     main()

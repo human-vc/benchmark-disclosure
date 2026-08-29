@@ -1,16 +1,13 @@
-"""Kappa must behave: 1 on perfect agreement, ~0 on chance, and it must"""
 import numpy as np
 import pandas as pd
 
 from src.reliability import blank_sheet, cohens_kappa, draw_releases
-
 
 def test_perfect_agreement():
     codes = list("AABBCDEFG")
     kappa, agreement = cohens_kappa(codes, codes)
     assert agreement == 1.0
     assert np.isclose(kappa, 1.0)
-
 
 def test_chance_agreement_is_near_zero():
     rng = np.random.default_rng(0)
@@ -19,26 +16,19 @@ def test_chance_agreement_is_near_zero():
     kappa, _ = cohens_kappa(a, b)
     assert abs(kappa) < 0.05
 
-
 def test_kappa_below_raw_agreement_when_one_category_dominates():
-    """The reason the protocol asks for kappa and not percent agreement:"""
     a = ["A"] * 95 + list("BCDEF")
     b = ["A"] * 95 + list("BCDEG")
     kappa, agreement = cohens_kappa(a, b)
     assert agreement > 0.95
     assert kappa < agreement
 
-
 def test_total_disagreement_is_negative():
     kappa, agreement = cohens_kappa(list("AAAABBBB"), list("BBBBAAAA"))
     assert agreement == 0.0
     assert kappa < 0
 
-
 class TestSecondExtraction:
-    """The second coding is a second *extraction*. Re-categorising cells would
-    measure nothing: the categories are derived by deterministic rule, so two
-    people given the same evidence file must agree by construction."""
 
     SAMPLE = pd.DataFrame([
         dict(release_id="R1", organization="O", model_name="M", n_cells=5,
@@ -51,8 +41,6 @@ class TestSecondExtraction:
     ])
 
     def test_blank_sheet_keeps_the_artifact(self):
-        """Blinding the URL would measure the second coder's search, not their
-        reading; both must open the same documents."""
         from src.reliability import blank_sheet
 
         sheet = blank_sheet(self.SAMPLE)
@@ -67,8 +55,6 @@ class TestSecondExtraction:
             assert sheet.loc[0, column] == "", column
 
     def test_blank_sheet_hides_the_flag(self):
-        """A flag says 'the first coder was unsure here', which is the nudge
-        that inflates agreement."""
         from src.reliability import blank_sheet
 
         assert blank_sheet(self.SAMPLE).loc[0, "flagged_for_review"] == ""
@@ -95,13 +81,7 @@ class TestSecondExtraction:
         ])
         assert list(draw_releases(rows, share=1.0)["release_id"]) == ["ok1"]
 
-
 class TestDrawInvariants:
-    """Carried over from the release-level draw on origin/main, which this
-    branch replaced. The implementations differ -- that one hands the second
-    coder cells to re-categorise, this one hands a blank evidence sheet -- but
-    the invariants it pinned hold either way, and dropping its tests without
-    replacing them would lose the guard rather than the design."""
 
     FRAME = pd.DataFrame([
         dict(release_id=f"{org} | M{i} | 2025-01-0{i}", organization=org,
@@ -118,8 +98,6 @@ class TestDrawInvariants:
     ])
 
     def test_the_draw_is_whole_releases_never_fragments(self):
-        """Selecting cells would hand the second coder pieces of documents the
-        first coder read whole."""
         from src.reliability import draw_releases
 
         drawn = draw_releases(self.FRAME, share=0.5, exclude=set())
@@ -127,10 +105,6 @@ class TestDrawInvariants:
         assert set(drawn["release_id"]) <= set(self.FRAME["release_id"])
 
     def test_nothing_auto_filled_is_ever_drawn(self):
-        """Placebo rows are emitted at reported=0 by rule, never read. Double
-        coding one would compare a human against an autofill and report the
-        agreement as reliability. Here it is structural rather than filtered:
-        the frame is one row per release, and placebo cells do not live in it."""
         from src.reliability import draw_releases
 
         drawn = draw_releases(self.FRAME, share=1.0, exclude=set())

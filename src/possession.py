@@ -1,17 +1,3 @@
-"""How far the record can carry the possession question.
-
-Selective withholding is a statement about results a provider held and did
-not print. The disclosure label observes what was printed; possession is
-observed only where a document says a run happened. Four cuts organise what
-that leaves. Category D counts the direct cases, an announced evaluation with
-no number. Stratifying the omission deficit by evidence tier asks whether the
-gap strengthens as possession evidence strengthens, which withholding predicts
-and composition does not. The change-based drop test replaces the level of a
-dropped benchmark with its change against the same benchmark under the
-family's previous release, differencing out persistent salience and relevance.
-And the swap sample isolates same-sized reporting tables where one benchmark
-replaced another, the case a fixed-table-size explanation cannot cover.
-"""
 
 import numpy as np
 import pandas as pd
@@ -20,9 +6,7 @@ from .config import ARTIFACTS, RELEASE_COL
 
 DRAWS = 9999
 
-
 def predecessors(families):
-    """release_id -> immediately preceding release_id within its family."""
     fam = families.copy()
     fam["family_rank"] = fam["family_rank"].astype(float)
     fam = fam.sort_values(["family_id", "family_rank"])
@@ -33,16 +17,7 @@ def predecessors(families):
             prior[later] = earlier
     return prior
 
-
 def transition_frame(merged, families):
-    """Cells reported by the predecessor and scored under both releases.
-
-    A cell is `dropped` when the successor derives category E, `retained`
-    when the successor reports it again. Cells the predecessor never reported
-    are outside the frame: the change-based test conditions on demonstrated
-    relevance. Score changes are kept only where both scores sit on the unit
-    interval, since a difference across unlike metrics is not a quantity.
-    """
     prior = predecessors(families)
     keyed = merged.set_index([RELEASE_COL, "slug"])
     pct = keyed["percentile"]
@@ -77,14 +52,7 @@ def transition_frame(merged, families):
             })
     return pd.DataFrame(rows)
 
-
 def change_gap(frame, column="d_percentile", draws=DRAWS, seed=0):
-    """Dropped-minus-retained mean change, permuting within transitions.
-
-    The permutation keeps each transition's drop count fixed, so the null is
-    which of the previously reported benchmarks were dropped, not how many.
-    Withholding predicts a negative gap.
-    """
     sub = frame.dropna(subset=[column])
     dropped = sub.loc[sub["status"] == "dropped", column]
     retained = sub.loc[sub["status"] == "retained", column]
@@ -108,14 +76,7 @@ def change_gap(frame, column="d_percentile", draws=DRAWS, seed=0):
         "n_transitions": int(sub["transition"].nunique()),
     }
 
-
 def tier_deficits(merged, tiers=("E", "G", "H")):
-    """The omission deficit computed one evidence tier at a time.
-
-    E carries the strongest possession evidence, G availability only, H
-    neither. A deficit that deepens from H to E is what withholding predicts;
-    a flat or inverted gradient is what composition predicts.
-    """
     out = {}
     for tier in tiers:
         frame = merged.copy()
@@ -130,9 +91,7 @@ def tier_deficits(merged, tiers=("E", "G", "H")):
                      "n_releases": int(len(wide))}
     return out
 
-
 def direct_evidence(coding):
-    """Category D against every cell where a run is documented."""
     coded = coding[(coding["orbit_category"].notna())
                    & (coding["orbit_category"] != "")
                    & (coding.get("coder") != "auto")]
@@ -140,14 +99,7 @@ def direct_evidence(coding):
     d_cells = int((coded["orbit_category"] == "D").sum())
     return {"d_cells": d_cells, "known_run_cells": int(known_run)}
 
-
 def swap_cases(merged, families, artifacts=None):
-    """Equal-sized reporting tables where a dropped benchmark was replaced.
-
-    For each such substitution the inserted benchmark's standing is compared
-    with the removed one's under the new release; withholding-by-substitution
-    predicts the insert stands higher.
-    """
     from .derive_coding import parse_reported
     prior = predecessors(families)
     if artifacts is None:
@@ -159,8 +111,6 @@ def swap_cases(merged, families, artifacts=None):
 
     def table(release):
         parsed = parse_reported(artifacts.loc[release, "reported_slugs"])
-        # F-form entries record an absence, so they are not table rows;
-        # off-panel rows, prefixed "+", still occupy space in the table
         printed = {k for k, (_, _, reason) in parsed.items() if reason is None}
         return printed, {k for k in printed if not k.startswith("+")}
 

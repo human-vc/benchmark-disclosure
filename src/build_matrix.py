@@ -1,4 +1,3 @@
-"""Assemble the model x benchmark availability matrix and apply the temporal gate."""
 
 import re
 
@@ -25,7 +24,6 @@ SLUG_OVERRIDES = {
     "OTIS Mock AIME 2024-2025": "otis_mock_aime",
 }
 
-
 SLUG_ALIASES = {
     "terminal_bench": "terminalbench",
     "fiction_livebench": "fictionlivebench",
@@ -49,13 +47,11 @@ SLUG_ALIASES = {
 
 KNOWN_UNJOINED = {"ebr_bench"}
 
-
 def slugify(name):
     slug = SLUG_OVERRIDES.get(name)
     if slug is None:
         slug = re.sub(r"[^a-z0-9]+", "_", name.lower()).strip("_")
     return SLUG_ALIASES.get(slug, slug)
-
 
 def load_index(root):
     index = pd.read_csv(root / INDEX_FILE)
@@ -71,9 +67,7 @@ def load_index(root):
         ]
     ]
 
-
 def collapse_meta(meta):
-    """Reduce the metadata to one row per slug."""
     grouped = meta.groupby("slug", as_index=False).agg(
         benchmark_name=("benchmark_name", "first"),
         benchmark_release_date=("benchmark_release_date", "max"),
@@ -82,9 +76,7 @@ def collapse_meta(meta):
     )
     return grouped
 
-
 def apply_date_overrides(meta, path=BENCHMARK_DATES):
-    """Merge the hand-collected benchmark release dates over Epoch's."""
     if not path.exists():
         meta["date_source"] = np.where(
             meta["benchmark_release_date"].notna(), "epoch", "none"
@@ -125,7 +117,6 @@ def apply_date_overrides(meta, path=BENCHMARK_DATES):
     )
     return merged.drop(columns=["benchmark_release_date_hand", "status"])
 
-
 def load_benchmark_meta(root):
     meta = pd.read_csv(root / BENCHMARK_META)
     meta["benchmark_release_date"] = pd.to_datetime(
@@ -147,16 +138,13 @@ def load_benchmark_meta(root):
         ]
     ]
 
-
 def score_column(frame):
-    """Epoch names the score column per benchmark. Take the first numeric"""
     if SCORE_COL in frame.columns:
         return SCORE_COL
     for column in frame.columns[1:]:
         if pd.to_numeric(frame[column], errors="coerce").notna().any():
             return column
     return None
-
 
 def load_scores(root):
     frames = []
@@ -182,14 +170,11 @@ def load_scores(root):
         frames.append(tidy.groupby([MODEL_COL, "slug"], as_index=False)["score"].max())
     return pd.concat(frames, ignore_index=True)
 
-
 ORG_ALIASES = {"Google": "Google DeepMind", "DeepMind": "Google DeepMind"}
 
 MERGE_WINDOW_DAYS = 45
 
-
 def canonical_release_date(panel):
-    """Collapse same-model entries that sit within MERGE_WINDOW_DAYS."""
     dates = panel["Release date"]
     keys = panel["primary_org"] + "|" + panel["Model name"]
     canonical = dates.copy()
@@ -202,9 +187,7 @@ def canonical_release_date(panel):
             canonical.loc[position] = anchor
     return canonical
 
-
 def collapse_to_releases(panel):
-    """Collapse scaffold variants to one row per (release, benchmark)."""
     panel = panel.dropna(subset=["Organization", "Model name", "Release date"]).copy()
     panel["primary_org"] = (
         panel["Organization"].str.split(",").str[0].str.strip().replace(ORG_ALIASES)
@@ -243,13 +226,9 @@ def collapse_to_releases(panel):
     )
     return collapsed
 
-
 def main():
     INTERIM.mkdir(parents=True, exist_ok=True)
 
-    # Announce a moved snapshot before anything is computed from it. Epoch's
-    # bundle is fetched live, so a rebuild months later analyses different data
-    # while every downstream number still prints happily.
     from .snapshot import report as snapshot_report
 
     snapshot_report()
@@ -323,7 +302,6 @@ def main():
 
     panel.to_csv(INTERIM / "panel.csv", index=False)
     print(f"\nwrote {INTERIM / 'panel.csv'}")
-
 
 if __name__ == "__main__":
     main()

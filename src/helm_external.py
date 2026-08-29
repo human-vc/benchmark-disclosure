@@ -1,4 +1,3 @@
-"""The same bias on a leaderboard we did not build."""
 
 import itertools
 import json
@@ -33,15 +32,12 @@ SCENARIOS = [
 ]
 HEADLINE = "Mean win rate"
 
-
 def load(path=FROZEN):
     payload = json.loads(path.read_text())
     order = sorted(payload["releases"], key=lambda v: int(v.split(".")[1]))
     return payload, order
 
-
 def scenario_columns_are_stable(payload, order, scenarios=None):
-    """The first objection is that they added scenarios. They did not."""
     scenarios = scenarios or SCENARIOS
     sets = {
         tuple(c for c in payload["releases"][v]["columns"] if c in scenarios)
@@ -49,13 +45,10 @@ def scenario_columns_are_stable(payload, order, scenarios=None):
     }
     return len(sets) == 1 and len(next(iter(sets))) == len(scenarios)
 
-
 def frozen_models(payload, order):
     return sorted(set.intersection(*[set(payload["releases"][v]["rows"]) for v in order]))
 
-
 def frozen_cells(payload, order, models, scenarios=None):
-    """Published scenario scores for the models present in every release."""
     scenarios = scenarios or SCENARIOS
     total = moved = 0
     spread = 0.0
@@ -70,7 +63,6 @@ def frozen_cells(payload, order, models, scenarios=None):
             if width > 5e-9:
                 moved += 1
     return {"cells": total, "changed": moved, "max_spread": spread}
-
 
 def headline_drift(payload, order, models, headline=None):
     headline = headline or HEADLINE
@@ -116,7 +108,6 @@ def headline_drift(payload, order, models, headline=None):
         "series": series,
     }
 
-
 def summary(path=FROZEN):
     payload, order = load(path)
     models = frozen_models(payload, order)
@@ -131,9 +122,7 @@ def summary(path=FROZEN):
                      if k != "series"},
     }
 
-
 def control(path=CONTROL):
-    """The falsification test, with its prediction stated before it was run."""
     payload, order = load(path)
     models = frozen_models(payload, order)
     head = headline_drift(payload, order, models, headline=CONTROL_HEADLINE)
@@ -152,7 +141,6 @@ def control(path=CONTROL):
         "reversals_endpoint": head["reversals_endpoint"],
         "reversals_ever": head["reversals_ever"],
     }
-
 
 def main():
     report = summary()
@@ -191,7 +179,6 @@ def main():
               f"pairs reordered: {ctl['reversals_endpoint']}")
         print("    Same evaluator, same machinery, same growth. The drift appears")
         print("    where the statistic is pool-relative and nowhere else.")
-
 
 if __name__ == "__main__":
     main()

@@ -1,4 +1,3 @@
-"""Every number the manuscript cites, regenerated from one command."""
 
 import json
 from datetime import date
@@ -22,7 +21,6 @@ from .placebo_calibration import (
 )
 from .snapshot import compare, stamp
 
-
 def _contrast(panel, column):
     cells = panel[panel["eligible"] | panel["placebo"]].dropna(subset=[column])
     wide = (
@@ -40,7 +38,6 @@ def _contrast(panel, column):
         "n_releases": int(len(gap)),
     }
 
-
 def _asymmetry_slope(panel, column):
     cells = panel[panel["eligible"]].dropna(subset=[column, "share_newer"])
     demean = lambda values: (
@@ -49,9 +46,7 @@ def _asymmetry_slope(panel, column):
     y, x = demean(cells[column]), demean(cells["share_newer"])
     return round(float(np.cov(y, x, bias=True)[0, 1] / x.var()), 3)
 
-
 def _growth_and_saturation(panel):
-    """Section 3's claim and Section 4's mechanism, both checkable."""
     dated = panel.dropna(subset=["benchmark_release_date"])
     stock = (dated[["slug", "benchmark_release_date"]].drop_duplicates("slug")
              .assign(year=lambda f: f["benchmark_release_date"].dt.year)
@@ -88,9 +83,7 @@ def _growth_and_saturation(panel):
         },
     }
 
-
 def _worklist_reach():
-    """What the coding worklist asks a human to read."""
     sheet = pd.read_csv(WORKLIST, dtype=str).fillna("")
     eligible = sheet[sheet["group"] == "eligible"]
     return {
@@ -99,9 +92,7 @@ def _worklist_reach():
         "families": int(eligible["family_id"].nunique()),
     }
 
-
 def _sensitivity(panel):
-    """The specification grid and the leave-one-organisation-out range."""
     frame = pd.read_csv(
         INTERIM / "panel.csv",
         parse_dates=["Release date", "benchmark_release_date"],
@@ -121,7 +112,6 @@ def _sensitivity(panel):
         "leave_one_out_max": round(float(dropped["mean"].max()), 3),
         "organisations_dropped": int(len(dropped)),
     }
-
 
 def collect():
     panel = pd.read_csv(
@@ -182,13 +172,6 @@ def collect():
         "sensitivity": _sensitivity(panel),
     }
 
-    # The decomposition lands on `pct_sided`, the windowed percentile taken
-    # over peers only, not on `percentile`, which also carries the focal
-    # model's own midrank contribution. Under a convention that folds the model
-    # into its own older side the identity holds against `percentile` exactly,
-    # but only because the model is counted among its own peers; see
-    # src/percentiles.py. Checking it against `pct_sided` is the arithmetic
-    # check it was meant to be.
     identity = (
         (1 - panel["share_newer"]) * panel["pct_old_side"].fillna(0)
         + panel["share_newer"] * panel["pct_new_side"].fillna(0)
@@ -197,14 +180,10 @@ def collect():
     numbers["identity_max_abs_error"] = float(
         np.nanmax(np.abs(identity[defined] - panel["pct_sided"][defined]))
     )
-    # What the focal model's own inclusion is worth, cell by cell. It is the
-    # gap between the reported measure and the one the identity decomposes, and
-    # it is reported rather than absorbed.
     numbers["self_inclusion_max_abs_gap"] = float(
         np.nanmax(np.abs(panel["percentile"][defined] - panel["pct_sided"][defined]))
     )
     return panel, numbers
-
 
 def main(draws=300):
     panel, numbers = collect()
@@ -261,15 +240,7 @@ def main(draws=300):
               f"{helm['headline']['moved']}/{helm['headline']['models']} win rates moved, "
               f"{helm['headline']['reversals_endpoint']} pairs reordered")
 
-
 def coding_block(kappa_draws=2000):
-    """Every number Section 5 quotes, from the coded sheet and the pinned panel.
-
-    Deficits are computed beside the label-free contrast on the same measure
-    and window, because the section's claim is their difference, not either
-    level. Reliability follows the frozen plan: derived cells, pre-adjudication,
-    intervals from resampling releases rather than cells.
-    """
     from .falsification import eligible_vs_placebo, permutation_test
     from .percentiles import add_percentiles
     from .reliability import (ARTIFACTS, SECOND_EVIDENCE, cohens_kappa,
@@ -421,16 +392,7 @@ def coding_block(kappa_draws=2000):
         "reliability": reliability,
     }
 
-
 def possession_block():
-    """Every number the possession analyses quote.
-
-    Category D against the known-run denominator, the omission deficit one
-    evidence tier at a time, the change-based drop test in both metrics, and
-    the equal-table swap cases. The change-based sample is wider than the
-    drop estimator's because it conditions only on a scored predecessor
-    report, not on the estimator's within-release retention floor.
-    """
     from .families import load_families
     from .percentiles import add_percentiles
     from .possession import (change_gap, direct_evidence, swap_cases,
@@ -449,7 +411,6 @@ def possession_block():
         "change_score": change_gap(frame, "d_score"),
         "swaps": swap_cases(merged, families),
     }
-
 
 if __name__ == "__main__":
     main()

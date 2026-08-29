@@ -1,9 +1,7 @@
-"""Slug matching between Epoch's metadata names and its score filenames."""
 import pandas as pd
 import pytest
 
 from src.build_matrix import KNOWN_UNJOINED, SLUG_ALIASES, collapse_meta, slugify
-
 
 def test_previously_lost_benchmarks_now_map_to_their_score_files():
     expected = {
@@ -18,13 +16,10 @@ def test_previously_lost_benchmarks_now_map_to_their_score_files():
     for name, slug in expected.items():
         assert slugify(name) == slug, name
 
-
 def test_osworld_versions_stay_separate():
-    """OSWorld and OSWorld 2.0 are different benchmarks with different score"""
     assert slugify("OSWorld") == "os_world"
     assert slugify("OSWorld 2.0") == "osworld_2"
     assert slugify("OSWorld") != slugify("OSWorld 2.0")
-
 
 def test_collapse_meta_yields_one_row_per_slug():
     meta = pd.DataFrame({
@@ -39,11 +34,8 @@ def test_collapse_meta_yields_one_row_per_slug():
     assert row["benchmark_release_date"] == pd.Timestamp("2025-01-01")
     assert row["n_collapsed"] == 2
 
-
 def test_known_unjoined_is_explicit_and_small():
-    """If this grows, someone has accepted data loss. Make them do it on purpose."""
     assert KNOWN_UNJOINED == {"ebr_bench"}
-
 
 def test_alias_targets_are_not_themselves_aliased():
     for source, target in SLUG_ALIASES.items():

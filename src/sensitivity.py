@@ -1,17 +1,3 @@
-"""The placebo contrast across every analytic choice that could manufacture it.
-
-The paper's claim is that a measurement choice moves the contrast, so the
-contrast has to be reported across those choices rather than at one setting.
-
-The headline is a coordinate in this grid, not a separate code path. `BASELINE`
-names it, `test_sensitivity` asserts that cell equals what `paper_numbers`
-writes, and the two cannot drift apart without a test failing. The alternative,
-a sweep maintained beside the estimator, is how the manuscript came to describe
-an eight-benchmark minimum that no headline number ever applied.
-
-Percentiles depend only on the window width, so they are computed once per width
-and every threshold reuses the scored frame.
-"""
 
 import numpy as np
 import pandas as pd
@@ -32,24 +18,19 @@ COLUMNS = [
     "n_releases", "n_clusters", "share_newer_gap",
 ]
 
-
 def _panel():
     return pd.read_csv(
         INTERIM / "panel.csv",
         parse_dates=["Release date", "benchmark_release_date"],
     )
 
-
 def _threshold(scored, min_benchmarks):
-    """Releases carrying at least this many distinct scored benchmarks."""
     if min_benchmarks <= 1:
         return scored
     counts = scored.groupby(RELEASE_COL)["slug"].transform("nunique")
     return scored[counts >= min_benchmarks]
 
-
 def _share_newer_gap(scored):
-    """Eligible minus placebo mean share of the window newer than the model."""
     cells = scored[scored["eligible"] | scored["placebo"]]
     if cells.empty or "share_newer" not in cells:
         return np.nan
@@ -57,9 +38,7 @@ def _share_newer_gap(scored):
     plac = cells.loc[cells["placebo"], "share_newer"].mean()
     return float(plac - elig)
 
-
 def estimate(scored, min_benchmarks):
-    """The placebo contrast on an already-scored frame at one threshold."""
     kept = _threshold(scored, min_benchmarks)
     contrast = contrast_by_release(kept)
     if contrast.empty:
@@ -79,9 +58,7 @@ def estimate(scored, min_benchmarks):
         "share_newer_gap": _share_newer_gap(kept),
     }
 
-
 def sweep(frame, widths=WIDTHS, thresholds=THRESHOLDS):
-    """Every (window width, threshold) cell, percentiles computed once per width."""
     rows = []
     for width in widths:
         scored = within_benchmark_percentile(frame.copy(), window_days=width)
@@ -92,9 +69,7 @@ def sweep(frame, widths=WIDTHS, thresholds=THRESHOLDS):
             rows.append(row)
     return pd.DataFrame(rows)[COLUMNS]
 
-
 def baseline_row(table):
-    """The grid cell the manuscript reports."""
     match = table
     for key, value in BASELINE.items():
         match = match[match[key] == value]
@@ -102,9 +77,7 @@ def baseline_row(table):
         raise ValueError(f"BASELINE selects {len(match)} rows, expected exactly 1")
     return match.iloc[0]
 
-
 def leave_one_org_out(scored, min_benchmarks=BASELINE["min_benchmarks"]):
-    """The contrast with each organisation removed in turn."""
     contrast = contrast_by_release(_threshold(scored, min_benchmarks))
     if contrast.empty:
         return pd.DataFrame(columns=["dropped", "mean", "n_releases", "share_of_releases"])
@@ -121,7 +94,6 @@ def leave_one_org_out(scored, min_benchmarks=BASELINE["min_benchmarks"]):
             "share_of_releases": float(counts[org] / total),
         })
     return pd.DataFrame(rows)
-
 
 def main():
     frame = _panel()
@@ -157,7 +129,6 @@ def main():
               f"({row.share_of_releases:.1%} of releases)")
     print(f"  over all {len(dropped)} drops: "
           f"{dropped['mean'].min():+.2f} to {dropped['mean'].max():+.2f}")
-
 
 if __name__ == "__main__":
     main()

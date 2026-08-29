@@ -1,4 +1,3 @@
-"""The possession cuts must find withholding when it is planted, and not otherwise."""
 
 import numpy as np
 import pandas as pd
@@ -6,7 +5,6 @@ import pytest
 
 from src.config import RELEASE_COL
 from src import possession
-
 
 def families(pairs):
     rows = []
@@ -16,13 +14,10 @@ def families(pairs):
                          "family_rank": rank})
     return pd.DataFrame(rows)
 
-
 def merged_frame(rows):
-    """rows: (release, slug, percentile, score, category, reported, group)"""
     return pd.DataFrame(rows, columns=[
         RELEASE_COL, "slug", "percentile", "score", "orbit_category",
         "reported", "group"])
-
 
 @pytest.fixture
 def two_step():
@@ -37,11 +32,9 @@ def two_step():
         rows.append(("R2", slug, after, after / 100, category, reported, "eligible"))
     return merged_frame(rows), families({"F": ["R1", "R2"]})
 
-
 def test_predecessors_links_adjacent_ranks():
     prior = possession.predecessors(families({"F": ["a", "b", "c"], "G": ["x"]}))
     assert prior == {"b": "a", "c": "b"}
-
 
 def test_transition_frame_conditions_on_prior_report(two_step):
     merged, fam = two_step
@@ -50,14 +43,12 @@ def test_transition_frame_conditions_on_prior_report(two_step):
     assert frame.set_index("slug").loc["gone", "status"] == "dropped"
     assert frame.set_index("slug").loc["kept", "status"] == "retained"
 
-
 def test_transition_frame_blanks_incommensurable_scores(two_step):
     merged, fam = two_step
     merged.loc[merged["slug"] == "kept", "score"] = 1500.0
     frame = possession.transition_frame(merged, fam).set_index("slug")
     assert np.isnan(frame.loc["kept", "d_score"])
     assert np.isfinite(frame.loc["kept", "d_percentile"])
-
 
 def planted(gap, n_transitions=20, per=6, seed=0):
     rng = np.random.default_rng(seed)
@@ -77,7 +68,6 @@ def planted(gap, n_transitions=20, per=6, seed=0):
                          "eligible"))
     return merged_frame(rows), families(fams)
 
-
 def test_change_gap_finds_planted_withholding():
     merged, fam = planted(gap=-25.0)
     frame = possession.transition_frame(merged, fam)
@@ -85,13 +75,11 @@ def test_change_gap_finds_planted_withholding():
     assert result["gap"] < -15
     assert result["p"] < 0.05
 
-
 def test_change_gap_is_quiet_under_the_null():
     merged, fam = planted(gap=0.0)
     frame = possession.transition_frame(merged, fam)
     result = possession.change_gap(frame, draws=499)
     assert result["p"] > 0.10
-
 
 def test_change_gap_counts_add_up():
     merged, fam = planted(gap=-10.0)
@@ -100,7 +88,6 @@ def test_change_gap_counts_add_up():
     assert result["n_cells"] == result["n_dropped"] + result["n_retained"]
     assert result["n_transitions"] == 20
 
-
 def test_direct_evidence_counts_the_known_run_cells():
     coding = pd.DataFrame({
         "orbit_category": ["A", "B", "C", "D", "E", "G", "H", ""],
@@ -108,7 +95,6 @@ def test_direct_evidence_counts_the_known_run_cells():
     })
     counts = possession.direct_evidence(coding)
     assert counts == {"d_cells": 1, "known_run_cells": 4}
-
 
 def test_tier_deficits_reads_the_planted_gradient():
     rows = []
@@ -122,7 +108,6 @@ def test_tier_deficits_reads_the_planted_gradient():
     assert tiers["E"]["gap"] == pytest.approx(20.0)
     assert tiers["H"]["gap"] == pytest.approx(5.0)
     assert tiers["E"]["n_releases"] == 12
-
 
 def test_swap_cases_needs_equal_tables_and_a_derived_drop(two_step):
     merged, fam = two_step

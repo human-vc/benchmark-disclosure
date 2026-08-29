@@ -1,33 +1,6 @@
-"""Search aliases for every benchmark slug in the panel.
-
-Extraction is the one step in this pipeline that cannot be derived: someone has
-to read a release artifact and record what it reports. This table is what makes
-that reading auditable rather than recalled. Each slug maps to the surface forms
-a provider actually writes, so the coder is shown every place the artifact could
-be reporting the benchmark and decides from the surrounding text.
-
-Two rules the entries follow, both learned the expensive way in docs/run-log.md:
-
-  - Match on word boundaries. Substring search puts METR inside "symmetric",
-    MATH inside "mathematics", DROP inside "dropped", RLI inside "earlier". A
-    false hit codes an unreported benchmark as reported, which points against
-    the study's hypothesis, but a false *miss* codes a reported benchmark as a
-    drop, which points for it. Neither is acceptable and the boundary rule is
-    what keeps both rare.
-  - Be generous with aliases and let the coder discard. A term that hits
-    nothing costs one line of output. A term that is missing costs a false
-    omission that nobody will ever see.
-
-The aliases are surface forms only. Whether a hit is a score *for this model*
-is a judgment the coder makes from context, and the protocol's A/B/C split
-turns on it.
-"""
 
 import re
 
-# slug -> alias surface forms. Written as plain strings; regex metacharacters
-# are escaped at compile time, and internal whitespace matches any run of
-# whitespace so a term broken across a PDF line still hits.
 ALIASES = {
     "adversarial_nli": ["ANLI", "Adversarial NLI"],
     "aider_polyglot": ["Aider", "Aider polyglot", "Aider Polyglot"],
@@ -103,8 +76,6 @@ ALIASES = {
     "spatialviz_bench": ["SpatialViz", "SpatialViz-Bench"],
     "superglue": ["SuperGLUE", "Super GLUE"],
     "surface_evolver_bench": ["Surface Evolver", "SurfaceEvolver"],
-    # "SWE Verified" drops the "bench" entirely and is what DeepSeek and
-    # several others actually print. Matching only "SWE-bench" missed it.
     "swe_bench_verified": ["SWE-bench", "SWE bench", "SWEbench",
                            "SWE-bench Verified", "SWE Verified",
                            "SWE-Verified", "SWE-bench-Verified"],
@@ -122,9 +93,6 @@ ALIASES = {
     "wino_grande": ["WinoGrande", "Winogrande", "Wino Grande"],
 }
 
-# A hit on these means very little on its own: the alias is a common word or a
-# fragment that appears in prose ("Tier 4", "APEX", "MATH", "GSO"). Surfaced
-# with a marker so the coder reads the context before recording anything.
 WEAK = {
     "frontiermath_tier_4": {"Tier 4", "Tier-4"},
     "apex_agents": {"APEX"},
@@ -132,9 +100,6 @@ WEAK = {
     "math_level_5": {"MATH"},
     "metr_time_horizons": {"METR", "time horizon", "time horizons"},
     "chess_puzzles": {"Lichess"},
-    # Terminus is Terminal-Bench's harness and also the suffix of a DeepSeek
-    # model name, so a hit is as likely to be a competitor in a comparison
-    # sentence as it is a benchmark.
     "terminalbench": {"Terminus"},
     "simpleqa_verified": {"SimpleQA", "Simple QA"},
     "arc_agi": {"ARC-AGI", "ARC AGI"},
@@ -142,22 +107,17 @@ WEAK = {
     "frontiermath": {"FrontierMath", "Frontier Math"},
 }
 
-
 def _compile(term):
-    """Word-boundary anchored, whitespace-tolerant, case-insensitive."""
     body = r"\s+".join(re.escape(part) for part in term.split())
     return re.compile(r"(?<![A-Za-z0-9])" + body + r"(?![A-Za-z0-9])",
                       re.IGNORECASE)
-
 
 PATTERNS = {
     slug: [(term, _compile(term)) for term in terms]
     for slug, terms in ALIASES.items()
 }
 
-
 def hits(text, slugs=None):
-    """slug -> list of (term, start, end) for every alias occurrence."""
     found = {}
     for slug in (slugs if slugs is not None else PATTERNS):
         for term, pattern in PATTERNS.get(slug, []):
@@ -166,7 +126,6 @@ def hits(text, slugs=None):
     for slug in found:
         found[slug].sort(key=lambda hit: hit[1])
     return found
-
 
 def is_weak(slug, term):
     return term in WEAK.get(slug, ())

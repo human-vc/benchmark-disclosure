@@ -1,9 +1,3 @@
-"""The sweep's baseline cell must be the number the manuscript reports.
-
-Without this the sweep and the headline are two code paths that agree only by
-accident, which is how the eight-benchmark minimum came to be described in the
-manuscript while no reported number applied it.
-"""
 
 import pandas as pd
 import pytest
@@ -14,10 +8,8 @@ from src.placebo_calibration import contrast_by_release
 
 from .conftest import make_panel
 
-
 @pytest.fixture
 def panel():
-    """Four providers, releases carrying both eligible and postdating cells."""
     benchmarks = {
         "b1": "2023-01-01", "b2": "2023-06-01", "b3": "2024-01-01",
         "b4": "2024-06-01", "b5": "2025-01-01", "b6": "2025-06-01",
@@ -36,19 +28,15 @@ def panel():
             rows.append((name, org, date, slug, bench_date, (tick % 17) / 17))
     return make_panel(rows)
 
-
 def test_baseline_is_a_grid_coordinate():
     assert sensitivity.BASELINE["min_benchmarks"] in sensitivity.THRESHOLDS
     assert sensitivity.BASELINE["window_days"] in sensitivity.WIDTHS
-
 
 def test_threshold_of_one_is_a_no_op(panel):
     scored = within_benchmark_percentile(panel.copy())
     assert len(sensitivity._threshold(scored, 1)) == len(scored)
 
-
 def test_baseline_cell_equals_the_headline(panel):
-    """The grid cell at BASELINE and the estimator main() uses must agree."""
     scored = within_benchmark_percentile(panel.copy(),
                                          window_days=sensitivity.BASELINE["window_days"])
     headline = contrast_by_release(scored)
@@ -63,7 +51,6 @@ def test_baseline_cell_equals_the_headline(panel):
     assert row["median"] == pytest.approx(headline["contrast"].median(), abs=1e-9)
     assert row["share_positive"] == pytest.approx((headline["contrast"] > 0).mean(), abs=1e-9)
 
-
 def test_baseline_row_rejects_an_ambiguous_grid():
     table = pd.DataFrame({
         "window_days": [182, 182], "min_benchmarks": [1, 1],
@@ -71,7 +58,6 @@ def test_baseline_row_rejects_an_ambiguous_grid():
     })
     with pytest.raises(ValueError):
         sensitivity.baseline_row(table)
-
 
 def test_leave_one_out_drops_each_organisation_once(panel):
     scored = within_benchmark_percentile(panel.copy())
@@ -81,7 +67,6 @@ def test_leave_one_out_drops_each_organisation_once(panel):
     assert len(dropped) == contrast_by_release(scored)["organization"].nunique()
     full = loo.loc[loo["dropped"] == "(none)", "mean"].iloc[0]
     assert full == pytest.approx(contrast_by_release(scored)["contrast"].mean(), abs=1e-9)
-
 
 def test_share_newer_gap_is_placebo_minus_eligible(panel):
     scored = within_benchmark_percentile(panel.copy())

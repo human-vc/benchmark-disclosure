@@ -4,9 +4,7 @@ import pytest
 
 from src.config import RELEASE_COL
 
-
 def make_panel(rows):
-    """rows: (release, org, release_date, slug, bench_date, score)"""
     frame = pd.DataFrame(
         rows,
         columns=[RELEASE_COL, "Organization", "Release date", "slug",
@@ -22,7 +20,6 @@ def make_panel(rows):
     frame["eligible"] = predates & frame["date_known"]
     frame["placebo"] = ~predates & frame["date_known"]
     return frame
-
 
 @pytest.fixture
 def tiny_panel():

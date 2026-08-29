@@ -1,4 +1,3 @@
-"""Small statistical helpers, kept dependency-light on purpose."""
 
 import numpy as np
 
@@ -11,36 +10,23 @@ WEBB_CLUSTERS = 11
 WEBB_SUPPORT = (-np.sqrt(1.5), -1.0, -np.sqrt(0.5),
                 np.sqrt(0.5), 1.0, np.sqrt(1.5))
 
-
 def sign_support(n_groups, weights="auto"):
-    """Rademacher, or Webb's six points when the cluster count is small.
-
-    Rademacher offers 2**G distinct sign vectors, and mirrored vectors give the
-    same two-sided statistic, so the smallest attainable p is 2**-(G-1). Below
-    twelve clusters that floor is coarser than the draw count suggests, and the
-    remedy is a support with more mass points: MacKinnon and Webb (2018) switch
-    to the six-point distribution of Webb (2014) at G <= 11.
-    """
     if weights == "auto":
         weights = "webb" if n_groups <= WEBB_CLUSTERS else "rademacher"
     if weights == "webb":
         return np.array(WEBB_SUPPORT), 6.0 ** n_groups, weights
     return np.array([-1.0, 1.0]), 2.0 ** n_groups, weights
 
-
 def p_value_floor(n_groups, draws, weights):
-    """Smallest two-sided p the draw count and the sign support can return."""
     if weights == "webb":
         distinct = 6.0 ** n_groups
     else:
         distinct = 2.0 ** max(n_groups - 1, 0)
     return float(1.0 / (min(float(draws), distinct) + 1.0))
 
-
 def _fit(y, X):
     beta, *_ = np.linalg.lstsq(X, y, rcond=None)
     return beta, y - X @ beta
-
 
 def _cluster_vcov(X, resid, cluster, XtX_inv):
     n, k = X.shape
@@ -54,9 +40,7 @@ def _cluster_vcov(X, resid, cluster, XtX_inv):
     meat *= (g_count / max(g_count - 1, 1)) * ((n - 1) / max(n - k, 1))
     return XtX_inv @ meat @ XtX_inv
 
-
 def ols(y, X, names=None, cluster=None, min_clusters=MIN_CLUSTERS):
-    """OLS with HC1 errors, or cluster-robust errors when cluster is given."""
     y = np.asarray(y, float)
     X = np.asarray(X, float)
     n, k = X.shape
@@ -94,10 +78,8 @@ def ols(y, X, names=None, cluster=None, min_clusters=MIN_CLUSTERS):
             "n": n, "n_clusters": n_clusters, "inference": "cluster-robust"
             if n_clusters is not None else "HC1"}
 
-
 def wild_cluster_bootstrap(y, X, cluster, index, draws=9999, seed=0,
                            weights="auto"):
-    """p-value for one coefficient by the restricted wild cluster bootstrap."""
     y = np.asarray(y, float)
     X = np.asarray(X, float)
     cluster = np.asarray(cluster)
@@ -137,16 +119,7 @@ def wild_cluster_bootstrap(y, X, cluster, index, draws=9999, seed=0,
         "distinct_draws_available": float(distinct),
     }
 
-
 def randomization_test_mean(values, cluster=None, draws=9999, seed=0):
-    """Is a mean distinguishable from zero, without asymptotics?
-
-    Signs are Rademacher and stay Rademacher. The test is exact under its own
-    null because flipping a cluster's sign leaves the null distribution
-    invariant, and Webb's six-point support would break that: its points differ
-    in magnitude as well as sign, so a one-cluster sample would stop returning
-    p = 1. Webb belongs in the bootstrap, where the statistic is a t ratio.
-    """
     values = np.asarray(values, float)
     values = values[~np.isnan(values)]
     if len(values) == 0:
@@ -175,17 +148,7 @@ def randomization_test_mean(values, cluster=None, draws=9999, seed=0):
         "distinct_draws_available": 2.0 ** n_groups,
     }
 
-
 def two_way_se(y, X, cluster_a, cluster_b):
-    """Standard errors clustered on two crossed dimensions at once.
-
-    Cells here share a provider and share a benchmark, and a benchmark-level
-    shock correlates residuals across providers, which one-way provider
-    clustering cannot see. The Cameron-Gelbach-Miller variance is the sum of
-    the two one-way sandwiches minus the sandwich on their intersection. A
-    negative diagonal entry, possible in finite samples, is returned as NaN
-    rather than clipped, so it cannot masquerade as precision.
-    """
     y = np.asarray(y, float)
     X = np.asarray(X, float)
     n, k = X.shape
@@ -208,7 +171,6 @@ def two_way_se(y, X, cluster_a, cluster_b):
         "n_clusters_b": int(len(np.unique(b))),
     }
 
-
 def print_ols(fit, title):
     header = f"\n{title}  (n={fit['n']}"
     header += f", {fit['n_clusters']} clusters)" if fit["n_clusters"] else ")"
@@ -225,10 +187,8 @@ def print_ols(fit, title):
     if withheld:
         print(f"  {fit['inference']}")
 
-
 def bootstrap_mean(values, draws=10000, seed=0, cluster=None,
                    min_clusters=MIN_CLUSTERS):
-    """Percentile bootstrap of a mean, resampling clusters rather than rows."""
     rng = np.random.default_rng(seed)
     values = np.asarray(values, float)
     values = values[~np.isnan(values)]

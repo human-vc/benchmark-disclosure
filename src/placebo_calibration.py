@@ -1,4 +1,3 @@
-"""What the eligible-versus-placebo contrast actually measures."""
 
 import numpy as np
 import pandas as pd
@@ -12,13 +11,10 @@ MIN_VARIANCE = 1e-12
 BALANCED_SHARE = (0.25, 0.75)
 BALANCED_MIN_PEERS = 5
 
-
 def _within(frame, column, by):
     return frame[column] - frame.groupby(by)[column].transform("mean")
 
-
 def _absorb(values, *groups, tol=1e-10, max_iter=5000):
-    """Two-way (or n-way) within transformation by alternating projections."""
     x = np.asarray(values, dtype=float).copy()
     codes, sizes = [], []
     for group in groups:
@@ -36,9 +32,7 @@ def _absorb(values, *groups, tol=1e-10, max_iter=5000):
             break
     return x
 
-
 def contrast_by_release(panel):
-    """Release-level mean eligible percentile minus mean placebo percentile."""
     cells = panel[panel["eligible"] | panel["placebo"]].copy()
     cells["set"] = np.where(cells["eligible"], "eligible", "placebo")
     wide = cells.pivot_table(
@@ -53,9 +47,7 @@ def contrast_by_release(panel):
         "organization": orgs.reindex(wide.index),
     }).reset_index()
 
-
 def decomposition(panel):
-    """Ladder: how much of the contrast survives each conditioning step."""
     cells = panel[panel["eligible"] | panel["placebo"]].copy()
     cells["placebo_i"] = cells["placebo"].astype(float)
     cells = cells.dropna(subset=["percentile", "share_newer", "n_peers"])
@@ -90,9 +82,6 @@ def decomposition(panel):
         rows.append({
             "step": label,
             "placebo_coef": fit["beta"][1],
-            # two-way provider-and-benchmark errors are primary: a benchmark
-            # shock correlates residuals across providers, and provider-only
-            # clustering cannot see it
             "se": both["se"][1],
             "t": both["beta"][1] / both["se"][1],
             "se_provider": fit["se"][1],
@@ -106,9 +95,7 @@ def decomposition(panel):
     out["share_absorbed"] = 1 - out["placebo_coef"].abs() / base
     return out
 
-
 def _window_blocks(panel, window_days=WINDOW_DAYS):
-    """Precompute the date geometry of each benchmark's ranking window."""
     blocks = []
     for _, group in panel.groupby("slug", sort=False):
         rows = panel.index.get_indexer(group.index.to_numpy())
@@ -116,7 +103,6 @@ def _window_blocks(panel, window_days=WINDOW_DAYS):
         within = np.abs(days[:, None] - days[None, :]) <= window_days
         blocks.append((rows, within, within.sum(axis=1)))
     return blocks
-
 
 def _percentiles_from(scores, blocks, size):
     out = np.full(size, np.nan)
@@ -127,9 +113,7 @@ def _percentiles_from(scores, blocks, size):
         out[rows] = 100.0 * (beats * within).sum(axis=1) / counts
     return out
 
-
 def permutation_null(panel, draws=300, seed=7, window_days=WINDOW_DAYS):
-    """Is the asymmetry slope mechanical? Shuffle scores within benchmark."""
     from .percentiles import within_benchmark_percentile
 
     panel = panel.reset_index(drop=True)
@@ -191,9 +175,7 @@ def permutation_null(panel, draws=300, seed=7, window_days=WINDOW_DAYS):
         "draws": draws,
     }
 
-
 def _asymmetry_slope(panel):
-    """Within-release slope of percentile on peer-window asymmetry, eligible only."""
     cells = panel[panel["eligible"]].dropna(subset=["percentile", "share_newer"])
     if cells.empty:
         return np.nan
@@ -203,17 +185,7 @@ def _asymmetry_slope(panel):
         return np.nan
     return float(np.cov(y, x, bias=True)[0, 1] / x.var())
 
-
 def trend_recovery(panel, draws=200, seed=11, window_days=WINDOW_DAYS):
-    """Does a bare capability trend reproduce the observed asymmetry slope?
-
-    The shuffle null removes the trend and finds no gradient. This is the other
-    half: keep a trend and remove everything else. Scores are replaced by a
-    within-benchmark linear fit on date plus residuals permuted within the same
-    benchmark, so the only structure left is the trend, and the slope is
-    recomputed from scratch. A single draw is not a result, so this reports the
-    mean and spread over `draws`.
-    """
     blocks = _window_blocks(panel, window_days)
     size = len(panel)
     observed = _asymmetry_slope(panel)
@@ -254,18 +226,14 @@ def trend_recovery(panel, draws=200, seed=11, window_days=WINDOW_DAYS):
         "draws": int(good.size),
     }
 
-
 def balanced_contrast(panel):
-    """The contrast restricted to cells with a genuinely two-sided peer window."""
     lo, hi = BALANCED_SHARE
     balanced = panel[
         panel["share_newer"].between(lo, hi) & (panel["n_peers"] >= BALANCED_MIN_PEERS)
     ]
     return contrast_by_release(balanced), len(balanced) / max(len(panel), 1)
 
-
 def drop_capacity(panel, families, min_benchmarks=MIN_BENCHMARKS):
-    """How many within-family drops the population can ever supply."""
     eligible = panel[panel["eligible"]][[RELEASE_COL, "slug", "primary_org"]]
     linked = eligible.merge(
         families[["release_id", "family_id", "family_rank"]],
@@ -297,10 +265,8 @@ def drop_capacity(panel, families, min_benchmarks=MIN_BENCHMARKS):
                      "shared_benchmarks": shared, "providers": len(providers)})
     return pd.DataFrame(rows)
 
-
 def null_calibration(panel, drops=(1, 2, 3), draws=400, min_benchmarks=MIN_BENCHMARKS,
                      seed=0):
-    """Standard deviation of a drop gap when the dropped set is chosen at random."""
     rng = np.random.default_rng(seed)
     rows = []
     for k in drops:
@@ -319,7 +285,6 @@ def null_calibration(panel, drops=(1, 2, 3), draws=400, min_benchmarks=MIN_BENCH
                      "null_sd": float(pooled.std()) if pooled.size else np.nan,
                      "draws": int(pooled.size)})
     return pd.DataFrame(rows)
-
 
 def main():
     panel = pd.read_csv(
@@ -365,7 +330,6 @@ def main():
     print("\nnull distribution of a drop gap, releases at or above the analysis threshold")
     for _, row in null_calibration(panel).iterrows():
         print(f"  {int(row['n_dropped'])} dropped: sd {row['null_sd']:.1f} percentile points")
-
 
 if __name__ == "__main__":
     main()

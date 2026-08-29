@@ -1,15 +1,12 @@
-"""Coverage diagnostics for the independent-score panel."""
 
 import pandas as pd
 from scipy.stats import mannwhitneyu
 
 from .config import INTERIM, MIN_BENCHMARKS, RELEASE_COL
 
-
 def load_panel():
     panel = pd.read_csv(INTERIM / "panel.csv", parse_dates=["Release date"])
     return panel
-
 
 def coverage_by_model(panel):
     return (
@@ -25,7 +22,6 @@ def coverage_by_model(panel):
         .reset_index()
     )
 
-
 def access_group(value):
     if not isinstance(value, str):
         return None
@@ -34,7 +30,6 @@ def access_group(value):
     if value == "API access":
         return "api"
     return None
-
 
 def main():
     panel = load_panel()
@@ -80,7 +75,6 @@ def main():
             & models["release_date"].notna()
         ).sum()
         print(f"  >={threshold:2d}: {n}")
-
 
 if __name__ == "__main__":
     main()

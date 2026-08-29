@@ -1,4 +1,3 @@
-"""The four falsification tests docs/design.md commits to."""
 
 import sys
 
@@ -16,23 +15,7 @@ from .selectivity import (
 )
 from .stats import bootstrap_mean, ols, print_ols, randomization_test_mean
 
-
 def eligible_vs_placebo(panel, value="percentile", min_each=1):
-    """The placebo contrast that needs no disclosure coding at all.
-
-    Every other test here compares *omitted* cells against postdating ones, and
-    that requires knowing which benchmarks a provider reported. This one does
-    not: it compares every benchmark a release *could* have reported against
-    every benchmark that did not yet exist. Both are the same two date-defined
-    sets, and under every innocent explanation -- postdating benchmarks are
-    harder, newer, or chosen by the evaluator because they discriminate -- the
-    difference is zero.
-
-    It is the strongest form of the test precisely because no label enters it.
-    If it is not zero, then the standing measure is already contaminated before
-    any coding sheet exists, and the disclosed-versus-omitted gap cannot be
-    read as concealment however well the coding was done.
-    """
     usable = panel[panel[value].notna() & panel["group"].isin({"eligible", "placebo"})]
     wide = (
         usable.pivot_table(index=RELEASE_COL, columns="group", values=value,
@@ -55,9 +38,7 @@ def eligible_vs_placebo(panel, value="percentile", min_each=1):
     out["gap"] = out["mean_eligible"] - out["mean_placebo"]
     return out
 
-
 def permutation_test(merged, draws=9999, seed=0):
-    """Relabel which benchmarks were disclosed, at random within release."""
     eligible = merged[merged["group"] == "eligible"].copy()
     codes, releases = pd.factorize(eligible[RELEASE_COL])
     percentile = eligible["percentile"].to_numpy(float)
@@ -95,9 +76,7 @@ def permutation_test(merged, draws=9999, seed=0):
     p = (k + 1) / (draws + 1)
     return observed, null, p
 
-
 def excess_omission(sets):
-    """Does the omitted set sit below what the disclosed set predicts?"""
     usable = sets.dropna(subset=["mean_disclosed", "mean_omitted"])
     if len(usable) < 10:
         return None
@@ -108,9 +87,7 @@ def excess_omission(sets):
         cluster=usable["organization"].to_numpy(),
     )
 
-
 def reverse_gap(coding):
-    """Benchmarks a provider reports that the independent source does not cover."""
     if "reverse_gap" not in coding.columns:
         return None
     flagged = coding[
@@ -118,18 +95,7 @@ def reverse_gap(coding):
     ]
     return flagged
 
-
 def placebo_under_each_measure(panel):
-    """The same contrast under every candidate repair.
-
-    Each row should be zero and none is, which is the point: the contamination
-    is not an artefact of one measure. Ranking against every model ever scored
-    nearly doubles it. Trimming to two-sided windows discards cells and removes
-    little, because trimming attacks the symptom -- the boundary -- and the
-    boundary is where the eligible/placebo distinction lives, so removing it
-    removes the contrast rather than cleaning it. Reweighting the two sides
-    does substantial work and still leaves the gap positive.
-    """
     rows = []
     variants = [
         ("windowed percentile (under audit)", "percentile", None),
@@ -143,7 +109,6 @@ def placebo_under_each_measure(panel):
             continue
         subset = panel
         if trim == "two_sided":
-            # keep only cells with peers on both sides of the release
             subset = panel[panel["pct_old_side"].notna()
                            & panel["pct_new_side"].notna()]
         gaps = eligible_vs_placebo(subset, value)
@@ -160,7 +125,6 @@ def placebo_under_each_measure(panel):
             "cell_share": len(used) / total if total else float("nan"),
         })
     return pd.DataFrame(rows)
-
 
 def report_label_free_placebo(panel):
     print("\n" + "=" * 62)
@@ -200,13 +164,9 @@ def report_label_free_placebo(panel):
               f"{shares['placebo']:.4f} for postdating ones, against 0.5 for a "
               f"two-sided window.")
 
-
 def main():
     panel = pd.read_csv(INTERIM / "panel.csv", parse_dates=["Release date"])
     panel = add_percentiles(panel)
-    # on a copy: `panel` is merged with the coding sheet below, which carries
-    # its own `group` column, and a collision there silently suffixes both and
-    # empties every downstream test
     dated = panel.copy()
     dated["group"] = np.where(dated["eligible"], "eligible",
                               np.where(dated["placebo"], "placebo", "unknown"))
@@ -273,7 +233,6 @@ def main():
     else:
         print(f"   {len(flagged)} recorded across "
               f"{flagged['release_id'].nunique()} releases")
-
 
 if __name__ == "__main__":
     main()

@@ -1,4 +1,3 @@
-"""Fetch and search provider artifacts so extraction is reproducible."""
 
 import hashlib
 import re
@@ -24,19 +23,7 @@ SEARCH_TERMS = [
     "Lech Mazur", "ProofBench", "MirrorCode", "geobench", "GeoBench",
 ]
 
-
 def fetch(url, name=None):
-    """Download to a content-addressed cache. Returns the local path.
-
-    The suffix is decided by sniffing the downloaded bytes, not by looking for
-    ".pdf" in the URL. arxiv.org/pdf/2309.10305 serves a PDF from a URL with no
-    ".pdf" in it, and an earlier version of this function stored it as .html and
-    handed the raw binary to the HTML stripper. That does not fail loudly: it
-    yields mojibake in which no benchmark name matches, so every benchmark in
-    the artifact reads as unreported. Silent false omissions are the one error
-    mode this study cannot tolerate, since they point the way the hypothesis
-    points.
-    """
     CACHE.mkdir(parents=True, exist_ok=True)
     key = hashlib.sha1(url.encode()).hexdigest()[:16]
     stem = name or key
@@ -55,7 +42,6 @@ def fetch(url, name=None):
     staged.replace(path)
     return path
 
-
 def pdf_pages(path):
     import pypdf
 
@@ -66,9 +52,7 @@ def pdf_pages(path):
         except Exception:
             yield index + 1, ""
 
-
 def locate(path, terms=SEARCH_TERMS):
-    """Which pages mention which benchmark terms."""
     patterns = {
         term: re.compile(r"(?<![A-Za-z0-9])" + re.escape(term) + r"(?![A-Za-z0-9])",
                          re.IGNORECASE)
@@ -81,7 +65,6 @@ def locate(path, terms=SEARCH_TERMS):
                 hits.setdefault(term, []).append(number)
     return hits
 
-
 def page_text(path, numbers):
     out = []
     wanted = set(numbers)
@@ -89,7 +72,6 @@ def page_text(path, numbers):
         if number in wanted:
             out.append(f"--- page {number} ---\n{text}")
     return "\n\n".join(out)
-
 
 def main():
     url = sys.argv[1]
@@ -104,7 +86,6 @@ def main():
                 print(f"  {term:24} {pages[:14]}")
     else:
         print(path.read_text()[:5000])
-
 
 if __name__ == "__main__":
     main()

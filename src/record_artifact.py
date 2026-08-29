@@ -1,10 +1,3 @@
-"""Write one release's extracted evidence into data/artifacts.csv.
-
-Kept as a command rather than a spreadsheet edit so that every write is
-uniform: the same columns get filled, the URL that was actually read is the one
-recorded, and a re-code of the same release overwrites in place instead of
-appending a second row that would later duplicate the cell.
-"""
 
 import argparse
 
@@ -16,7 +9,6 @@ FIELDS = ("source_tier", "source_url", "extra_source_urls", "source_date",
           "artifact_kind",
           "reported_slugs", "coder", "flagged_for_review", "fetch_status",
           "notes")
-
 
 def main():
     parser = argparse.ArgumentParser()
@@ -51,7 +43,6 @@ def main():
     done = (table["fetch_status"] == "ok").sum()
     print(f"{args.release_id}: {args.slugs or '(nothing reported)'}")
     print(f"artifacts.csv now {done}/{len(table)} coded")
-
 
 if __name__ == "__main__":
     main()

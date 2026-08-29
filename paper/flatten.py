@@ -1,14 +1,3 @@
-"""Build the single-file Overleaf bundle.
-
-The repository keeps sections and figures in separate files because they are
-generated and reviewed separately. Overleaf does not benefit from that: it adds
-a way for an upload to be incomplete, and a missing figure directory stops the
-compile with an error that points at the wrong thing. So the bundle is one
-main.tex with everything inlined, plus the bibliography and the style file.
-
-Regenerate rather than editing the bundle, since the figures and tables inside
-it are themselves written from the analysis output.
-"""
 
 import re
 import shutil
@@ -20,18 +9,14 @@ from pathlib import Path
 PAPER = Path(__file__).resolve().parent
 OUT = PAPER.parent / "dist"
 
-
 def inline(text):
     def swap(match):
         name = match.group(1)
         for candidate in (PAPER / f"{name}.tex", PAPER / name):
             if candidate.exists():
-                return (f"% ---- begin {name} ----\n"
-                        f"{inline(candidate.read_text().rstrip())}\n"
-                        f"% ---- end {name} ----")
+                return inline(candidate.read_text().rstrip())
         sys.exit(f"cannot resolve \\input{{{name}}}")
     return re.sub(r"\\input\{([^}]+)\}", swap, text)
-
 
 def main():
     flat = inline((PAPER / "main.tex").read_text())
@@ -69,7 +54,6 @@ def main():
     print(f"wrote {archive}")
     for item in sorted(stage.iterdir()):
         print(f"  {item.name}  {item.stat().st_size / 1024:.0f} KB")
-
 
 if __name__ == "__main__":
     main()

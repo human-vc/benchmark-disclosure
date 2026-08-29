@@ -17,7 +17,6 @@ FAMILIES = ROOT / "data" / "families.csv"
 
 WORKLIST = ROOT / "data" / "worklist.csv"
 
-# Generated: the artifact reading order, drop-capable families first.
 QUEUE = ROOT / "data" / "coding_queue.csv"
 
 ARTIFACTS = ROOT / "data" / "artifacts.csv"

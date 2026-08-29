@@ -1,21 +1,3 @@
-"""Per-release reading packets for the second coder.
-
-`artifacts_second_coder.csv` names the releases to re-extract and pins the URLs,
-but it does not say which benchmarks are in each release's eligible choice set.
-Without that the second coder would have to reconstruct the choice set from
-`worklist.csv` by hand, and any release where they reconstructed it differently
-would show up as coder disagreement when it is really a bookkeeping difference.
-The choice set is fixed by the panel, not by judgment, so it is given.
-
-What the packet gives and what it withholds follows the same line as the blank
-sheet in `reliability.py`. It gives the artifact URLs and the eligible slugs
-with their search aliases -- the shared setup both coders work from. It
-withholds the independent score, the prior release, and everything in
-`artifacts.csv`. The independent score is withheld deliberately: seeing "Epoch
-has 59.6 here" while reading an artifact that prints 59.4 invites the coder to
-resolve an ambiguity toward the number they were shown, and the A/B/C judgment
-is supposed to be made from the artifact alone.
-"""
 
 import argparse
 
@@ -54,7 +36,6 @@ worklist is current. Failing to record it is a false omission that appears only
 after the rebuild, when nobody is looking. The full slug table is at the foot of
 this file.
 """
-
 
 def packets(sheet, worklist, title="Second-coder reading packets"):
     eligible = worklist[worklist["group"] == "eligible"]
@@ -125,7 +106,6 @@ def packets(sheet, worklist, title="Second-coder reading packets"):
 
     return "\n".join(out)
 
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--out", default="")
@@ -161,7 +141,6 @@ def main():
         handle.write(text)
     print(f"wrote {out}")
     print(f"{len(sheet)} releases to read")
-
 
 if __name__ == "__main__":
     main()

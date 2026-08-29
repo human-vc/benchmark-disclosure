@@ -1,15 +1,9 @@
-"""The snapshot pin and the numbers file.
-
-Both exist for the same reason: a quantity that moves because its inputs moved
-should say so, rather than be discovered when a figure stops matching prose.
-"""
 
 import json
 
 import pytest
 
 from src import snapshot
-
 
 class TestManifest:
     def _pin(self, tmp_path, files):
@@ -24,8 +18,6 @@ class TestManifest:
         return root, manifest
 
     def test_changed_content_is_detected_under_an_unchanged_name(self, tmp_path):
-        """The case that would otherwise pass unremarked: same file name, new
-        bytes. Epoch republishes in place."""
         root, manifest = self._pin(tmp_path, {"scores.csv": "a,b\n1,2\n"})
 
         (root / "scores.csv").write_text("a,b\n1,3\n")
@@ -64,16 +56,11 @@ class TestManifest:
         assert list(snapshot.fingerprint(root)["files"]) == ["sub/deep.csv"]
 
     def test_row_counts_are_pinned_alongside_the_hash(self, tmp_path):
-        """A hash says something moved. The row count says how much, which is
-        what tells a rebuild apart from a republication."""
         root, manifest = self._pin(tmp_path, {"scores.csv": "a,b\n1,2\n3,4\n"})
         assert snapshot.load(manifest)["files"]["scores.csv"]["rows"] == 2
 
-
 class TestNumbers:
     def test_every_reported_quantity_is_json_serialisable(self):
-        """numpy scalars are not JSON, and a file that fails to write is a file
-        the write-up quietly keeps quoting from a stale copy."""
         from src.config import INTERIM
         from src.paper_numbers import collect
 
@@ -83,8 +70,6 @@ class TestNumbers:
         json.dumps(numbers)
 
     def test_the_snapshot_stamp_travels_with_the_numbers(self):
-        """Every number ships with the vintage of the data it came from, or the
-        file is quotable without being reproducible."""
         from src.config import ROOT
 
         emitted = ROOT / "data" / "paper_numbers.json"

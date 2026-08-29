@@ -1,10 +1,3 @@
-"""The extraction tooling, tested on the failure modes that would fake a result.
-
-Every bug this file guards against produces the same visible outcome -- a
-benchmark the provider did report gets recorded as unreported -- and that is
-the one error direction that manufactures evidence for the study's hypothesis.
-So these are not incidental utility tests.
-"""
 
 import pytest
 
@@ -12,10 +5,8 @@ from src.benchmark_aliases import ALIASES, hits, is_weak
 from src.extract_evidence import (MIN_PLAUSIBLE_CHARS, guard, html_to_text,
                                   image_tables)
 
-
 class TestAliases:
     def test_every_panel_slug_has_aliases(self):
-        """A slug with no aliases is invisible to the coder and reads as absent."""
         import pandas as pd
 
         from src.config import INTERIM
@@ -42,7 +33,6 @@ class TestAliases:
         ("Humanity's Last Exam 26.5", "hle"),
         ("Terminal-Bench 2.0 65.4", "terminalbench"),
         ("ARC-AGI-2 (Verified) 68.8", "arc_agi_2"),
-        # surface forms that dropped a word and were missed once
         ("SWE Verified (Resolved) | 80.6", "swe_bench_verified"),
         ("OSWorld-Verified 72.7%", "os_world"),
         ("GDPval-AA (Elo) 1554", "gdpval"),
@@ -59,7 +49,6 @@ class TestAliases:
     def test_weak_aliases_are_flagged(self):
         assert is_weak("math_level_5", "MATH")
         assert not is_weak("math_level_5", "MATH-500")
-
 
 class TestGuard:
     @pytest.mark.parametrize("body", [
@@ -80,9 +69,7 @@ class TestGuard:
         guard("GPQA Diamond 88.7. " * 200, "http://example.invalid")
 
     def test_threshold_is_above_a_typical_refusal_notice(self):
-        # the gated-HF notice that started this was 143 characters
         assert MIN_PLAUSIBLE_CHARS > 143
-
 
 class TestHtml:
     def test_table_cells_stay_separated(self):
@@ -121,10 +108,7 @@ class TestHtml:
                '<img src="/author-avatar.jpg">')
         assert image_tables(raw, "https://example.com/") == []
 
-
 class TestVegaCharts:
-    """OpenAI's launch posts have no table and no results image: the numbers
-    live in an embedded chart spec, and the bars are stacked."""
 
     PAGE = (
         r'"vegaSpec":{"data":{"values":['
@@ -146,14 +130,10 @@ class TestVegaCharts:
             ("With thinking", 32.7), ("Without thinking", 61.9),
         ]
         line = render("AIME 2025", scores)
-        # OpenAI's own prose quotes 94.6% for this cell
         assert "[sum 94.6]" in line
-        # and a single-segment model prints its value plainly
         assert "88.9" in line and "[sum 88.9]" not in line
 
     def test_segments_are_shown_not_only_summed(self):
-        """Aider Polyglot groups 'whole' and 'diff' under one model, where the
-        sum is meaningless; the coder has to see the parts."""
         from src.vega_charts import charts, render
 
         page = (
@@ -170,10 +150,8 @@ class TestVegaCharts:
 
         assert "Accuracy" not in charts(self.PAGE)[0][0]
 
-
 class TestPdfImages:
     def test_only_sizeable_images_are_written(self, tmp_path, monkeypatch):
-        """Logos and rules are dropped; a full-page results raster is kept."""
         import src.extract_evidence as ev
 
         class FakeImage:
@@ -200,10 +178,8 @@ class TestPdfImages:
         written = ev.pdf_images(source, tmp_path / "out")
         assert [w.name for w in written] == ["card_p2_0.png"]
 
-
 class TestFetch:
     def test_pdf_is_sniffed_from_bytes_not_the_url(self, tmp_path, monkeypatch):
-        """arxiv.org/pdf/2309.10305 serves a PDF from a URL with no '.pdf'."""
         import src.artifact_tools as tools
 
         monkeypatch.setattr(tools, "CACHE", tmp_path)

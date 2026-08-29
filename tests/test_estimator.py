@@ -1,4 +1,3 @@
-"""Does the estimator recover an effect that is really there, and stay at zero"""
 import numpy as np
 import pandas as pd
 
@@ -10,7 +9,6 @@ from src.selectivity import (
     omission_deficit,
     release_sets,
 )
-
 
 def synthetic(n_releases=60, n_bench=10, n_placebo=3, strategic=True, seed=0):
     rng = np.random.default_rng(seed)
@@ -42,7 +40,6 @@ def synthetic(n_releases=60, n_bench=10, n_placebo=3, strategic=True, seed=0):
     panel["orbit_category"] = np.where(panel["reported"] == 1, "A", "E")
     return panel
 
-
 def test_recovers_planted_selectivity():
     panel = synthetic(strategic=True)
     gaps = gap_by_release(release_sets(panel), against="omitted")
@@ -50,23 +47,18 @@ def test_recovers_planted_selectivity():
     assert gaps["gap"].mean() > 25, gaps["gap"].mean()
     assert (gaps["gap"] > 0).mean() == 1.0
 
-
 def test_null_panel_shows_no_gap():
     panel = synthetic(strategic=False)
     gaps = gap_by_release(release_sets(panel), against="omitted")
     assert abs(gaps["gap"].mean()) < 5, gaps["gap"].mean()
 
-
 def test_placebo_group_cannot_support_the_headline_statistic():
-    """Every benchmark postdating a release is non-disclosed, so the placebo"""
     panel = synthetic(strategic=True)
     placebo_only = panel[panel["group"] == "placebo"]
     assert (placebo_only["reported"] == 0).all()
     assert gap_by_release(release_sets(placebo_only), against="omitted").empty
 
-
 def test_headline_gap_tracks_disclosed_selection():
-    """Sanity: with strategic omission the disclosed set really does sit above"""
     strategic = gap_by_release(
         release_sets(synthetic(strategic=True)), against="placebo"
     )
@@ -74,20 +66,15 @@ def test_headline_gap_tracks_disclosed_selection():
     assert strategic["gap"].mean() > 10
     assert abs(null["gap"].mean()) < 5
 
-
 def test_omission_deficit_is_zero_when_omission_is_random():
-    """The identifying contrast, under the null."""
     panel = synthetic(strategic=False)
     deficit = omission_deficit(release_sets(panel))
     assert abs(deficit["gap"].mean()) < 5, deficit["gap"].mean()
 
-
 def test_omission_deficit_is_negative_when_omission_is_strategic():
-    """The same contrast, under the alternative. Both sets are non-disclosures,"""
     panel = synthetic(strategic=True)
     deficit = omission_deficit(release_sets(panel))
     assert deficit["gap"].mean() < -25, deficit["gap"].mean()
-
 
 def test_drop_estimator_is_negative_when_drops_are_the_worst_benchmarks():
     panel = synthetic(strategic=True)
@@ -96,7 +83,6 @@ def test_drop_estimator_is_negative_when_drops_are_the_worst_benchmarks():
     drops = drop_estimator(panel[panel["group"] == "eligible"])
     assert len(drops) == 60
     assert drops["drop_gap"].mean() < -25, drops["drop_gap"].mean()
-
 
 def test_gap_requires_minimum_counts():
     panel = synthetic(strategic=True)

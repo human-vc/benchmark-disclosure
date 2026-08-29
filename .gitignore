@@ -11,3 +11,4 @@ data/artifact_cache/
 
 # private handoff note, not part of the research record
 update.md
+dist/

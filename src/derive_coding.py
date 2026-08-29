@@ -1,26 +1,3 @@
-"""Derive ORBIT codes mechanically from extracted artifact evidence.
-
-The coding protocol asks two very different kinds of question, and conflating
-them is how a coding sheet becomes unfalsifiable.
-
-  1. What does this release's official artifact actually report? A factual
-     question, answerable only by reading the artifact, recorded in
-     data/artifacts.csv with the URL it came from.
-
-  2. Given that, which ORBIT category applies? A *rule*, not a judgment:
-     - reported here                                   -> A (or B/C by form)
-     - absent, with a benign reason quoted in the doc  -> F
-     - not reported, but a predecessor reported it     -> E, the drop
-     - not reported, no predecessor, contemporaries did-> G
-     - not reported, and nobody comparable did either  -> H
-
-Only (1) requires reading. Deriving (2) in code means every category is
-reproducible from the evidence file, an analyst can re-run the rules after
-changing them, and no category can be assigned by vibes.
-
-Releases absent from artifacts.csv are left uncoded rather than assumed
-undisclosed. A missing artifact is missing evidence, not evidence of omission.
-"""
 
 import sys
 
@@ -32,23 +9,7 @@ from .families import load_families
 
 CONTEMPORARY_WINDOW_DAYS = 45
 
-
 def parse_reported(cell):
-    """'gpqa_diamond=0.83|mmlu~MMLU-Pro=0.87|hle|bbh!contaminated' -> dict.
-
-    Four forms, matching the protocol's categories:
-      slug=value        numeric score reported                 -> A
-      slug              named but no number given              -> B
-      slug~Variant=val  a variant reported instead             -> C
-      slug!reason       NOT reported, benign reason quoted     -> F
-
-    The F form is the only one that records an absence, and it is the only
-    absence the protocol treats as innocent: the artifact itself says why the
-    benchmark is missing. GPT-4's technical report is the case that forced it --
-    BIG-bench is excluded there because "portions of BIG-bench were inadvertently
-    mixed into the training set". Without a way to say that, a documented
-    exclusion would have been coded as a silent omission.
-    """
     out = {}
     if not isinstance(cell, str) or not cell.strip():
         return out
@@ -69,9 +30,7 @@ def parse_reported(cell):
         out[token.strip()] = (value, variant, None)
     return out
 
-
 def category_for(slug, reported, predecessor_reported, contemporaries):
-    """Rules, not judgment. See the module docstring."""
     if slug in reported:
         value, variant, reason = reported[slug]
         if reason:
@@ -87,7 +46,6 @@ def category_for(slug, reported, predecessor_reported, contemporaries):
         return "G", None, None, None
     return "H", None, None, None
 
-
 def build(worklist, artifacts, families, panel):
     artifacts = artifacts.copy()
     artifacts["parsed"] = artifacts["reported_slugs"].map(parse_reported)
@@ -101,10 +59,6 @@ def build(worklist, artifacts, families, panel):
 
     fam = families.set_index("release_id")
 
-    # Eligible rows only. Placebo cells are pre-filled reported=0 by
-    # construction and must not be assigned an ORBIT category: coding a
-    # postdating benchmark as "not mentioned" would double-count it and
-    # inflate the low-suspicion categories.
     rows = []
     for row in worklist[worklist["group"] == "eligible"].itertuples():
         release = row.release_id
@@ -112,7 +66,6 @@ def build(worklist, artifacts, families, panel):
             continue
         reported = evidence[release]
 
-        # every earlier release in this family that we have evidence for
         predecessor_reported = {}
         prior_model = prior_url = None
         if release in fam.index:
@@ -124,7 +77,6 @@ def build(worklist, artifacts, families, panel):
                     if slug not in predecessor_reported:
                         predecessor_reported[slug] = prior
 
-        # what comparable providers reported within the window
         contemporaries = set()
         this_date = dates.get(release)
         this_org = orgs.get(release)
@@ -177,14 +129,7 @@ def build(worklist, artifacts, families, panel):
         })
     return pd.DataFrame(rows)
 
-
 def reverse_gaps(artifacts, panel):
-    """Benchmarks an artifact reports that Epoch does not score for that release.
-
-    design.md keeps these deliberately: under a pure concealment story the set
-    a provider reaches for beyond the independent source should not be
-    systematically favourable.
-    """
     scored = panel.groupby(RELEASE_COL)["slug"].apply(set).to_dict()
     rows = []
     for row in artifacts.itertuples():
@@ -194,7 +139,6 @@ def reverse_gaps(artifacts, panel):
             rows.append({"release_id": row.release_id,
                          "reverse_gap": "|".join(sorted(extra))})
     return pd.DataFrame(rows)
-
 
 def main():
     if not ARTIFACTS.exists():
@@ -215,7 +159,6 @@ def main():
         sheet["reverse_gap"] = sheet["reverse_gap"].fillna("")
         sheet = sheet.drop(columns=[c for c in sheet.columns if c.endswith("_x")])
 
-    # placebo rows carry through pre-filled; they are not hand-coded
     placebo = worklist[worklist["group"] == "placebo"].copy()
     placebo["orbit_category"] = ""
     placebo["reported"] = 0
@@ -234,7 +177,6 @@ def main():
         print("categories: " + "  ".join(f"{k}={v}" for k, v in counts.items()))
         print(f"drops (E): {int((coded['orbit_category'] == 'E').sum())}")
     print(f"wrote {CODING_SHEET}")
-
 
 if __name__ == "__main__":
     main()

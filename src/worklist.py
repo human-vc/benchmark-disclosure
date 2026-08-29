@@ -1,4 +1,3 @@
-"""Emit the targeted disclosure-coding worklist."""
 
 import pandas as pd
 
@@ -18,7 +17,6 @@ CONTEXT_COLUMNS = [
     "independent_score",
 ]
 
-
 def annotate(panel, families):
     panel = panel.merge(
         families[["release_id", "family_id", "family_rank"]],
@@ -29,9 +27,7 @@ def annotate(panel, families):
     panel["n_benchmarks_scored"] = panel.groupby(RELEASE_COL)["slug"].transform("nunique")
     return panel
 
-
 def nearest_predecessor(families):
-    """Map each release to the previous release in its family."""
     ordered = families.sort_values(["family_id", "family_rank"])
     prior = ordered.groupby("family_id")[["release_id", "model_name"]].shift(1)
     return pd.DataFrame(
@@ -41,7 +37,6 @@ def nearest_predecessor(families):
             "prior_model_name": prior["model_name"].values,
         }
     )
-
 
 def build(panel, families, min_benchmarks=MIN_BENCHMARKS):
     panel = annotate(panel, families)
@@ -79,7 +74,6 @@ def build(panel, families, min_benchmarks=MIN_BENCHMARKS):
     )
     return out[CONTEXT_COLUMNS + CODING_COLUMNS]
 
-
 def main():
     panel = pd.read_csv(INTERIM / "panel.csv", parse_dates=["Release date"])
     families = load_families()
@@ -115,7 +109,6 @@ def main():
     print(
         f"\nrank-1 cells (no predecessor, cannot be a drop but anchor one): {no_prior}"
     )
-
 
 if __name__ == "__main__":
     main()

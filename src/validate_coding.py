@@ -1,4 +1,3 @@
-"""Validate a disclosure coding sheet against protocol/coding-protocol.md."""
 
 import sys
 
@@ -17,9 +16,7 @@ BANNED_SOURCE_HOSTS = (
     "llm-stats", "lmarena", "wikipedia",
 )
 
-
 def check(sheet, panel, families):
-    """Return (errors, warnings) as lists of human-readable strings."""
     errors, warnings = [], []
 
     def fail(mask, message):
@@ -126,7 +123,6 @@ def check(sheet, panel, families):
 
     return errors, warnings
 
-
 def main():
     if not CODING_SHEET.exists():
         print(f"no coding sheet at {CODING_SHEET}")
@@ -156,7 +152,6 @@ def main():
         print(f"\n{len(errors)} error(s). Sheet is not analysis-ready.")
         sys.exit(1)
     print("\nvalidation passed")
-
 
 if __name__ == "__main__":
     main()

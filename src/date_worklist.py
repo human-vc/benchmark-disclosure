@@ -1,11 +1,9 @@
-"""Emit the hand-fill worklist for missing benchmark release dates."""
 
 import pandas as pd
 
 from .config import BENCHMARK_DATES, INTERIM
 
 COLUMNS = ["slug", "benchmark_release_date", "source_url", "status", "note"]
-
 
 def main():
     panel = pd.read_csv(INTERIM / "panel.csv")
@@ -58,7 +56,6 @@ def main():
         )
     print("\n* = still needs a date. Fill benchmark_release_date and source_url,")
     print('  set status to "verified" (or "override" to beat an Epoch date).')
-
 
 if __name__ == "__main__":
     main()

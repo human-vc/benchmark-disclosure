@@ -1,22 +1,3 @@
-"""A standing measure with no comparison window, and what it does not fix.
-
-The windowed percentile ranks a release against whichever models were scored
-near it in calendar time, which is where the collinearity in
-Section~\\ref{sec:core} comes from. The obvious repair is to stop comparing
-against a window at all: estimate a release's ability and a benchmark's
-difficulty jointly over the whole score matrix, so a release's standing does
-not depend on who happened to be evaluated beside it.
-
-This fits that model and puts it through the same falsification test. Cells
-whose benchmark postdates the release are held out, the model is fit on
-eligible cells only, and the placebo cells are scored out of sample. If the
-measure were clean the eligible-minus-placebo gap would be zero.
-
-It is not. The gap shrinks against the windowed percentile but survives in
-every specification, which is the same verdict trimming and side-balancing
-already returned: the vintage structure is in which cells exist, not only in
-how the comparison set is drawn, so changing the estimator does not remove it.
-"""
 
 import numpy as np
 import pandas as pd
@@ -28,14 +9,7 @@ MIN_RELEASES_PER_BENCHMARK = 20
 MIN_BENCHMARKS_PER_RELEASE = 3
 RIDGE = 2.0
 
-
 def commensurable(panel):
-    """Benchmarks reported on a shared 0 to 1 scale.
-
-    The rest are Elo-like ratings, time horizons and bespoke indices with no
-    common unit, which is the same reason the paper does not compare raw
-    scores across benchmarks.
-    """
     span = panel.groupby("slug")["score"].agg(["min", "max"])
     keep = span[(span["min"] >= -0.01) & (span["max"] <= 1.01)].index
     frame = panel[panel["slug"].isin(keep)].copy()
@@ -43,10 +17,8 @@ def commensurable(panel):
     frame["y"] = np.log(bounded / (1 - bounded))
     return frame
 
-
 def estimable(frame, min_releases=MIN_RELEASES_PER_BENCHMARK,
               min_benchmarks=MIN_BENCHMARKS_PER_RELEASE):
-    """Cells dense enough to carry a benchmark or a release parameter."""
     kept = frame
     for _ in range(8):
         per_benchmark = kept.groupby("slug")["release_id"].transform("nunique")
@@ -58,14 +30,7 @@ def estimable(frame, min_releases=MIN_RELEASES_PER_BENCHMARK,
         kept = kept[mask]
     return kept
 
-
 def fit(frame, ridge=RIDGE, iterations=300, tol=1e-9):
-    """Alternating least squares for y = c_b * a_i + d_b.
-
-    The loading is ridged toward one. Left free it is unidentified at this
-    density: benchmarks seen on few releases take slopes in the thousands and
-    out-of-sample predictions diverge.
-    """
     ability = pd.Series(0.0, index=sorted(frame["release_id"].unique()))
     difficulty = pd.Series(0.0, index=sorted(frame["slug"].unique()))
     loading = pd.Series(1.0, index=difficulty.index)
@@ -90,9 +55,7 @@ def fit(frame, ridge=RIDGE, iterations=300, tol=1e-9):
             break
     return ability, difficulty, loading
 
-
 def residuals(frame, ability, difficulty, loading):
-    """Observed minus predicted, for every cell the fit can score."""
     scorable = frame[frame["release_id"].isin(ability.index)
                      & frame["slug"].isin(difficulty.index)].copy()
     predicted = (loading.reindex(scorable["slug"]).to_numpy()
@@ -101,9 +64,7 @@ def residuals(frame, ability, difficulty, loading):
     scorable["residual"] = scorable["y"].to_numpy() - predicted
     return scorable
 
-
 def placebo_gap(scorable):
-    """The falsification test, in units of the residual spread."""
     cells = scorable[scorable["eligible"] | scorable["placebo"]].copy()
     cells["set"] = np.where(cells["eligible"], "eligible", "placebo")
     wide = cells.pivot_table(index="release_id", columns="set",
@@ -121,7 +82,6 @@ def placebo_gap(scorable):
         "organisations": cells.groupby("release_id")["primary_org"].first().reindex(wide.index),
         "gap": gap,
     }
-
 
 def main():
     panel = pd.read_csv(
@@ -150,7 +110,6 @@ def main():
     print(f"  sign-flip over {test['n_clusters']} providers: p = {test['p_value']:.4f}")
     print("\n  the windowed percentile puts the same contrast at +0.449 SD, so removing")
     print("  the comparison window shrinks this gap without closing it.")
-
 
 if __name__ == "__main__":
     main()

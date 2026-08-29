@@ -1,4 +1,3 @@
-"""Every figure and every table in the manuscript, regenerated from one command."""
 
 import json
 
@@ -35,7 +34,6 @@ FAINT = "#D6D6D6"
 
 TEXTWIDTH = 5.5
 
-
 def style():
     plt.rcParams.update({
         "figure.dpi": 200,
@@ -67,22 +65,17 @@ def style():
         "grid.color": FAINT,
     })
 
-
 def load_panel():
-    """The analysis panel with both standing measures attached."""
     panel = pd.read_csv(
         INTERIM / "panel.csv",
         parse_dates=["Release date", "benchmark_release_date"],
     )
     return side_balanced_percentile(within_benchmark_percentile(panel))
 
-
 def load_numbers(path=NUMBERS):
     return json.loads(path.read_text())
 
-
 def cluster_se(values, clusters):
-    """Standard error of a mean, clustered on the provider."""
     values = np.asarray(values, float)
     clusters = np.asarray(clusters)
     n = len(values)
@@ -96,9 +89,7 @@ def cluster_se(values, clusters):
     adjust = n_g / (n_g - 1)
     return float(np.sqrt(adjust * (totals ** 2).sum()) / n)
 
-
 def binned(frame, x, y, edges, cluster="primary_org", min_cells=20):
-    """Bin means of y on x with clustered 95 percent intervals."""
     frame = frame.dropna(subset=[x, y])
     idx = np.digitize(frame[x].to_numpy(), edges) - 1
     rows = []
@@ -114,13 +105,10 @@ def binned(frame, x, y, edges, cluster="primary_org", min_cells=20):
         })
     return pd.DataFrame(rows)
 
-
 def _demean(frame, column, by=RELEASE_COL):
     return frame[column] - frame.groupby(by)[column].transform("mean")
 
-
 def figure_one(panel, numbers, path=None):
-    """One curve, two positions on it."""
     path = path or FIGDIR / "fig1_one_curve.pdf"
     cells = panel[panel["eligible"] | panel["placebo"]].dropna(
         subset=["percentile", "share_newer"])
@@ -183,7 +171,6 @@ def figure_one(panel, numbers, path=None):
     plt.close(fig)
     return path
 
-
 def _drift_series(path, headline):
     payload, order = helm.load(path)
     models = helm.frozen_models(payload, order)
@@ -191,9 +178,7 @@ def _drift_series(path, headline):
     pools = [len(payload["releases"][v]["rows"]) for v in order]
     return order, drift, pools
 
-
 def _crossings(series, pairs):
-    """Where a pair changes order, in release-index coordinates."""
     marks = []
     for a, b in pairs:
         ya, yb = np.array(series[a]), np.array(series[b])
@@ -205,9 +190,7 @@ def _crossings(series, pairs):
             marks.append((i + t, ya[i] + t * (ya[i + 1] - ya[i])))
     return marks
 
-
 def figure_two(numbers, path=None):
-    """The same bias on a leaderboard we did not build, and its control."""
     path = path or FIGDIR / "fig2_helm.pdf"
     order, lite, lite_pool = _drift_series(helm.FROZEN, helm.HEADLINE)
     ctl_order, ctl, ctl_pool = _drift_series(helm.CONTROL, helm.CONTROL_HEADLINE)
@@ -284,7 +267,6 @@ def figure_two(numbers, path=None):
     plt.close(fig)
     return path
 
-
 def _window_facts(panel, slug, focal_date, window_days=WINDOW_DAYS):
     group = panel[panel["slug"] == slug].sort_values("Release date")
     days = group["Release date"].to_numpy("datetime64[D]").astype(np.int64)
@@ -308,7 +290,6 @@ def _window_facts(panel, slug, focal_date, window_days=WINDOW_DAYS):
 
 def figure_three(panel, slug="hle", boundary="2024-09-24", interior="2025-12-11",
                  path=None, window_days=WINDOW_DAYS):
-    """Why the window is symmetric in days and asymmetric in peers."""
     path = path or FIGDIR / "fig3_window_geometry.pdf"
     low = _window_facts(panel, slug, boundary, window_days)
     high = _window_facts(panel, slug, interior, window_days)
@@ -395,9 +376,7 @@ def figure_three(panel, slug="hle", boundary="2024-09-24", interior="2025-12-11"
     plt.close(fig)
     return path
 
-
 def figure_four(panel, numbers, path=None):
-    """What the repair does to the gradient it is meant to remove."""
     path = path or FIGDIR / "fig4_correction.pdf"
     slopes = numbers["asymmetry"]
     specs = [
@@ -444,7 +423,6 @@ def figure_four(panel, numbers, path=None):
     plt.close(fig)
     return path
 
-
 LADDER = [
     ("release FE", r"Release fixed effects only"),
     ("+ benchmark FE", r"Release FE + benchmark fixed effects"),
@@ -453,9 +431,7 @@ LADDER = [
     ("two-way FE + both", r"Two-way fixed effects + both window terms"),
 ]
 
-
 def table_one(numbers, path=None):
-    """The decomposition ladder, written from data/paper_numbers.json."""
     path = path or FIGDIR / "table1_decomposition.tex"
     ladder = numbers["decomposition"]
     panel = numbers["panel"]
@@ -495,9 +471,7 @@ def table_one(numbers, path=None):
     path.write_text("\n".join(lines))
     return path
 
-
 def _midrank_alltime(panel):
-    """All-time within-benchmark standing, on the same midrank convention."""
     out = pd.Series(np.nan, index=panel.index)
     for _, group in panel.groupby("slug", sort=False):
         scores = group["score"].to_numpy(float)
@@ -505,7 +479,6 @@ def _midrank_alltime(panel):
         equal = (scores[None, :] == scores[:, None]).sum(axis=1)
         out.loc[group.index] = 100.0 * (below + 0.5 * equal) / len(scores)
     return out
-
 
 def _release_contrast(panel, column):
     from .stats import randomization_test_mean
@@ -522,9 +495,7 @@ def _release_contrast(panel, column):
             "share_positive": float((gap > 0).mean()), "n_releases": int(len(gap)),
             "p": float(test["p_value"])}
 
-
 def table_two(numbers, panel=None, path=None):
-    """The remedy table, including the remedies that fail."""
     path = path or FIGDIR / "table2_remedies.tex"
     coverage = f"{100 * numbers['balanced_coverage']['defined_share_eligible_or_placebo']:.1f}"
     rows = [
@@ -589,9 +560,7 @@ def table_two(numbers, panel=None, path=None):
     path.write_text("\n".join(lines))
     return path
 
-
 def table_three(numbers, path=None):
-    """The coded deficit beside the artifact that predicts it."""
     path = path or FIGDIR / "table3_coding.tex"
     if "coding" not in numbers:
         return path
@@ -636,16 +605,13 @@ def table_three(numbers, path=None):
     path.write_text("\n".join(lines) + "\n")
     return path
 
-
 def write_tables(numbers=None, panel=None, out_dir=FIGDIR):
-    """Both LaTeX tables, from the regenerated numbers file."""
     numbers = numbers if numbers is not None else load_numbers()
     return [
         table_one(numbers, path=out_dir / "table1_decomposition.tex"),
         table_two(numbers, panel=panel, path=out_dir / "table2_remedies.tex"),
         table_three(numbers, path=out_dir / "table3_coding.tex"),
     ]
-
 
 def main():
     style()
@@ -666,7 +632,6 @@ def main():
         flag = "ok " if size > floor else "THIN"
         print(f"  {flag} {item.relative_to(ROOT)}  {size / 1024:.1f} kB")
     print(f"snapshot: {numbers['_provenance']['snapshot']}")
-
 
 if __name__ == "__main__":
     main()

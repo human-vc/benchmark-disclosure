@@ -1,16 +1,3 @@
-"""Order the artifact reading so the drop estimator turns on first.
-
-The coding unit is the release artifact, not the cell: one document yields one
-`reported_slugs` string and `derive_coding` expands it into every cell of that
-release. So the queue is 108 documents, and the only real decision is what
-order to read them in.
-
-Reading by date leaves the drop estimator at n=0 until nearly the end, because
-an ORBIT E needs the predecessor's artifact as well as the successor's. This
-orders whole families together, predecessor before successor, and puts the
-families that can produce drops first, weighted by how many shared benchmarks
-they put at risk.
-"""
 
 import pandas as pd
 
@@ -28,19 +15,11 @@ COLUMNS = [
     "source_url", "notes",
 ]
 
-
 def eligible_sets(worklist):
-    """Benchmark slugs each release must be coded on."""
     eligible = worklist[worklist["group"] == "eligible"]
     return eligible.groupby("release_id")["benchmark_slug"].apply(set)
 
-
 def pair_overlap(worklist, readable):
-    """Shared eligible benchmarks between each release and its predecessor.
-
-    A pair counts only when both artifacts are readable, since an E cannot be
-    assigned from one side of it.
-    """
     sets = eligible_sets(worklist)
     priors = (worklist[worklist["group"] == "eligible"]
               .drop_duplicates("release_id")
@@ -55,7 +34,6 @@ def pair_overlap(worklist, readable):
         if shared:
             overlap[release] = (prior, len(shared))
     return overlap
-
 
 def build(worklist, artifacts):
     readable = set(artifacts["release_id"])
@@ -99,14 +77,7 @@ def build(worklist, artifacts):
         queue[column] = ""
     return queue[COLUMNS]
 
-
 def apply_to_artifacts(queue, artifacts):
-    """Put the reading order into the sheet itself.
-
-    The coder fills `artifacts.csv`, so the order belongs there rather than in a
-    second file they have to cross-reference 108 times. Existing columns and
-    values are preserved; only row order and the ordering columns change.
-    """
     order = queue.set_index("release_id")
     merged = artifacts.copy()
     for column in ORDER_COLUMNS:
@@ -115,7 +86,6 @@ def apply_to_artifacts(queue, artifacts):
     front = ["read_order", "release_id", "organization", "model_name", "release_date"]
     rest = [c for c in merged.columns if c not in front]
     return merged[front + rest]
-
 
 def main():
     worklist = pd.read_csv(WORKLIST, dtype=str).fillna("")
@@ -135,7 +105,6 @@ def main():
     print("\n  by organisation, drop-capable first:")
     for org, n in capable["organization"].value_counts().head(8).items():
         print(f"    {org:24} {n}")
-
 
 if __name__ == "__main__":
     main()

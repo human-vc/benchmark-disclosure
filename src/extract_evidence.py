@@ -1,19 +1,3 @@
-"""Show a coder every place a release artifact could be reporting a benchmark.
-
-Usage:
-    python -m src.extract_evidence "<release_id>" <url> [--context N] [--all]
-    python -m src.extract_evidence --release "<release_id>"     # cached url from artifacts.csv
-
-The coding protocol asks a factual question -- what does this artifact report --
-and the answer has to come from the artifact, not from memory. This surfaces the
-candidate passages so the answer is made against text that a second coder can
-pull up at the same URL and see for themselves.
-
-What it deliberately does not do is decide. It prints hits and non-hits; whether
-a hit is a score *for this model* rather than a mention in prose, a baseline in
-a related-work table, or a competitor's number is exactly the judgment the
-protocol reserves for the coder, and the A/B/C split turns on it.
-"""
 
 import argparse
 import html
@@ -27,15 +11,7 @@ from .benchmark_aliases import PATTERNS, hits, is_weak
 from .config import ARTIFACTS, WORKLIST
 from .artifact_tools import fetch
 
-
 def html_to_text(raw):
-    """Strip a page to readable text, keeping table cells separated.
-
-    Provider blog posts put their benchmark table in markup; collapsing tags to
-    nothing would run "GPQA" straight into "88.7" from the next cell and make
-    the context unreadable, so block-level tags become newlines and inline ones
-    become spaces.
-    """
     raw = re.sub(r"(?is)<(script|style|svg|noscript)\b.*?</\1>", " ", raw)
     raw = re.sub(r"(?i)<(br|/p|/div|/tr|/h[1-6]|/li)\s*/?>", "\n", raw)
     raw = re.sub(r"(?i)<(/td|/th)\s*>", " | ", raw)
@@ -44,13 +20,6 @@ def html_to_text(raw):
     raw = re.sub(r"[ \t\xa0]+", " ", raw)
     return re.sub(r"\n\s*\n\s*\n+", "\n\n", raw)
 
-
-# A fetch can succeed at the HTTP level and still return no artifact: gated
-# Hugging Face repos answer 200 with a login notice, and CDNs answer with a
-# challenge page. Both parse to a short document in which nothing matches,
-# which reads exactly like a provider that reported no benchmarks. That is the
-# one error this study cannot absorb, so a suspicious body is refused rather
-# than coded.
 REFUSAL_MARKERS = (
     "is restricted. you must have access",
     "you need to agree to share your contact information",
@@ -61,9 +30,7 @@ REFUSAL_MARKERS = (
 )
 MIN_PLAUSIBLE_CHARS = 800
 
-
 def guard(text, url):
-    """Raise unless the fetched body looks like a real artifact."""
     head = " ".join(text[:2000].split()).lower()
     for marker in REFUSAL_MARKERS:
         if marker in head:
@@ -79,68 +46,42 @@ def guard(text, url):
             f"official source -- do not code it as unreported."
         )
 
-
 def artifact_text(path):
     if path.suffix == ".pdf":
         from .artifact_tools import pdf_pages
         return "\n".join(f"\n[p{n}] {t}" for n, t in pdf_pages(path))
     return html_to_text(path.read_text(errors="replace"))
 
-
-# Hugging Face cards are markdown, so the results picture is as likely to be
-# ![bench](url) as it is an <img> tag. Missing the markdown form was worth a
-# whole release's table.
 IMG_SRC = re.compile(
     r"""(?i)<img[^>]*?\bsrc=["']?([^"'>\s]+)|!\[[^\]]*\]\(([^)\s]+)"""
 )
 
-# Chrome, not content. Listing every image on a marketing page buries the one
-# that is the results table, so the obvious furniture is dropped by name.
 NOT_A_TABLE = re.compile(
     r"(?i)(logo|icon|avatar|favicon|banner|header|footer|badge|arrow|spinner"
     r"|thumb|profile|social|share|author|/emoji|sprite|\.svg$)"
 )
 
-
 def image_tables(raw, url):
-    """Image sources on the page whose name suggests a results table.
-
-    Provider launch posts routinely render their benchmark table as a picture.
-    Text extraction then returns the prose and misses every number, which reads
-    as a provider that reported nothing -- the false-omission failure this
-    pipeline is built to avoid. Surfacing the candidate images means the coder
-    opens them and reads the table, the way a human reader of the page would.
-    """
     from urllib.parse import urljoin
     seen, out = set(), []
     for match in IMG_SRC.finditer(raw):
         candidate = match.group(1) or match.group(2)
         if NOT_A_TABLE.search(candidate):
             continue
-        # Page HTML escapes query separators, and an unescaped &amp; in a
-        # CDN URL fetches a different object or nothing at all.
         src = urljoin(url, html.unescape(candidate))
         if src not in seen:
             seen.add(src)
             out.append(src)
     return out
 
-
 TABLE = re.compile(r"(?is)<table\b.*?</table>")
 ROW = re.compile(r"(?is)<tr\b.*?</tr>")
 CELL = re.compile(r"(?is)<t[dh]\b[^>]*>(.*?)</t[dh]>")
 
-
 MD_ROW = re.compile(r"^\s*\|.*\|\s*$")
 MD_RULE = re.compile(r"^\s*\|[\s:|-]+\|\s*$")
 
-
 def markdown_tables(raw):
-    """Contiguous runs of markdown pipe rows, as compact rows.
-
-    Hugging Face cards are markdown and most of them put the results table in
-    pipe syntax, which never reaches the <table> renderer.
-    """
     out, current = [], []
     for line in raw.splitlines():
         if MD_ROW.match(line):
@@ -155,16 +96,7 @@ def markdown_tables(raw):
         out.append(current)
     return out
 
-
 def render_tables(raw, keep=None):
-    """Every <table> on the page as compact pipe-separated rows.
-
-    Provider cards increasingly ship the results table as hand-styled HTML in
-    which each cell carries eighty characters of inline CSS, so the surrounding
-    context a term search prints is almost all style attributes and the row is
-    unreadable. Stripping to cells makes the table legible, which is what the
-    coder needs in order to pick the right column.
-    """
     out = []
     blocks = [None] * 0
     for index, rows in enumerate(markdown_tables(raw), 1):
@@ -186,16 +118,7 @@ def render_tables(raw, keep=None):
         out.append(f"--- table {index} ({len(rows)} rows) ---\n" + "\n".join(rows))
     return out
 
-
 def pdf_images(path, out_dir, min_bytes=40_000):
-    """Write out every sizeable embedded image in a PDF, return the paths.
-
-    Google's Gemini model cards put the whole results table on one page as a
-    single raster. pypdf then extracts that page as a couple of hundred
-    characters of prose and every benchmark on it reads as unreported -- the
-    Gemini 3 Pro card scored zero alias hits across all 25 of its eligible
-    benchmarks before this existed. The threshold drops logos and rules.
-    """
     import pypdf
 
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -214,16 +137,13 @@ def pdf_images(path, out_dir, min_bytes=40_000):
             written.append(target)
     return written
 
-
 def eligible_slugs(release_id):
     worklist = pd.read_csv(WORKLIST)
     rows = worklist[(worklist["release_id"] == release_id)
                     & (worklist["group"] == "eligible")]
     return sorted(rows["benchmark_slug"])
 
-
 NUMBER = re.compile(r"\d+(?:\.\d+)?\s*%?")
-
 
 def report(text, slugs, context=160, cap=6):
     found = hits(text, slugs)
@@ -251,7 +171,6 @@ def report(text, slugs, context=160, cap=6):
                 break
     missing = [s for s in slugs if s not in found]
     print(f"\n### no alias hit ({len(missing)}): {' '.join(missing)}")
-
 
 def main():
     parser = argparse.ArgumentParser()
@@ -316,7 +235,6 @@ def main():
     print(f"{args.release_id}\n{url}\n{path}  ({len(text):,} chars, "
           f"{len(slugs)} slug(s) in scope)")
     report(text, slugs, args.context, args.cap)
-
 
 if __name__ == "__main__":
     main()

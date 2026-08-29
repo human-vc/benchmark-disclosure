@@ -1,10 +1,8 @@
-"""Family linkage invariants."""
 import pandas as pd
 import pytest
 
 from src.families import build_families, derive_family, load_families, predecessors
 from src.config import RELEASE_COL
-
 
 def test_version_markers_are_stripped_but_tiers_are_kept():
     assert derive_family("Anthropic", "Claude Opus 4.5") == "Anthropic / Claude Opus"
@@ -13,9 +11,7 @@ def test_version_markers_are_stripped_but_tiers_are_kept():
         "Anthropic", "Claude Sonnet 4.5"
     )
 
-
 def test_disambiguating_dates_collapse_but_sizes_do_not():
-    """(Jun 2025) is version information; (7B) is product identity."""
     assert derive_family("G", "Gemini 2.5 Pro (Jun 2025)") == derive_family(
         "G", "Gemini 2.5 Pro (May 2025)"
     )
@@ -23,11 +19,9 @@ def test_disambiguating_dates_collapse_but_sizes_do_not():
         "A", "Qwen2.5-Coder (32B)"
     )
 
-
 def test_organizations_never_share_a_family():
     assert derive_family("OpenAI", "Foo 1").split(" / ")[0] == "OpenAI"
     assert derive_family("Meta AI", "Foo 1") != derive_family("OpenAI", "Foo 1")
-
 
 def test_ranks_are_dense_and_ordered_by_date():
     panel = pd.DataFrame({
@@ -42,7 +36,6 @@ def test_ranks_are_dense_and_ordered_by_date():
     ]
     assert list(fam["family_rank"].sort_values()) == [1, 2, 3]
 
-
 def test_predecessors_returns_earlier_releases_newest_first():
     fam = pd.DataFrame({
         "family_id": ["F"] * 3,
@@ -53,7 +46,6 @@ def test_predecessors_returns_earlier_releases_newest_first():
     got = predecessors(fam, "c")
     assert list(got["release_id"]) == ["b", "a"]
     assert predecessors(fam, "a").empty
-
 
 def test_checked_in_families_file_validates():
     fam = load_families()

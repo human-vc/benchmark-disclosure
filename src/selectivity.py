@@ -1,25 +1,3 @@
-"""Reported-vs-omitted selectivity statistics.
-
-Requires a populated disclosure coding sheet. See protocol/coding-protocol.md
-for the instrument and protocol/disclosure-template.csv for the schema.
-
-Three estimators, in increasing order of how much they identify:
-
-1. **Release-level gap.** Within a release, mean percentile on disclosed
-   benchmarks minus mean percentile on omitted ones. Differencing within the
-   release removes the model's overall capability level, which is what
-   design.md asks for; it does not remove the four innocent explanations.
-
-2. **Drop estimator (ORBIT E).** Restricted to benchmarks the provider
-   reported for an earlier release in the same family and then stopped
-   reporting. The provider's own prior release establishes relevance and
-   establishes that they run it. This is the primary unit.
-
-3. **Conditioned comparison.** Anything compared across access type conditions
-   on the number of independent scores, because Epoch evaluates API models
-   roughly twice as densely as open-weights ones and raw rates are therefore
-   not comparable across that margin.
-"""
 
 import sys
 
@@ -33,7 +11,6 @@ from .stats import bootstrap_mean, ols, print_ols
 REPORTED_CATEGORIES = {"A", "B", "C"}
 HIGH_SUSPICION = {"D", "E", "G"}
 
-
 def load_coding():
     if not CODING_SHEET.exists():
         return None
@@ -42,7 +19,6 @@ def load_coding():
     prefilled = coding.get("coder", pd.Series(index=coding.index)).eq("auto")
     usable = coding[coded | prefilled]
     return usable if len(usable) else None
-
 
 def merge_coding(panel, coding):
     coding = coding.copy()
@@ -65,14 +41,7 @@ def merge_coding(panel, coding):
         validate="1:1",
     )
 
-
 def release_sets(merged):
-    """Per-release mean percentile on each of the three benchmark sets.
-
-    disclosed : eligible and reported
-    omitted   : eligible and not reported  -- the strategic-omission candidates
-    placebo   : postdates the release, so non-disclosure is mechanical
-    """
     merged = merged.copy()
     merged["set"] = np.where(
         merged["group"] == "placebo",
@@ -105,18 +74,7 @@ def release_sets(merged):
             out[column] = np.nan if column.startswith("mean") else 0
     return out
 
-
 def gap_by_release(sets, against="omitted", min_disclosed=2, min_other=1):
-    """Disclosed-minus-other percentile gap, one row per release.
-
-    This is the headline descriptive statistic. It is zero under random
-    omission, but it is vulnerable to an artifact that omission_deficit() is
-    not: if the benchmarks providers tend not to report are also the ones
-    models score badly on for reasons unrelated to any disclosure choice --
-    harder benchmarks, more recent benchmarks, benchmarks Epoch runs precisely
-    because they are discriminating -- this comparison picks that up and calls
-    it concealment.
-    """
     keep = (
         (sets["n_disclosed"] >= min_disclosed)
         & (sets[f"n_{against}"] >= min_other)
@@ -127,33 +85,7 @@ def gap_by_release(sets, against="omitted", min_disclosed=2, min_other=1):
     gaps["gap"] = gaps["mean_disclosed"] - gaps[f"mean_{against}"]
     return gaps
 
-
 def omission_deficit(sets, min_omitted=1, min_placebo=1):
-    """The identifying contrast: omitted-eligible versus placebo standing.
-
-    Both sets are non-disclosures, so neither carries the upward selection
-    that contaminates any comparison against the disclosed set. They differ in
-    exactly one respect: an eligible benchmark *could* have been reported and
-    was not, while a benchmark postdating the release could not have been.
-
-    That symmetry is the point. Any artifact that makes non-disclosed
-    benchmarks look bad for non-strategic reasons -- they are harder, newer, or
-    selected by Epoch for being discriminating -- hits both sets equally and
-    differences out. What survives is the one asymmetry that cannot be anything
-    else: the eligible set was available to report and was not reported.
-
-    Under strategic omission the omitted set sits below the placebo set, because
-    it was chosen for being unflattering. Under every innocent explanation --
-    irrelevance, never ran it, conventional table size -- omission is unrelated
-    to standing, and the statistic is zero.
-
-    Note that the placebo group cannot support the disclosed-vs-omitted
-    statistic directly: every benchmark postdating a release is non-disclosed,
-    so there is no disclosed set inside it to compare against. This is the
-    contrast the placebo group can actually carry.
-
-    Negative values are evidence of concealment.
-    """
     keep = (
         (sets["n_omitted"] >= min_omitted)
         & (sets["n_placebo"] >= min_placebo)
@@ -164,14 +96,7 @@ def omission_deficit(sets, min_omitted=1, min_placebo=1):
     out["gap"] = out["mean_omitted"] - out["mean_placebo"]
     return out
 
-
 def drop_estimator(merged):
-    """ORBIT E: the release's standing on benchmarks it stopped reporting,
-    against its standing on the benchmarks it kept reporting.
-
-    A negative value means the dropped benchmark is where the model looks
-    worse than it looks on what the provider chose to keep showing.
-    """
     if "orbit_category" not in merged.columns:
         return pd.DataFrame()
     rows = []
@@ -192,7 +117,6 @@ def drop_estimator(merged):
         })
     return pd.DataFrame(rows)
 
-
 def access_group(value):
     if not isinstance(value, str):
         return None
@@ -202,16 +126,7 @@ def access_group(value):
         return "api"
     return None
 
-
 def report_gaps(gaps, label, contrast="disclosed - omitted"):
-    """`contrast` names what the gap actually differences.
-
-    It used to be hardcoded to "disclosed - omitted", which printed under the
-    placebo contrast too and described that number as something it is not: the
-    placebo gap is omitted-eligible minus postdating, and its sign means the
-    opposite thing. A statistic labelled with another statistic's definition is
-    worse than no label.
-    """
     if gaps.empty:
         print(f"\n{label}: no release meets the minimum reported/omitted counts")
         return None
@@ -223,7 +138,6 @@ def report_gaps(gaps, label, contrast="disclosed - omitted"):
           f"95% CI [{lo:+.1f}, {hi:+.1f}]  (provider-clustered bootstrap)")
     print(f"  median: {gaps['gap'].median():+.1f}   share positive: {(gaps['gap'] > 0).mean():.1%}")
     return mean
-
 
 def main():
     panel = pd.read_csv(INTERIM / "panel.csv", parse_dates=["Release date"])
@@ -301,7 +215,6 @@ def main():
     coverage = merged.groupby(RELEASE_COL)["slug"].nunique()
     print(f"\nreleases with >={MIN_BENCHMARKS} coded benchmarks: "
           f"{(coverage >= MIN_BENCHMARKS).sum()}")
-
 
 if __name__ == "__main__":
     main()
