@@ -30,6 +30,9 @@ def main():
     (stage / "main.tex").write_text(flat)
     for name in ("refs.bib", "neurips_2026.sty"):
         shutil.copy(PAPER / name, stage / name)
+    (stage / "figures").mkdir(exist_ok=True)
+    for pdf in (PAPER / "figures").glob("*.pdf"):
+        shutil.copy(pdf, stage / "figures" / pdf.name)
     (stage / "README.md").write_text(
         "# Absence Is Not Omission\n\n"
         "Three files, nothing to arrange. Set the root document to `main.tex`\n"
