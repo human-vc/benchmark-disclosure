@@ -485,9 +485,9 @@ def table_one(numbers, path=None):
                 r"Placebo coefficient by conditioning set, percentile points, within "
         r"release. Two-way provider-by-benchmark standard errors "
         f"({clusters} by {benchmarks} clusters; provider-only in "
-        r"Appendix~\ref{sec:supporting}), $n = 2{,}831$ cells. Absorbed is the fall in "
-        r"absolute value from the first row; peer count alone is a "
-        r"suppressor; the last row conditions on both jointly.}",
+        r"Appendix~\ref{sec:supporting}), $n = 2{,}831$. Absorbed is the fall in "
+        r"absolute value from row one; peer count alone "
+        r"suppresses; the last row has both.}",
         r"\label{tab:decomposition}",
         r"\end{table}",
         "",
@@ -627,9 +627,9 @@ def table_three(numbers, path=None):
                 "The coded omission deficit beside the label-free gap, percentile "
         f"points, over {w['n_releases']} releases and {w['n_providers']} providers "
         f"({specs['side_balanced_182']['n_releases']} side-balanced). No labels is "
-        "the same contrast with no disclosure coding; "
+        "the contrast with no disclosure coding; "
         "Difference is Coded gap minus No labels. Provider-clustered "
-        "bootstrap intervals; four of five coded gaps exclude zero.}",
+        "bootstrap intervals; four of five exclude zero.}",
         r"\label{tab:coding}",
         r"\end{table}",
     ]
