@@ -48,7 +48,7 @@
 \renewcommand{\floatpagefraction}{0.75}
 \setlength{\textfloatsep}{12pt plus 2pt minus 2pt}
 \setlength{\intextsep}{2pt plus 1pt minus 1pt}
-\setlength{\parskip}{3.5pt}
+\setlength{\parskip}{3.2pt}
 \setlength{\abovecaptionskip}{2pt}
 
 \raggedbottom
@@ -97,17 +97,16 @@ The economics literature frames the problem and gives a cautionary note: silence
 
 \subsection{The disclosure problem}\label{sec:data-model}
 
-A release $i$ ships at date $t_i$ carrying a single document. Let $\mathcal{B}$ index benchmarks, each with its own publication date $\tau_b$, let $E_i \subseteq \mathcal{B}$ be the endowment, the benchmarks whose result the provider holds when it writes, and let $D_i \subseteq E_i$ be the disclosed set, which reports a score $s_{ib}$ for each $b \in D_i$. The receiver observes $D_i$ and its scores and must split the complement into results held back and results never held.
+To begin, we assume release $i$ occurs at time $t_i$ and contains a single document. Benchmarks are indexed by $b \in \mathcal{B}$. They are released at time $\tau_b$. At the time of the writing of release $i$ the provider is endowed with results for a set of benchmarks $E_i \subseteq \mathcal{B}$. The provider chooses to disclose scores $s_{ib}$ for $b \in D_i \subseteq E_i$. The receiver observes $D_i$ and the scores, and must guess whether the remainder of the set represents withheld results, or non-existent results.
 
-Under a commonly known endowment, silence is priced at the worst value it could conceal and disclosure unravels to $D_i = E_i$ \citep{grossman1981,milgrom1981}. Two distinct frictions break that. In \citet{verrecchia1983} the endowment is known and disclosure is costly, so withholding is a cutoff in $s_{ib}$. In Section 3 of \citet{dye1985} disclosure is free but the receiver cannot tell an empty endowment from a concealed one, because a sender can prove possession and cannot prove emptiness.
+When endowment $E_i$ is common knowledge, selective disclosure is dominated, as non-disclosure reveals the worst-case scenario and disclosure unravels with $D_i = E_i$ \citep{grossman1981,milgrom1981}. This breaks down in at least two ways: (i) when $E_i$ is common knowledge but disclosing results can be costly, leading to a cutoff strategy in $s_{ib}$ \citep{verrecchia1983}; and (ii) when the receiver is unable to distinguish between non-existence and withholding, in that the sender can show evidence of having a result but not evidence of non-existence \citep[Section 3]{dye1985}.
 
-Here an independent evaluator publishes $s_{ib}$ for cells the provider passed over, and each $\tau_b$ makes infeasibility verifiable. Writing $A_i = \{b : \tau_b < t_i\}$ for the available set and $O_i$ for the cells the evaluator scores,
-\[
-D_i \subseteq E_i \subseteq A_i, \qquad \theta = \Pr\!\left(b \notin D_i \;\middle|\; b \in O_i \cap A_i\right).
-\]
-A provider may hold results the evaluator never produced and a benchmark can exist and go unrun, so $\theta$ is defined against the evaluator's coverage rather than the true endowment, and the Dye friction survives inside $A_i$.
+In our setting an independent evaluator reports scores for cells that have been passed over by the provider, and each $\tau_b$ makes non-existence verifiable. Denote the available set and scored cells by $A_i = \{b : \tau_b < t_i\}$ and $O_i$; then $D_i \subseteq E_i \subseteq A_i$ and $\theta = \Pr\!\left(b \notin D_i \mid b \in O_i \cap A_i\right)$.
+In general providers may have results which are not produced by the evaluator, and benchmarks may exist but not be run, so $\theta$ is calculated with reference to the set of cells covered by the evaluator, and not the actual endowment, leaving the \citet{dye1985} friction in place within $A_i$.
 
-Judging what was withheld then requires a measure of standing $P_{ib}$, since raw scores are not comparable across benchmarks. The design rests on an exclusion restriction: conditional on the innocent explanations, membership in $A_i$ does not enter the equation for $P_{ib}$ \citep{heckman1979}. A date rule cannot satisfy it: $t_i - \tau_b$, $t_i$ and $\tau_b$ are exactly collinear, so if any two of the three move $P_{ib}$ the third cannot be excluded from it. All three move it here, which Section~\ref{sec:core} shows and Appendix~\ref{sec:supporting} bounds. Two things follow, and they are not the same. The first is practical: estimating $\theta$ needs disclosure labels, which the coded record of Section~\ref{sec:reach} supplies. The second is structural: reading $\theta$ as evidence of withholding runs into $A_i$ itself. Availability is a deterministic threshold in benchmark maturity, $\mathbf{1}[t_i - \tau_b > 0]$, so no cell of the same maturity sits on both sides of the boundary. Wherever standing depends on maturity, conditioning finely enough to make availability excludable destroys positivity. So availability alone cannot globally identify selective disclosure from any pool-relative standing measure, win rate or percentile alike, and a jointly estimated scale inherits the same selection through which cells exist. What survives, under continuity, is the discontinuity at the threshold.
+In practice, assessment of whether results have been withheld requires a notion of standing $P_{ib}$, since scores are not commensurable across benchmarks. The design requires that, conditional on innocent concerns, availability not be an argument in the determination of $P_{ib}$ \citep{heckman1979}. A date rule cannot satisfy this, as $t_i - \tau_b$, $t_i$ and $\tau_b$ are perfectly collinear. If any two of these arguments determine $P_{ib}$, then the remaining argument cannot be excluded from $P_{ib}$ as a determining argument, which is the case here (Section~\ref{sec:core}; Appendix~\ref{sec:supporting} bounds it).
+
+Two consequences of this follow which need to be kept apart: (i) to measure $\theta$, we require labels for disclosure, which we code in Section~\ref{sec:reach}; and (ii) interpretation of estimates of $\theta$ as measures of withholding runs into $A_i$ itself. Because availability is deterministically a step function of benchmark maturity, given by $\mathbf{1}[t_i - \tau_b > 0]$, no cells of equal maturity sit on opposite sides of the availability test. If standing is affected by maturity, then conditioning densely to make availability excludable violates positivity, which precludes global identification of selective disclosure using any metric of pool-relative standing, be it a win rate or percentile. Any scale for standing learned jointly will be subject to the same selection process which determines existence. Under assumptions of continuity, only the discontinuity at the threshold can be interpreted.
 
 \subsection{The independent score set}\label{sec:data-scores}
 
@@ -124,7 +123,7 @@ To code disclosure, we adapt ORBIT, Outcome Reporting Bias In Trials. ORBIT is s
 Raw scores do not allow comparison across benchmarks, so we report relative performance as a percentile within benchmark by comparing each model to models whose release dates fall within 182 days before or after the focal release (``window''), using midranks for ties. We also report the number of peers and their share of the window released later than the focal model. This is the metric implied by a windowed comparison and what we demonstrate to be biased in a way that mimics selective disclosure.
 
 \subsection{Inference}\label{sec:data-inference}
-Inference is constrained by the same structure. The panel has 46 nominal provider clusters, but 24 contribute fewer than ten cells, 20 appear in a single release, and the five largest hold 68.1\% of the sample. Cluster-robust asymptotics are not credible below twelve clusters, and we report no analytic standard error there \citep{cameron2008}. Regression coefficients in that range use the restricted wild cluster bootstrap over 9{,}999 draws, which imposes the null before resampling Rademacher weights at the provider level. Release-level means use a cluster sign-flip randomization test over 9{,}999 draws, reversing an organisation's contribution at once; it preserves provider dependence but not benchmark dependence, which the two-way clustered regressions carry, and their intervals are percentile bootstraps over 10,000 provider resamples. Both report $(k+1)/(\text{draws}+1)$, with $k$ the draws at least as extreme as the observed statistic. Mirrored sign vectors leave $2^{G-1}$ distinct statistics over $G$ clusters, so a resolution of $0.0001$ needs fifteen clusters; the 18 organisations behind the headline estimate clear it.
+Inference is constrained by the same structure. The panel has 46 nominal provider clusters, but 24 contribute fewer than ten cells, 20 appear in a single release, and the five largest hold 68.1\% of the sample. Cluster-robust asymptotics are not credible below twelve clusters, and we report no analytic standard error there \citep{cameron2008}. Regression coefficients in that range use the restricted wild cluster bootstrap over 9{,}999 draws, which imposes the null before resampling Rademacher weights at the provider level. Release-level means use a cluster sign-flip randomization test over 9{,}999 draws, reversing an organisation's contribution; it preserves provider dependence but not benchmark dependence, which the two-way clustered regressions carry; intervals are percentile bootstraps over 10,000 provider resamples. Both report $(k+1)/(\text{draws}+1)$, with $k$ the draws at least as extreme as the observed statistic. Mirrored sign vectors leave $2^{G-1}$ distinct statistics over $G$ clusters, so a resolution of $0.0001$ needs fifteen clusters; the 18 organisations behind the headline clear it.
 % ---- end sections/data ----
 % ---- begin sections/core ----
 \section{The Availability Gap}\label{sec:core}
@@ -155,7 +154,7 @@ Two-way fixed effects + both window terms & $-0.003$ (1.748) & $-0.002$ & 100.0\
 \bottomrule
 \end{tabular}
 \caption{%
-Placebo coefficient by conditioning set, percentile points, within release. Two-way provider-by-benchmark standard errors (45 by 61 clusters; provider-only in Appendix~\ref{sec:supporting}), $n = 2{,}831$. Absorbed is the fall in absolute value from row one; peer count alone suppresses; the last row has both.}
+Placebo coefficient by conditioning set, percentile points, within release. Two-way provider-by-benchmark standard errors (45 by 61 clusters; provider-only in Appendix~\ref{sec:supporting}), $n = 2{,}831$. Absorbed is the fall in absolute value from row one; peer count suppresses; the last row has both.}
 \label{tab:decomposition}
 \end{table}
 % ---- end figures/table1_decomposition ----
@@ -203,7 +202,7 @@ The share of a cell's window released after the focal model is 0.4683 for eligib
 \begin{figure}[!htb]\centering
 % ---- begin figures/fig_one_curve ----
 \begin{tikzpicture}
-  \begin{axis}[causalre wide, height=2.45cm, xmin=0, xmax=1, xtick={0,0.5,1}, xlabel={share of window newer than the focal model}, ymin=20, ymax=80,
+  \begin{axis}[causalre wide, height=2.35cm, xmin=0, xmax=1, xtick={0,0.5,1}, xlabel={share of window newer than the focal model}, ymin=20, ymax=80,
     ylabel={within-benchmark standing},
     legend to name=leg:onecurve, legend columns=3]
     \addplot[black, line width=1.0pt, smooth, forget plot]
@@ -321,7 +320,7 @@ The remaining distance is possession; the original drop estimator and four posse
 % ---- begin sections/conclusion ----
 \section{Conclusion}\label{sec:conclusion}
 
-We set out to measure how much of what could be reported goes unreported by choice. The coded record returns the number and the reason to distrust it: $+11.4$ points, rejecting zero yet short of its label-free counterpart by what composition implies, too imprecise to exclude a strategic component. Such a study turns composition into apparent concealment. Three claims separate: non-reporting is extensive, composition is performance-related, withholding not established, possession tests returning null, absent, or opposite-signed evidence. Dating instruments bounds the endowment, an access assumption, and what identifies it moves the measure pricing silence. A joint scale \citep{epoch2026rosetta} shrinks but does not close the placebo gap; a fixed suite carried across releases would make later silence informative, narrowing the \citet{dye1985} pooling.
+We set out to measure how much of what could be reported goes unreported by choice. The coded record returns the number and the reason to distrust it: $+11.4$ points, rejecting zero yet short of its label-free counterpart by what composition implies, too imprecise to exclude a strategic component. Such a study turns composition into apparent concealment. Three claims separate: non-reporting is extensive, composition is performance-related, withholding not established, possession tests returning null, absent, or opposite-signed evidence. Dating instruments bounds the endowment, an access assumption, and what identifies it moves the measure pricing silence. A joint scale \citep{epoch2026rosetta} shrinks but does not close the placebo gap; a suite carried across releases would make later silence informative, narrowing the \citet{dye1985} pooling.
 % ---- end sections/conclusion ----
 
 \bibliographystyle{plainnat}

@@ -486,7 +486,7 @@ def table_one(numbers, path=None):
         r"release. Two-way provider-by-benchmark standard errors "
         f"({clusters} by {benchmarks} clusters; provider-only in "
         r"Appendix~\ref{sec:supporting}), $n = 2{,}831$. Absorbed is the fall in "
-        r"absolute value from row one; peer count alone "
+        r"absolute value from row one; peer count "
         r"suppresses; the last row has both.}",
         r"\label{tab:decomposition}",
         r"\end{table}",
