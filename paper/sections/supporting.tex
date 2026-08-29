@@ -1,44 +1,13 @@
 \section{Additional Checks}\label{sec:supporting}
 
-\paragraph{Is window composition a provider's choice?}
-Section~\ref{sec:core-recentring} conditions on window composition and notes that doing so is
-defensible only if composition is settled before a provider decides what to report. Regressing the
-share of a cell's window released after the focal model on provider dummies gives an $R^2$ of
-0.071 across 45 organisations, against 0.002 for benchmark dummies over 61 benchmarks and 0.104
-for the release date alone. Window composition is close to idiosyncratic at the cell level, which
-is consistent with its being set by the evaluator's scoring schedule rather than by the provider,
-and is not enough to establish it.
+\paragraph{Does the provider choose the window composition?}
+Section~\ref{sec:core-recentring} conditions on window composition, which is admissible only if this is settled before the reporting decision. Fitting a regression of the fraction of a cell's window released after the focal model, on provider dummies, yields an $R^2$ of 0.071 (45 organisations); for comparison, fitting benchmark dummies yields $R^2$ of 0.002 (61 benchmarks), while the release date alone explains $R^2$ of 0.104. At the level of cells, window composition appears almost idiosyncratic. This is consistent with it being determined by the scoring schedule of the evaluator, as opposed to the provider. It is not enough to establish it.
 
 \paragraph{Is the evaluator's coverage selective?}
-The estimand conditions on the cells the evaluator scores, so coverage is upstream of everything
-else. Coverage averages 8.7 benchmarks per release with a standard deviation of 8.0 and a range of
-1 to 38. It correlates with a provider's release count at 0.203 and with the release date at 0.265,
-and releases from the densest quartile of providers carry 9.6 scored benchmarks against 8.4 for the
-rest. Coverage is therefore mildly tilted toward larger and later providers, and nothing in this
-paper corrects for that.
+The estimand also conditions on which cells are scored by the evaluator. This factor is by construction upstream of all others. On average, a release has 8.7 benchmarks scored; this varies with standard deviation 8.0, and spans a range of 1--38. It correlates with the provider's release count ($r = 0.203$) and with release date ($r = 0.265$), where releases from the densest quartile of providers average 9.6 scored benchmarks, versus 8.4 for the rest. This suggests a mild tilt toward larger and later providers, which we do not adjust for in this paper.
 
 \paragraph{Bounding the unidentified component.}
-Write $t$ for a release date, $\tau$ for a benchmark's vintage and $a = t - \tau$ for the benchmark's
-maturity when the model met it. A regression of standing on all three is singular by construction,
-which is the age-period-cohort problem, and the data identify only
-$\Pi_p = \beta_a + \beta_t$ and $\Pi_c = \beta_\tau - \beta_a$, leaving a one-parameter family indexed
-by $\lambda = \beta_a$. Fitting the reduced form on the 2,831 comparable cells gives
-$\Pi_p = +4.12$ and $\Pi_c = -1.36$ percentile points per year.
-
-Three restrictions come from the paper rather than from outside it. Capability rises over calendar
-time, so $\beta_t \geq 0$. Later benchmarks are less saturated, which
-Section~\ref{sec:core-boundary} measures directly, so $\beta_\tau \leq 0$. Standing rises with
-maturity, since a model on a young benchmark is ranked against newer peers, so $\beta_a \geq 0$.
-Together these give $0 \leq \lambda \leq \min(\Pi_p, -\Pi_c) = 1.36$, and saturation rather than
-capability is the binding restriction. The mean maturity gap between eligible and placebo cells is
-2.17 years, so the unidentified component can account for at most $1.36 \times 2.17 = 2.94$
-percentile points, 24\% of the observed gap. Adding centred quadratic and cubic terms in $t$ and
-$\tau$, which are not collinear with $a$, moves the ceiling to 34\% and 31\%.
-
-Shuffling scores within benchmark leaves every date and the rank deficiency untouched while
-destroying the capability trend. Under that null the same quantity falls to 0.02 percentile points
-on average over 30 draws, with a maximum of 0.24, so the bound reflects the trend the geometry
-multiplies rather than the geometry alone.
+Let $t$ be the release date, $\tau$ be the benchmark vintage, and $a = t - \tau$ be the maturity of the benchmark when the model met it. A regression of standing on these terms is by construction singular (the age-period-cohort problem), and only identifies $\Pi_p \equiv \beta_a + \beta_t$ and $\Pi_c \equiv \beta_\tau - \beta_a$, leaving a one-parameter family indexed by $\lambda \equiv \beta_a$. Fitting the reduced form across the 2,831 comparable cells, we obtain $\Pi_p = +4.12$ and $\Pi_c = -1.36$ percentile points per year. We can rely on three restrictions, derived from the body of the paper itself as opposed to external assumptions. (1) Capability is increasing in calendar time, i.e.\ $\beta_t \geq 0$. (2) Later benchmarks are less saturated, as directly quantified in Section~\ref{sec:core-boundary}, i.e.\ $\beta_\tau \leq 0$. (3) Standing is increasing in maturity, since a model on a young benchmark is ranked against newer peers, i.e.\ $\beta_a \geq 0$. Taken together, this means that $0 \leq \lambda \leq \min(\Pi_p, -\Pi_c) = 1.36$, where it is saturation, not capability, which is the binding restriction. On average, eligible and placebo cells differ by 2.17 years in maturity. Thus, at most, this unidentified component explains $1.36 \times 2.17 = 2.94$ percentile points, or 24\% of the observed gap. If we include centred squared and cubed terms in $t$ and $\tau$ (which are not collinear with $a$), then the ceiling moves to 34\% and 31\%. If we shuffle scores within benchmark, preserving every date and the rank deficiency while destroying the capability trend, then this quantity drops to an average of 0.02 percentile points across 30 draws, peaking at 0.24, confirming that the bound reflects the trend the geometry multiplies rather than the geometry alone.
 
 \begin{figure}[H]\centering
 \input{figures/fig_helm}
