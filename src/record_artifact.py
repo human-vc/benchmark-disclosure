@@ -20,7 +20,7 @@ def main():
     parser.add_argument("--date", required=True)
     parser.add_argument("--kind", required=True)
     parser.add_argument("--slugs", default="")
-    parser.add_argument("--coder", default="kevin")
+    parser.add_argument("--coder", default="coder1")
     parser.add_argument("--status", default="ok")
     parser.add_argument("--flag", default="")
     parser.add_argument("--notes", default="")

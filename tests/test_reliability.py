@@ -35,7 +35,7 @@ class TestSecondExtraction:
              release_date="2025-01-01", family_rank=1, source_tier="1",
              source_url="https://example.invalid/card.pdf", extra_source_urls="",
              source_date="2025-01-01", artifact_kind="model_card",
-             reported_slugs="gpqa_diamond=0.9|hle", coder="kevin",
+             reported_slugs="gpqa_diamond=0.9|hle", coder="coder1",
              flagged_for_review="1", notes="read from the page-5 raster",
              fetch_status="ok"),
     ])
@@ -86,7 +86,7 @@ class TestDrawInvariants:
     FRAME = pd.DataFrame([
         dict(release_id=f"{org} | M{i} | 2025-01-0{i}", organization=org,
              model_name=f"M{i}", release_date=f"2025-01-0{i}",
-             fetch_status=status, coder="kevin", n_cells=5, family_rank=1,
+             fetch_status=status, coder="coder1", n_cells=5, family_rank=1,
              source_tier="1", source_url="u", extra_source_urls="",
              source_date="2025-01-01", artifact_kind="model_card",
              reported_slugs="mmlu=1", flagged_for_review="", notes="")

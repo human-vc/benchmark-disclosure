@@ -91,7 +91,7 @@ def test_change_gap_counts_add_up():
 def test_direct_evidence_counts_the_known_run_cells():
     coding = pd.DataFrame({
         "orbit_category": ["A", "B", "C", "D", "E", "G", "H", ""],
-        "coder": ["jc"] * 7 + ["auto"],
+        "coder": ["coder1"] * 7 + ["auto"],
     })
     counts = possession.direct_evidence(coding)
     assert counts == {"d_cells": 1, "known_run_cells": 4}
