@@ -19,32 +19,8 @@ headline values moved and no pair reversed.}
 \label{fig:helm}
 \end{figure}
 
-\paragraph{The boundary as a discontinuity.}
-Eligibility is $\mathbf{1}[t_i > \tau_b]$, a deterministic function of the two dates, and that is what
-the global repairs run into. Equating across groups that took different instruments assumes a
-conditional relationship common to both, which two groups defined by the boundary cannot have
-\citep{sinharay2010missing}, and reweighting by the probability a cell is observed needs that
-probability bounded away from zero, which a deterministic rule denies \citep{ma2019missing}. The
-same determinism makes the boundary a sharp discontinuity, where standing at the threshold is
-identified under continuity whatever happens globally \citep{hahn2001identification}. Local linear estimates with a triangular kernel
-and provider-clustered errors give $-8.82$ (4.76) at $\pm 60$ days, $-6.85$ (4.09) at $\pm 90$,
-$-4.08$ (3.11) at $\pm 180$ and $-2.85$ (2.35) at $\pm 250$, and a quadratic fit at each width moves
-none of them across zero. All eight are negative, all eight intervals cover zero, and the largest
-upper bound is $+8.05$, below the $+12.23$ the global comparison reports.
-
-The local randomization framework agrees \citep{cattaneo2015randomization}. Widening symmetric
-windows and testing the release's benchmark count, scaffold count and scaffold spread for
-balance, we find the smallest of the three $p$-values to be 0.335 at $\pm 20$ days and 0.571 at $\pm 40$ before
-falling to 0.058 at $\pm 60$, which selects $\pm 40$, a rule applied after seeing the balance results, so the randomization $p$ below does not adjust for the selection. The same difference is $-5.96$ ($p = 0.23$) at $\pm 20$ days and $+0.43$ ($p = 0.88$) at $\pm 60$. That window holds 113 postdating and 114
-eligible cells, and the difference in mean standing is $-2.52$ with a randomization $p$ of 0.447.
-Cell counts in the 30 days either side of the cutoff stand at 80 against 84, a ratio of 0.95, so the
-running variable is not bunching against the threshold \citep{mccrary2008manipulation}.
-
-The mechanism is discontinuous where standing is not. The share of a cell's window released after
-the focal model jumps $+0.083$ at the cutoff, which at the eligible-cell gradient of $-30.63$ implies
-about $-2.5$ percentile points, inside every interval above, so at the cutoff the design separates concealment from the availability gap only above that effect, and the narrowest windows cannot reject the full $-12.23$ either. Peer count and raw score are continuous.
-The global gap therefore lives in the 793 days that separate the two groups' mean maturity rather
-than in anything happening at the boundary itself.
+\paragraph{The cutoff is a discontinuity.}
+Treatment eligibility $\mathbf{1}[t_i > \tau_b]$, being a deterministic function of dates, is the problem that global approaches confront. Equating across different instruments requires a common conditional relation across samples, which samples split by a cutoff do not satisfy \citep{sinharay2010missing}; weighting by observed cell probability assumes a non-vanishing observed probability, which a deterministic cutoff rules out \citep{ma2019missing}; finally, a deterministic cutoff is a sharp discontinuity so that, at the cutoff, standing is identified under continuity conditions regardless of what is true elsewhere \citep{hahn2001identification}. We estimate local linear regressions using a triangular kernel and errors clustered at the provider level with results of $-8.82$ (4.76) at $\pm 60$ days, $-6.85$ (4.09) at $\pm 90$, $-4.08$ (3.11) at $\pm 180$ and $-2.85$ (2.35) at $\pm 250$; adding a quadratic term at each bandwidth does not take any of these estimates across zero. All eight estimates are negative; every confidence interval includes zero and the highest upper limit of the CI is $+8.05$, strictly below the $+12.23$ the global comparison reports. Consistent with local randomization inference at the cutoff \citep{cattaneo2015randomization}, we also increase symmetric bandwidths around the cutoff and evaluate balance of the release's benchmark count, scaffold count, and scaffold spread; the minimum $p$ value over these tests is 0.335 at $\pm 20$ days and 0.571 at $\pm 40$, decreasing to 0.058 at $\pm 60$; we pick $\pm 40$ days, ad hoc based on the balance tests, and thus the randomization $p$ value reported below is not corrected for that choice. The same difference is $-5.96$ ($p = 0.23$) at $\pm 20$ days and $+0.43$ ($p = 0.88$) at $\pm 60$. With 113 postdating and 114 eligible cells in this range, the difference in mean standing is $-2.52$, randomization $p$ of 0.447. There is no bunching against the cutoff: the ratio of cell counts within 30 days after vs.\ 30 days before the cutoff is 0.95 (80 vs.\ 84 cells) \citep{mccrary2008manipulation}. The mechanism is discontinuous where standing is not. At the cutoff, the fraction of a cell's window released after the focal model has a step size of $+0.083$, translating, using the $-30.63$ gradient for eligible cells, to about $-2.5$ percentile points, comfortably within all confidence intervals above, so the cutoff design discriminates concealment from the availability gap only above that size at the cutoff; at the narrowest bandwidths, the full $-12.23$ is not rejected either. Peer count and raw score are continuous. The global difference arises because the average cell maturity differs between the two samples by 793 days, not from anything at the cutoff.
 
 \paragraph{A standing measure with no comparison window.}
 The conclusion points at a scale estimated jointly across benchmarks rather than against
