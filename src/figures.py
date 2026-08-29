@@ -487,7 +487,7 @@ def table_one(numbers, path=None):
         f"({clusters} by {benchmarks} clusters; provider-only in "
         r"Appendix~\ref{sec:supporting}), $n = 2{,}831$ cells. Absorbed is the fall in "
         r"absolute value from the first row; peer count alone is a "
-        r"suppressor, so the last row conditions on both window terms jointly.}",
+        r"suppressor; the last row conditions on both jointly.}",
         r"\label{tab:decomposition}",
         r"\end{table}",
         "",
@@ -624,12 +624,12 @@ def table_three(numbers, path=None):
         r"\bottomrule",
         r"\end{tabular}",
         r"\caption{%",
-                "The coded omission deficit beside the label-free gap, in percentile "
+                "The coded omission deficit beside the label-free gap, percentile "
         f"points, over {w['n_releases']} releases and {w['n_providers']} providers "
         f"({specs['side_balanced_182']['n_releases']} side-balanced). No labels is "
-        "the same contrast with no disclosure coding, on the same releases; "
-        "Difference is Coded gap minus No labels. Intervals are provider-clustered "
-        "bootstraps; four of five coded gaps exclude zero.}",
+        "the same contrast with no disclosure coding; "
+        "Difference is Coded gap minus No labels. Provider-clustered "
+        "bootstrap intervals; four of five coded gaps exclude zero.}",
         r"\label{tab:coding}",
         r"\end{table}",
     ]
